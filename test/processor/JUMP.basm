@@ -1,0 +1,47 @@
+1.IfStatement:
+SKIP INSTRUCTION
+
+1.1.ConditionClause:
+PUSH LITERAL `true`
+JUMP TO 1.IfStatementDone ON FALSE
+
+1.1.1.EvaluateStatement:
+SKIP INSTRUCTION
+
+1.2.ConditionClause:
+PUSH LITERAL `false`
+JUMP TO 1.3.ConditionClause ON FALSE
+
+1.2.1.EvaluateStatement:
+JUMP TO 1.IfStatementDone
+
+1.3.ConditionClause:
+PUSH LITERAL `true`
+JUMP TO 1.4.ConditionClause ON TRUE
+
+1.3.1.EvaluateStatement:
+JUMP TO 1.IfStatementDone
+
+1.4.ConditionClause:
+PUSH LITERAL `false`
+JUMP TO 1.IfStatementDone ON TRUE
+
+1.4.1.EvaluateStatement:
+SKIP INSTRUCTION
+
+1.5.ConditionClause:
+PUSH LITERAL `none`
+JUMP TO 1.6.ConditionClause ON NONE
+
+1.5.1.EvaluateStatement:
+JUMP TO 1.IfStatementDone
+
+1.6.ConditionClause:
+PUSH LITERAL `true`
+JUMP TO 1.IfStatementDone ON NONE
+
+1.6.1.EvaluateStatement:
+JUMP TO 1.IfStatementDone
+
+1.IfStatementDone:
+SKIP INSTRUCTION

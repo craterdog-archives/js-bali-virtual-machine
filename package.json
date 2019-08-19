@@ -1,0 +1,41 @@
+{
+  "name": "bali-virtual-processor",
+  "version": "1.0.0",
+  "description": "This project defines the interface to, and an implementation of the Bali Nebula™ virtual processor.",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/craterdog-bali/js-bali-virtual-processor.git"
+  },
+  "keywords": [
+    "JavaScript",
+    "NodeJS",
+    "Bali Nebula",
+    "Bali Component Framework",
+    "Bali Document Notation",
+    "Bali Digital Notary",
+    "Bali Virtual Processor"
+  ],
+  "author": "Derk Norton",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/craterdog-bali/js-bali-virtual-processor/issues"
+  },
+  "homepage": "https://github.com/craterdog-bali/js-bali-virtual-processor#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "express": "^4.17.1",
+    "grunt": "^1.0.4",
+    "grunt-contrib-clean": "^2.0.0",
+    "grunt-eslint": "^22.0.0",
+    "grunt-mocha-test": "^0.13.3",
+    "grunt-webpack": "^3.1.3",
+    "mocha": "^6.1.4",
+    "webpack": "^4.35.3",
+    "bali-digital-notary": "^1.8.12",
+    "bali-document-repository": "^1.0.2",
+    "bali-procedure-compiler": "file:../js-bali-procedure-compiler"
+  },
+  "dependencies": {
+    "bali-component-framework": "^1.12.3"
+  }
+}
