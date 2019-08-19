@@ -1,7 +1,7 @@
 ![Logo](https://raw.githubusercontent.com/craterdog-bali/bali-project-documentation/master/images/CraterDogLogo.png)
 
-### Bali Procedure Compiler
-This project provides a JavaScript version of the compiler for the Bali Nebula™ Virtual Processor.
+### Bali Nebula™ Virtual Machine
+This project provides a JavaScript version of the the Bali Nebula™ Virtual Machine.
 
 ![Pyramid](docs/images/BaliPyramid.png)
 
@@ -10,20 +10,20 @@ _This project is still in its early stages and the classes and interfaces to the
 
 ### Quick Links
 For more information on this project click on the following links:
- * [wiki](https://github.com/craterdog-bali/js-bali-procedure-compiler/wiki)
- * [node package](https://www.npmjs.com/package/bali-procedure-compiler)
- * [release notes](https://github.com/craterdog-bali/js-bali-procedure-compiler/wiki/release-notes)
+ * [wiki](https://github.com/craterdog-bali/js-bali-virtual-machine/wiki)
+ * [node package](https://www.npmjs.com/package/bali-virtual-machine)
+ * [release notes](https://github.com/craterdog-bali/js-bali-virtual-machine/wiki/release-notes)
  * [project documentation](https://github.com/craterdog-bali/bali-project-documentation/wiki)
 
 ### Getting Started
 To install this NodeJS package, execute the following command:
 ```
-npm install bali-procedure-compiler
+npm install bali-virtual-machine
 ```
 Then add the following line to your NodeJS modules:
 ```
-const vm = require('bali-procedure-compiler');
+const vm = require('bali-virtual-machine');
 ```
 
-Check out the example code [here](https://github.com/craterdog-bali/js-bali-procedure-compiler/wiki/code-examples).
+Check out the example code [here](https://github.com/craterdog-bali/js-bali-virtual-machine/wiki/code-examples).
 
