@@ -15,13 +15,14 @@ const VirtualProcessor = require('./src/VirtualProcessor').VirtualProcessor;
 /**
  * This function returns an object that implements the Bali Nebula™ virtual machine interface.
  * 
+ * @param {Object} notary An object that implements the Bali Nebula™ digital notary interface.
  * @param {Object} repository An object that implements the Bali Nebula™ document repository interface.
  * @param {Object} compiler An object that implements the Bali Nebula™ procedure compiler interface.
  * @param {Boolean} debug An optional flag that determines whether or not exceptions
  * will be logged to the error console.
  * @returns {Object} An object that implements the Bali Nebula™ virtual machine interface.
  */
-exports.api = function(repository, compiler, debug) {
+exports.api = function(notary, repository, compiler, debug) {
     // validate the parameters
     debug = debug || false;
 
@@ -34,7 +35,7 @@ exports.api = function(repository, compiler, debug) {
          * @returns {VirtualProcessor} A new virtual processor initialized with the task.
          */
         processor: function(task) {
-            const processor = new VirtualProcessor(repository, compiler, task, debug);
+            const processor = new VirtualProcessor(notary, repository, compiler, task, debug);
             return processor;
         }
 

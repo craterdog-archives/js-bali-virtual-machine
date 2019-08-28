@@ -19,6 +19,8 @@ const ACTIVE = '$active';
 const WAITING = '$waiting';
 const DONE = '$done';
 const EOL = '\n';  // This private constant sets the POSIX end of line character
+const WAIT_QUEUE = '3F8TVTX4SVG5Z12F3RMYZCTWHV2VPX4K';
+const EVENT_QUEUE = '3RMGDVN7D6HLAPFXQNPF7DV71V3MAL43';
 
 
 // PUBLIC FUNCTIONS
@@ -27,6 +29,7 @@ const EOL = '\n';  // This private constant sets the POSIX end of line character
  * This constructor creates a new processor to execute the specified task.
  * 
  * @constructor
+ * @param {Object} notary An object that implements the Bali Nebula™ digital notary interface.
  * @param {Object} repository An object that implements the Bali Nebula™ document repository interface.
  * @param {Object} compiler An object that implements the Bali Nebula™ procedure compiler interface.
  * @param {Catalog} task The task for the new processor to execute.
@@ -34,7 +37,8 @@ const EOL = '\n';  // This private constant sets the POSIX end of line character
  * will be logged to the error console.
  * @returns {VirtualProcessor} The new processor loaded with the task.
  */
-const VirtualProcessor = function(repository, compiler, task, debug) {
+const VirtualProcessor = function(notary, repository, compiler, task, debug) {
+    this.notary = notary;
     this.repository = repository;
     this.compiler = compiler;
     this.task = importTask(task);
@@ -78,7 +82,7 @@ VirtualProcessor.prototype.step = async function() {
             $procedure: '$step',
             $exception: '$unexpected',
             $task: captureState(this),
-            $text: bali.text('An unexpected error occurred while attempting to execute a single step of a task.')
+            $text: 'An unexpected error occurred while attempting to execute a single step of a task.'
         }, cause);
         if (this.debug) console.error(exception.toString());
         throw exception;
@@ -108,7 +112,7 @@ VirtualProcessor.prototype.run = async function() {
             $procedure: '$run',
             $exception: '$unexpected',
             $task: captureState(this),
-            $text: bali.text('An unexpected error occurred while attempting to run a task.')
+            $text: 'An unexpected error occurred while attempting to run a task.'
         }, cause);
         if (this.debug) console.error(exception.toString());
         throw exception;
@@ -117,6 +121,19 @@ VirtualProcessor.prototype.run = async function() {
 
 
 // PRIVATE FUNCTIONS
+
+/**
+ * This function extracts the '$tag' and '$version' attributes from the specified catalog
+ * and uses them to form a unique identification string.
+ * 
+ * @param {Catalog} catalog A catalog component.
+ * @returns {String} A unique identification string for the component.
+ */
+const extractId = function(catalog) {
+    const id = catalog.getValue('$tag').getValue() + catalog.getValue('$version');
+    return id;
+};
+
 
 const importTask = function(catalog) {
     const task = {
@@ -255,7 +272,7 @@ const executeInstruction = async function(processor) {
 
 
 const handleException = async function(processor, exception) {
-    if (!(exception instanceof bali.Exception)) {
+    if (exception.constructor.name !== 'Exception') {
         // it's a bug in the compiler or processor
         const stack = exception.stack.split(EOL).slice(1);
         stack.forEach(function(line, index) {
@@ -269,9 +286,9 @@ const handleException = async function(processor, exception) {
             $module: '/bali/processor/VirtualProcessor',
             $procedure: '$executeInstruction',
             $exception: '$processorBug',
-            $type: bali.text(exception.constructor.name),
+            $type: exception.constructor.name,
             $processor: captureState(processor),
-            $text: bali.text(exception.toString()),
+            $text: exception.toString(),
             $trace: bali.text(EOL + stack.join(EOL))
         });
         console.error('FOUND BUG IN PROCESSOR: ' + exception);
@@ -319,14 +336,15 @@ const publishCompletionEvent = async function(processor) {
         $tag: bali.tag(),
         $version: bali.version(),
         $permissions: '/bali/permissions/public/v1',
-        $previous: bali.NONE
+        $previous: bali.pattern.NONE
     }));
     if (task.result) {
         event.setValue('$result', task.result);
     } else {
         event.setValue('$exception', task.exception);
     }
-    await processor.repository.publishEvent(event);
+    event = await processor.notary.notarizeDocument(event);
+    await processor.repository.queueMessage(EVENT_QUEUE, event);
 };
 
 
@@ -335,7 +353,7 @@ const publishCompletionEvent = async function(processor) {
  */
 const publishSuspensionEvent = async function(processor) {
     const task = exportTask(processor.task);
-    const event = bali.catalog({
+    var event = bali.catalog({
         $eventType: '$suspension',
         $tag: task.tag,
         $task: task
@@ -343,9 +361,10 @@ const publishSuspensionEvent = async function(processor) {
         $tag: bali.tag(),
         $version: bali.version(),
         $permissions: '/bali/permissions/public/v1',
-        $previous: bali.NONE
+        $previous: bali.pattern.NONE
     }));
-    await processor.repository.publishEvent(event);
+    event = await processor.notary.notarizeDocument(event);
+    await processor.repository.queueMessage(EVENT_QUEUE, event);
 };
 
 
@@ -354,11 +373,15 @@ const publishSuspensionEvent = async function(processor) {
  */
 const queueTaskContext = async function(processor) {
     // convert the task context into its corresponding source document
-    const task = exportTask(processor.task);
-    const document = task.toString();
+    var task = exportTask(processor.task).toString();
     // queue up the task for a new virtual processor
-    const WAIT_QUEUE = bali.tag('3F8TVTX4SVG5Z12F3RMYZCTWHV2VPX4K');
-    await processor.repository.queueMessage(WAIT_QUEUE, document);
+    task = await processor.notary.notarizeDocument(task);
+    await processor.repository.queueMessage(WAIT_QUEUE, task);
+};
+
+
+const validateDocument = async function(notary, repository, document) {
+    // TODO: actually do it
 };
 
 
@@ -367,11 +390,16 @@ const pushContext = async function(processor, target, citation, passedParameters
     // save the current procedure context
     const currentContext = processor.context;
 
-    // retrieve the type and procedure to be executed
-    const name = currentContext.procedures.getItem(index);
-    const type = await processor.repository.retrieveDocument(citation);
+    // retrieve the cited type definition
+    const typeId = extractId(citation);
+    const source = await processor.repository.fetchDocument(typeId);
+    const document = bali.parse(source);
+    await processor.notary.citationMatches(citation, document);
+    await validateDocument(processor.notary, processor.repository, document);
+    const type = document.getValue('$component');
 
     // retrieve the procedures for this type
+    const name = currentContext.procedures.getItem(index);
     var procedures = type.getValue('$procedures');
     const procedure = procedures.getValue(name);
 
@@ -390,7 +418,7 @@ const pushContext = async function(processor, target, citation, passedParameters
     while (iterator.hasNext()) {
         var key = iterator.getNext();
         var value = passedParameters.getParameter(key, counter++);
-        value = value || bali.NONE;
+        value = value || bali.pattern.NONE;
         parameters.setValue(key, value);
     }
 
@@ -399,7 +427,7 @@ const pushContext = async function(processor, target, citation, passedParameters
     iterator = procedure.getValue('$variables').getIterator();
     while (iterator.hasNext()) {
         var variable = iterator.getNext();
-        variables.setValue(variable, bali.NONE);
+        variables.setValue(variable, bali.pattern.NONE);
     }
     variables.setValue('$target', target);
 
@@ -453,7 +481,7 @@ const instructionHandlers = [
         // pop the condition component off the component stack
         const condition = processor.task.stack.removeItem();
         // if the condition is 'none' then use the address as the next instruction to be executed
-        if (condition.isEqualTo(bali.NONE)) {
+        if (condition.isEqualTo(bali.pattern.NONE)) {
             processor.context.address = address;
         } else {
             processor.context.address++;
@@ -576,8 +604,16 @@ const instructionHandlers = [
         const queue = processor.context.variables.getItem(index).getValue();
         // TODO: jump to exception handler if queue isn't a tag
         // attempt to receive a message from the queue in the document repository
-        const message = await processor.repository.receiveMessage(queue);
+        var message;
+        const source = await processor.repository.dequeueMessage(queue);
+        if (source) {
+            // validate the document
+            const document = bali.parse(source);
+            await validateDocument(processor.notary, processor.repository, document);
+            message = document.getValue('$component');
+        }
         if (message) {
+            // place the message on the stack
             processor.task.stack.addItem(message);
             processor.context.address++;
         } else {
@@ -593,7 +629,12 @@ const instructionHandlers = [
         const citation = processor.context.variables.getItem(index).getValue();
         // TODO: jump to exception handler if the citation isn't a citation
         // retrieve the cited draft from the document repository
-        const draft = await processor.repository.retrieveDraft(citation);
+        const documentId = extractId(citation);
+        const source = await processor.repository.fetchDraft(documentId);
+        const document = bali.parse(source);
+        await processor.notary.citationMatches(citation, document);
+        await validateDocument(processor.notary, processor.repository, document);
+        const draft = document.getValue('$component');
         // push the draft on top of the component stack
         processor.task.stack.addItem(draft);
         processor.context.address++;
@@ -606,7 +647,12 @@ const instructionHandlers = [
         const citation = processor.context.variables.getItem(index).getValue();
         // TODO: jump to exception handler if the citation isn't a citation
         // retrieve the cited document from the document repository
-        const document = await processor.repository.retrieveDocument(citation);
+        const documentId = extractId(citation);
+        const source = await processor.repository.fetchDocument(documentId);
+        var document = bali.parse(source);
+        await processor.notary.citationMatches(citation, document);
+        await validateDocument(processor.notary, processor.repository, document);
+        document = document.getValue('$component');
         // push the document on top of the component stack
         processor.task.stack.addItem(document);
         processor.context.address++;
@@ -626,11 +672,12 @@ const instructionHandlers = [
     async function(processor, operand) {
         const index = operand;
         // pop the message that is on top of the component stack off the stack
-        const message = processor.task.stack.removeItem();
+        var message = processor.task.stack.removeItem();
         // lookup the queue tag associated with the index operand
         const queue = processor.context.variables.getItem(index).getValue();
         // TODO: jump to exception handler if queue isn't a tag
         // send the message to the queue in the document repository
+        message = await processor.notary.notarizeDocument(message);
         await processor.repository.queueMessage(queue, message);
         processor.context.address++;
     },
@@ -641,10 +688,10 @@ const instructionHandlers = [
         // pop the draft that is on top of the component stack off the stack
         var draft = processor.task.stack.removeItem();
         // write the draft to the document repository
-        draft = await notary.signComponent(draft);
-        const draftCitation = await notary.citeDocument(draft);
-        const draftId = extractId(draftCitation);
-        const citation = await processor.repository.saveDraft(draftId, draft);
+        draft = await processor.notary.notarizeDocument(draft);
+        const citation = await processor.notary.citeDocument(draft);
+        const draftId = extractId(citation);
+        await processor.repository.saveDraft(draftId, draft);
         // and store the resulting citation in the variable associated with the index
         processor.context.variables.getItem(index).setValue(citation);
         processor.context.address++;
@@ -654,9 +701,13 @@ const instructionHandlers = [
     async function(processor, operand) {
         const index = operand;
         // pop the document that is on top of the component stack off the stack
-        const document = processor.task.stack.removeItem();
+        var document = processor.task.stack.removeItem();
         // write the document to the document repository
-        const citation = await processor.repository.commitDocument(document);
+        document = await processor.notary.notarizeDocument(document);
+        const citation = await processor.notary.citeDocument(document);
+        const documentId = extractId(citation);
+        await processor.repository.createDocument(documentId, document);
+        await processor.repository.deleteDraft(documentId);
         // and store the resulting citation in the variable associated with the index
         processor.context.variables.getItem(index).setValue(citation);
         processor.context.address++;
@@ -716,7 +767,7 @@ const instructionHandlers = [
         // setup the new procedure context
         const index = operand;
         const parameters = bali.parameters(bali.list());
-        const target = bali.NONE;
+        const target = bali.pattern.NONE;
         const type = processor.task.stack.removeItem();
         await pushContext(processor, target, type, parameters, index);
         processor.context.address++;
@@ -727,7 +778,7 @@ const instructionHandlers = [
         // setup the new procedure context
         const index = operand;
         const parameters = processor.task.stack.removeItem();
-        const target = bali.NONE;
+        const target = bali.pattern.NONE;
         const type = processor.task.stack.removeItem();
         await pushContext(processor, target, type, parameters, index);
         processor.context.address++;

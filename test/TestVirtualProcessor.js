@@ -19,7 +19,7 @@ const securityModule = require('bali-digital-notary').ssm(directory + account, d
 const notary = require('bali-digital-notary').api(securityModule, account, directory, debug);
 const repository = require('bali-document-repository').local(directory, debug);
 const compiler = require('bali-procedure-compiler').api(debug);
-const vm = require('../index').api(repository, compiler, debug);
+const vm = require('../index').api(notary, repository, compiler, debug);
 
 const EOL = '\n';  // POSIX end of line character
 
@@ -154,7 +154,11 @@ describe('Bali Virtual Machine™', function() {
     describe('Initialize the environment', function() {
 
         it('should initialize the nebula API', async function() {
-            const certificate = await notary.generateKey();
+            const catalog = await notary.generateKey();
+            expect(catalog).to.exist;
+            const certificate = await notary.notarizeDocument(catalog);
+            expect(certificate).to.exist;
+            certificateCitation = await notary.activateKey(certificate);
             const parameters = certificate.getValue('$component').getParameters();
             const certificateId = '' + parameters.getParameter('$tag').getValue() + parameters.getParameter('$version');
             await repository.createDocument(certificateId, certificate);
