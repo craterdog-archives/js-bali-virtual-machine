@@ -1,0 +1,164 @@
+[
+    $description: "
+        This class encapsulates a /Tower of Hanoi/ game with three pegs (A, B, and C) and a
+        parameterized number of disks. To play the game do the following:
+         # Initialize a game with 3 disks.
+        `
+        $game := [:](
+            $type: /bali/examples/TowerOfHanoi/v1
+            $numberOfDisks: 3
+        )
+        `
+         # Play the game.
+        `game.play()`
+        
+        The output should be:
+        `
+         1. Move top disk on peg A to peg C
+         2. Move top disk on peg A to peg B
+         3. Move top disk on peg C to peg B
+         4. Move top disk on peg A to peg C
+         5. Move top disk on peg B to peg A
+         6. Move top disk on peg B to peg C
+         7. Move top disk on peg A to peg C
+        `
+    "(
+        $mediatype: "application/bsmd"
+    )
+    $parameters: [
+        $numberOfDisks: [
+            $description: "The number of disks."
+            $type: /bali/elements/Number/v1($range: [1..infinity])
+            $default: 5
+        ]
+    ]
+    $attributes: [
+        $pegs: [
+            $description: "The three pegs (A, B and C) that are used to hold the disks."
+            $type: /bali/collections/Catalog/v1(
+                $keyType: /bali/elements/Symbol/v1
+                $valueType: /bali/collections/Stack/v1(
+                    $itemType: /bali/elements/Number/v1($range: [1..infinity])
+                )
+            )
+        ]
+        $steps: [
+            $description: "The steps needed to move the disks."
+            $type: /bali/collections/List/v1(
+                $itemType: /bali/elements/Text/v1
+            )
+        ]
+    ]
+    $procedures: [
+        $play: [
+            $description: "This procedure causes the game to (re)initialize itself and play the game."
+            $result: /bali/collections/Catalog/v1(
+                $keyType: /bali/elements/Number/v1($range: [1..infinity])
+                $valueType: /bali/elements/Text/v1
+            )
+            $source: {
+                target[$pegs] := [
+                    "peg A": [](
+                        $type: /bali/collections/Stack/v1(
+                            $itemType: /bali/elements/Number/v1($range: [1..infinity])
+                        )
+                    )
+                    "peg B": [](
+                        $type: /bali/collections/Stack/v1(
+                            $itemType: /bali/elements/Number/v1($range: [1..infinity])
+                        )
+                    )
+                    "peg C": [](
+                        $type: /bali/collections/Stack/v1(
+                            $itemType: /bali/elements/Number/v1($range: [1..infinity])
+                        )
+                    )
+                ]
+                target[$steps] := []
+                with each $n in [numberOfDisks..1] do {
+                    target[$pegs, "peg A"].push(n)
+                }
+                target.moveTower(
+                    numberOfDisks
+                    "peg A"
+                    "peg C"
+                    "peg B"
+                )
+                return target[$steps].asCatalog()
+            }
+        ]
+        $moveTower: [
+            $description: "This procedure causes the game to move a tower of disks of a certain height from one peg to another peg using a third peg as a buffer."
+            $parameters: [
+                $height: [
+                    $description: "The height of the tower to be moved."
+                    $type: /bali/elements/Number/v1($range: [1..infinity])
+                ]
+                $fromPeg: [
+                    $description: "The peg from which the disks originate."
+                    $type: /bali/elements/Text/v1
+                ]
+                $toPeg: [
+                    $description: "The peg to which the disks should be moved."
+                    $type: /bali/elements/Text/v1
+                ]
+                $withPeg: [
+                    $description: "The peg to use to buffer the disks during the move."
+                    $type: /bali/elements/Text/v1
+                ]
+            ]
+            $source: {
+                if height then {
+                    target.moveTower(
+                        height - 1
+                        fromPeg
+                        withPeg
+                        toPeg
+                    )
+                    target.moveDisk(fromPeg, toPeg)
+                    target.moveTower(
+                        height - 1
+                        withPeg
+                        toPeg
+                        fromPeg
+                    )
+                }
+            }(
+                $height
+                $fromPeg
+                $toPeg
+                $withPeg
+            )
+        ]($private)
+        $moveDisk: [
+            $description: "This procedure causes the game to move the top disk from one peg to another."
+            $parameters: [
+                $fromPeg: [
+                    $description: "The peg from which the disk originates."
+                    $type: /bali/elements/Text/v1
+                ]
+                $toPeg: [
+                    $description: "The peg to which the disk should be moved."
+                    $type: /bali/elements/Text/v1
+                ]
+            ]
+            $source: {
+                $disk := target[$pegs, fromPeg].pop()
+                target[$pegs, toPeg].push(disk)
+                target[$steps].append(
+                    "Move disk {disk} from {fromPeg} to {toPeg}."
+                )
+            }(
+                $fromPeg
+                $toPeg
+            )
+        ]($private)
+    ]
+](
+    $type: /bali/abstractions/Class/v1
+    $name: /bali/examples/TowerOfHanoi/v1
+    $tag: #1M9WB8VXAWP8A0T1K3MHWD4ZFBM3MG7T
+    $version: v1
+    $permissions: /bali/permissions/public/v1
+    $previous: none
+)

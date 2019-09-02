@@ -26,7 +26,7 @@ const EVENT_QUEUE = '3RMGDVN7D6HLAPFXQNPF7DV71V3MAL43';
 // PUBLIC FUNCTIONS
 
 /**
- * This constructor creates a new processor to execute the specified task.
+ * This function creates a new processor to execute the specified task.
  * 
  * @constructor
  * @param {Object} notary An object that implements the Bali Nebula™ digital notary interface.
@@ -205,7 +205,7 @@ const importCurrentContext = function(processor) {
     const bytecode = processor.compiler.bytecode(bytes);
     const context = {
         type: catalog.getValue('$type'),
-        name: catalog.getValue('$name'),
+        procedure: catalog.getValue('$procedure'),
         instruction: catalog.getValue('$instruction').toNumber(),
         address: catalog.getValue('$address').toNumber(),
         bytecode: bytecode,
@@ -261,7 +261,7 @@ const executeInstruction = async function(processor) {
         try {
             await handleException(processor, exception);
         } catch (exception) {
-            console.error('Unable to handle exception: ' + exception);
+            if (processor.debug) console.error('Unable to handle exception: ' + exception);
         }
     }
 
@@ -291,7 +291,7 @@ const handleException = async function(processor, exception) {
             $text: exception.toString(),
             $trace: bali.text(EOL + stack.join(EOL))
         });
-        console.error('FOUND BUG IN PROCESSOR: ' + exception);
+        if (processor.debug) console.error('FOUND BUG IN PROCESSOR: ' + exception);
     }
     processor.task.stack.addItem(exception.attributes);
     await instructionHandlers[29](processor);  // HANDLE EXCEPTION instruction
@@ -385,23 +385,22 @@ const validateDocument = async function(notary, repository, document) {
 };
 
 
-const pushContext = async function(processor, target, citation, passedParameters, index) {
+const pushContext = async function(processor, target, typeName, passedParameters, index) {
 
     // save the current procedure context
     const currentContext = processor.context;
 
     // retrieve the cited type definition
+    const citation = await processor.repository.fetchCitation(typeName);
     const typeId = extractId(citation);
     const source = await processor.repository.fetchDocument(typeId);
     const document = bali.parse(source);
-    await processor.notary.citationMatches(citation, document);
-    await validateDocument(processor.notary, processor.repository, document);
     const type = document.getValue('$component');
 
     // retrieve the procedures for this type
-    const name = currentContext.procedures.getItem(index);
+    const procedureName = currentContext.procedures.getItem(index);
     var procedures = type.getValue('$procedures');
-    const procedure = procedures.getValue(name);
+    const procedure = procedures.getValue(procedureName);
 
     // retrieve the bytecode from the compiled procedure
     const bytes = procedure.getValue('$bytecode').getValue();
@@ -439,8 +438,8 @@ const pushContext = async function(processor, target, citation, passedParameters
 
     // construct the next procedure context
     const nextContext = {
-        type: citation,
-        name: name,
+        type: typeName,
+        procedure: procedureName,
         instruction: 0,
         address: 0,  // this will be incremented before the next instruction is executed
         bytecode: bytecode,
@@ -768,8 +767,8 @@ const instructionHandlers = [
         const index = operand;
         const parameters = bali.parameters(bali.list());
         const target = bali.pattern.NONE;
-        const type = processor.task.stack.removeItem();
-        await pushContext(processor, target, type, parameters, index);
+        const typeName = processor.task.stack.removeItem();
+        await pushContext(processor, target, typeName, parameters, index);
         processor.context.address++;
     },
 
@@ -779,8 +778,8 @@ const instructionHandlers = [
         const index = operand;
         const parameters = processor.task.stack.removeItem();
         const target = bali.pattern.NONE;
-        const type = processor.task.stack.removeItem();
-        await pushContext(processor, target, type, parameters, index);
+        const typeName = processor.task.stack.removeItem();
+        await pushContext(processor, target, typeName, parameters, index);
         processor.context.address++;
     },
 
@@ -790,8 +789,8 @@ const instructionHandlers = [
         const index = operand;
         const parameters = bali.parameters(bali.list());
         const target = processor.task.stack.removeItem();
-        const type = target.getParameters().getParameter('$type');
-        await pushContext(processor, target, type, parameters, index);
+        const typeName = target.getType();
+        await pushContext(processor, target, typeName, parameters, index);
         processor.context.address++;
     },
 
@@ -801,8 +800,8 @@ const instructionHandlers = [
         const index = operand;
         const parameters = processor.task.stack.removeItem();
         const target = processor.task.stack.removeItem();
-        const type = target.getParameters().getParameter('$type');
-        await pushContext(processor, target, type, parameters, index);
+        const typeName = target.getType();
+        await pushContext(processor, target, typeName, parameters, index);
         processor.context.address++;
     },
 

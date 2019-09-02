@@ -61,8 +61,8 @@ const functions = [
 
     // $and
     function(first, second) {
-        validateParameterAspect('$and', '$Logical', first);
-        validateParameterAspect('$and', '$Logical', second);
+        validateParameterAbstraction('$and', '$Logical', first);
+        validateParameterAbstraction('$and', '$Logical', second);
         return first.constructor.and(first, second);
     },
 
@@ -146,8 +146,8 @@ const functions = [
 
     // $concatenation
     function(first, second) {
-        validateParameterAspect('$concatenation', '$Chainable', first);
-        validateParameterAspect('$concatenation', '$Chainable', second);
+        validateParameterAbstraction('$concatenation', '$Chainable', first);
+        validateParameterAbstraction('$concatenation', '$Chainable', second);
         return first.constructor.concatenation(first, second);
     },
 
@@ -160,7 +160,7 @@ const functions = [
     // $containsAll
     function(collection, items) {
         validateParameterAbstraction('$containsAll', '$Collection', collection);
-        validateParameterAspect('$containsAll', '$Sequential', items);
+        validateParameterAbstraction('$containsAll', '$Sequential', items);
         const result = bali.probability(collection.containsAll(items));
         return result;
     },
@@ -168,7 +168,7 @@ const functions = [
     // $containsAny
     function(collection, items) {
         validateParameterAbstraction('$containsAny', '$Collection', collection);
-        validateParameterAspect('$containsAny', '$Sequential', items);
+        validateParameterAbstraction('$containsAny', '$Sequential', items);
         const result = bali.probability(collection.containsAny(items));
         return result;
     },
@@ -200,8 +200,8 @@ const functions = [
 
     // $difference
     function(first, second) {
-        validateParameterAspect('$difference', '$Scalable', first);
-        validateParameterAspect('$difference', '$Scalable', second);
+        validateParameterAbstraction('$difference', '$Scalable', first);
+        validateParameterAbstraction('$difference', '$Scalable', second);
         return first.constructor.difference(first, second);
     },
 
@@ -397,7 +397,7 @@ const functions = [
 
     // $getSize
     function(sequence) {
-        validateParameterAspect('$getSize', '$Sequential', sequence);
+        validateParameterAbstraction('$getSize', '$Sequential', sequence);
         return bali.number(sequence.getSize());
     },
 
@@ -447,13 +447,13 @@ const functions = [
 
     // $inverse
     function(scalable) {
-        validateParameterAspect('$inverse', '$Scalable', scalable);
+        validateParameterAbstraction('$inverse', '$Scalable', scalable);
         return scalable.constructor.inverse(scalable);
     },
 
     // $isEmpty
     function(sequence) {
-        validateParameterAspect('$isEmpty', '$Sequential', sequence);
+        validateParameterAbstraction('$isEmpty', '$Sequential', sequence);
         return bali.probability(sequence.isEmpty());
     },
 
@@ -550,7 +550,7 @@ const functions = [
 
     // $not
     function(logical) {
-        validateParameterAspect('$not', '$Logical', logical);
+        validateParameterAbstraction('$not', '$Logical', logical);
         return logical.constructor.not(logical);
     },
 
@@ -561,8 +561,8 @@ const functions = [
 
     // $or
     function(first, second) {
-        validateParameterAspect('$or', '$Logical', first);
-        validateParameterAspect('$or', '$Logical', second);
+        validateParameterAbstraction('$or', '$Logical', first);
+        validateParameterAbstraction('$or', '$Logical', second);
         return first.constructor.or(first, second);
     },
 
@@ -610,8 +610,8 @@ const functions = [
 
     // $product
     function(first, second) {
-        validateParameterAspect('$product', '$Numerical', first);
-        validateParameterAspect('$product', '$Numerical', second);
+        validateParameterAbstraction('$product', '$Numerical', first);
+        validateParameterAbstraction('$product', '$Numerical', second);
         return first.constructor.product(first, second);
     },
 
@@ -622,8 +622,8 @@ const functions = [
 
     // $quotient
     function(first, second) {
-        validateParameterAspect('$quotient', '$Numerical', first);
-        validateParameterAspect('$quotient', '$Numerical', second);
+        validateParameterAbstraction('$quotient', '$Numerical', first);
+        validateParameterAbstraction('$quotient', '$Numerical', second);
         return first.constructor.quotient(first, second);
     },
 
@@ -679,8 +679,8 @@ const functions = [
 
     // $remainder
     function(first, second) {
-        validateParameterAspect('$remainder', '$Numerical', first);
-        validateParameterAspect('$remainder', '$Numerical', second);
+        validateParameterAbstraction('$remainder', '$Numerical', first);
+        validateParameterAbstraction('$remainder', '$Numerical', second);
         return first.constructor.remainder(first, second);
     },
 
@@ -754,15 +754,15 @@ const functions = [
 
     // $sans
     function(first, second) {
-        validateParameterAspect('$sans', '$Logical', first);
-        validateParameterAspect('$sans', '$Logical', second);
+        validateParameterAbstraction('$sans', '$Logical', first);
+        validateParameterAbstraction('$sans', '$Logical', second);
         return first.constructor.sans(first, second);
     },
 
     // $scaled
     function(scalable, factor) {
-        validateParameterAspect('$scaled', '$Scalable', scalable);
-        validateParameterAspect('$factor', '$Numerical', factor);
+        validateParameterAbstraction('$scaled', '$Scalable', scalable);
+        validateParameterAbstraction('$factor', '$Numerical', factor);
         return scalable.constructor.scaled(scalable, factor);
     },
 
@@ -848,8 +848,8 @@ const functions = [
 
     // $sum
     function(first, second) {
-        validateParameterAspect('$sum', '$Scalable', first);
-        validateParameterAspect('$sum', '$Scalable', second);
+        validateParameterAbstraction('$sum', '$Scalable', first);
+        validateParameterAbstraction('$sum', '$Scalable', second);
         return first.constructor.sum(first, second);
     },
 
@@ -899,8 +899,8 @@ const functions = [
 
     // $xor
     function(first, second) {
-        validateParameterAspect('$xor', '$Logical', first);
-        validateParameterAspect('$xor', '$Logical', second);
+        validateParameterAbstraction('$xor', '$Logical', first);
+        validateParameterAbstraction('$xor', '$Logical', second);
         return first.constructor.xor(first, second);
     }
 
@@ -1069,20 +1069,6 @@ function validateParameterAbstraction(procedure, abstraction, parameter) {
             $procedure: procedure,
             $exception: '$parameterType',
             $expected: abstraction,
-            $actual: parameter.getType(),
-            $message: 'An invalid parameter type was passed into an intrinsic function.'
-        });
-    }
-}
-
-
-function validateParameterAspect(procedure, aspect, parameter) {
-    if (!parameter['is' + aspect.slice(1)]()) {
-        throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
-            $procedure: procedure,
-            $exception: '$parameterType',
-            $expected: aspect,
             $actual: parameter.getType(),
             $message: 'An invalid parameter type was passed into an intrinsic function.'
         });

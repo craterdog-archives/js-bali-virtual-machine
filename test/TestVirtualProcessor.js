@@ -15,157 +15,70 @@ const mocha = require('mocha');
 const expect = require('chai').expect;
 const bali = require('bali-component-framework');
 const account = bali.parse('#GTDHQ9B8ZGS7WCBJJJBFF6KDCCF55R2P');
-const securityModule = require('bali-digital-notary').ssm(directory + account, debug);
+const securityModule = require('bali-digital-notary').ssm(directory + account.getValue() + '.keys', debug);
 const notary = require('bali-digital-notary').api(securityModule, account, directory, debug);
 const repository = require('bali-document-repository').local(directory, debug);
-const compiler = require('bali-procedure-compiler').api(debug);
+const compiler = require('bali-type-compiler').api(notary, repository, debug);
 const vm = require('../index').api(notary, repository, compiler, debug);
-
 const EOL = '\n';  // POSIX end of line character
 
-const TASK_TEMPLATE =
-        '[\n' +
-        '    $tag: #Y29YH82BHG4SPTGWGFRYBL4RQ33GTX59\n' +
-        '    $account: ' + account + '\n' +
-        '    $balance: 1000\n' +
-        '    $status: $active\n' +
-        '    $clock: 0\n' +
-        '    $stack: []($type: /bali/collections/Stack/v1)\n' +
-        '    $contexts: [\n' +
-        '        [\n' +
-        '            $type: none\n' +
-        '            $name: $dummy\n' +
-        '            $instruction: 0\n' +
-        '            $address: 1\n' +
-        '            $bytecode: %bytecode\n' +
-        '            $literals: %literals\n' +
-        '            $constants: %constants\n' +
-        '            $parameters: %parameters\n' +
-        '            $variables: %variables\n' +
-        '            $procedures: %procedures\n' +
-        '            $handlers: []($type: /bali/collections/Stack/v1)\n' +
-        '        ]\n' +
-        '    ]($type: /bali/collections/Stack/v1)\n' +
-        ']';
 
-const DOCUMENT = '[$foo: "bar"](\n' +
-        '    $tag: #B11TDWH3C5F8J8Q87XKRAD8BM7L5VYSS\n' +
-        '    $version: v1\n' +
-        '    $permissions: /bali/permissions/public/v1\n' +
-        '    $previous: none\n' +
-        ')';
-
-const MESSAGE = '[$foo: "bar"]';
-
-function loadTask(filename) {
-    var source = fs.readFileSync(filename, 'utf8');
-    var instructions = compiler.parse(source);
-    instructions = compiler.format(instructions, 1);
-
-    // create the compiled type context
-    var literals = bali.list([
-        'true',
-        'none',
-        '"none"?',
-        'false',
-        '"five"',
-        '"parameter"',
-        '"parameter1"',
-        '"parameter2"',
-        '"two"',
-        1,
-        3,
-        5,
-        '$protocol',
-        'v1',
-        '$tag',
-        '#M8G7XJH640RR4YBCLGNDYABD6328741S',
-        '$version',
-        '$digest',
-        "'NS4L6V78FNSHYY3F6LK82MMB8GFRR6FD9H3FY5G8W6C6PFHBMVR1S2SPQNHQ8WPZY155Q1F1Y02GVGLZKR37VK2QZ85SW4LGRQA53P0'",
-        '$type',
-        '$foo',
-        '"bar"',
-        bali.parse('{return prefix + name}')
-    ]);
-    const constants = bali.catalog({$constant: 5});
-    const type = bali.catalog();
-    type.setValue('$literals', literals);
-    type.setValue('$constants', constants);
-
-
-    // create the compiled procedure context
-    var parameters = bali.list(['$y', '$x']);
-    var variables = bali.list(['$citation', '$foo', '$queue', '$target', '$type']);
-    const procedures = bali.list(['$function1', '$function2', '$message1', '$message2']);
-    const addresses = bali.catalog();
-    addresses.setValue('"3.PushLiteral"', 3);
-    addresses.setValue('"1.3.ConditionClause"', 8);
-    addresses.setValue('"1.4.ConditionClause"', 11);
-    addresses.setValue('"1.6.ConditionClause"', 17);
-    addresses.setValue('"1.IfStatementDone"', 20);
-    const procedure = bali.catalog();
-    procedure.setValue('$parameters', parameters);
-    procedure.setValue('$variables', variables);
-    procedure.setValue('$procedures', procedures);
-    procedure.setValue('$addresses', addresses);
-    procedure.setValue('$instructions', '"' + EOL + instructions + EOL + '"');
-
-    // assemble the procedure into bytecode
-    compiler.assemble(type, procedure);
-
-    // retrieve the bytecode
-    const bytecode = procedure.getValue('$bytecode');
-
-    // set parameter values
-    const iterator = parameters.getIterator();
-    parameters = bali.catalog();
-    while (iterator.hasNext()) {
-        var parameter = iterator.getNext();
-        parameters.setValue(parameter, bali.NONE);
-    }
-    parameters.setValue('$x', bali.parse(DOCUMENT));
-
-    // set variable values
-    variables = bali.catalog();
-    variables.setValue('$citation', bali.NONE);
-    variables.setValue('$foo', bali.NONE);
-    variables.setValue('$queue', bali.tag());
-    variables.setValue('$target', bali.NONE);
-    variables.setValue('$type', bali.NONE);
-
-    // construct the task context
-    source = TASK_TEMPLATE;
-    source = source.replace(/%bytecode/, bali.format(bytecode, 3));
-    source = source.replace(/%literals/, bali.format(literals, 3));
-    source = source.replace(/%constants/, bali.format(constants, 3));
-    source = source.replace(/%parameters/, bali.format(parameters, 3));
-    source = source.replace(/%variables/, bali.format(variables, 3));
-    source = source.replace(/%procedures/, bali.format(procedures, 3));
-    const task = bali.parse(source);
-
-    return task;
+function extractId(catalog) {
+    const parameters = catalog.getParameters();
+    const id = parameters.getParameter('$tag').getValue() + parameters.getParameter('$version');
+    return id;
 }
 
 
-describe('Bali Virtual Machine™', function() {
-    var task;
+describe('Bali Nebula™ Virtual Machine™', function() {
 
     describe('Initialize the environment', function() {
 
-        it('should initialize the nebula API', async function() {
-            const catalog = await notary.generateKey();
-            expect(catalog).to.exist;
-            const certificate = await notary.notarizeDocument(catalog);
+        it('should generate the notary key and publish its certificate', async function() {
+            const certificate = await notary.generateKey();
+            console.log('certificate: ' + certificate);
             expect(certificate).to.exist;
-            certificateCitation = await notary.activateKey(certificate);
-            const parameters = certificate.getValue('$component').getParameters();
-            const certificateId = '' + parameters.getParameter('$tag').getValue() + parameters.getParameter('$version');
-            await repository.createDocument(certificateId, certificate);
+            const document = await notary.notarizeDocument(certificate);
+            console.log('document: ' + document);
+            expect(document).to.exist;
+            const citation = await notary.activateKey(document);
+            console.log('citation: ' + citation);
+            expect(citation).to.exist;
+            const documentId = extractId(certificate);
+            await repository.createDocument(documentId, document);
+        });
+
+        it('should compile example type documents into compiled type documents', async function() {
+            const testFolder = 'test/examples/';
+            const files = fs.readdirSync(testFolder);
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                if (!file.endsWith('.bali')) continue;
+                console.log('      ' + file);
+                var prefix = file.split('.').slice(0, 1);
+                var typeFile = testFolder + prefix + '.bali';
+                var document = bali.parse(fs.readFileSync(typeFile, 'utf8'));
+                expect(document).to.exist;
+                document = await notary.notarizeDocument(document);
+                expect(document).to.exist;
+                const citation = await notary.citeDocument(document);
+                expect(citation).to.exist;
+                const name = '/bali/examples/' + prefix + '/v1';
+                await repository.createCitation(name, citation);
+                const documentId = citation.getValue('$tag').getValue() + citation.getValue('$version');
+                expect(documentId).to.exist;
+                await repository.createDocument(documentId, document);
+                var type = await compiler.compileType(document);
+                expect(type).to.exist;
+                type = await notary.notarizeDocument(type);
+                expect(type).to.exist;
+                await repository.createType(documentId, type);
+            }
         });
 
     });
 
+/*
     describe('Test the JUMP instruction.', function() {
 
         it('should create the initial task context', function() {
@@ -238,7 +151,7 @@ describe('Bali Virtual Machine™', function() {
             // 1.5.ConditionClause:
             // PUSH LITERAL `none`
             await processor.step();
-            expect(processor.task.stack.getTop().isEqualTo(bali.NONE)).to.equal(true);
+            expect(processor.task.stack.getTop().isEqualTo(bali.pattern.NONE)).to.equal(true);
             expect(processor.context.address).to.equal(15);
             // JUMP TO 1.6.ConditionClause ON NONE
             await processor.step();
@@ -321,7 +234,7 @@ describe('Bali Virtual Machine™', function() {
             // PUSH PARAMETER $y
             await processor.step();
             expect(processor.task.stack.getSize()).to.equal(4);
-            expect(processor.task.stack.getTop().isEqualTo(bali.NONE)).to.equal(true);
+            expect(processor.task.stack.getTop().isEqualTo(bali.pattern.NONE)).to.equal(true);
             expect(processor.context.address).to.equal(6);
 
             // 6.PopHandler:
@@ -646,7 +559,9 @@ describe('Bali Virtual Machine™', function() {
             expect(processor.task.stack.getSize()).to.equal(1);
             expect(processor.context.address).to.equal(32);
             // EXECUTE $function1
+            console.log('processor before: ' + processor);
             await processor.step();
+            console.log('processor after: ' + processor);
                 expect(processor.task.contexts.getSize()).to.equal(1);
                 expect(processor.context.address).to.equal(1);
                 // 1.ReturnStatement:
@@ -897,5 +812,6 @@ describe('Bali Virtual Machine™', function() {
         });
 
     });
+*/
 
 });
