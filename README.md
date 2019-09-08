@@ -1,7 +1,7 @@
-![Logo](https://raw.githubusercontent.com/craterdog-bali/bali-project-documentation/master/images/CraterDogLogo.png)
+![Logo](docs/images/CraterDogLogo.png)
 
 ### Bali Nebula™ Virtual Machine
-This project provides a JavaScript version of the the Bali Nebula™ Virtual Machine.
+This project provides a JavaScript version of the the Bali Nebula™ virtual machine.
 
 ![Pyramid](docs/images/BaliPyramid.png)
 
