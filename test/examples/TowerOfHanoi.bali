@@ -109,27 +109,17 @@
             ]
             $source: {
                 if height then {
-                    target.moveTower(
-                        height - 1
-                        fromPeg
-                        withPeg
-                        toPeg
-                    )
+                    target.moveTower(height - 1, fromPeg, withPeg, toPeg)
                     target.moveDisk(fromPeg, toPeg)
-                    target.moveTower(
-                        height - 1
-                        withPeg
-                        toPeg
-                        fromPeg
-                    )
+                    target.moveTower(height - 1, withPeg, toPeg, fromPeg)
                 }
             }(
-                $height
-                $fromPeg
-                $toPeg
-                $withPeg
+                $height: /bali/elements/Number
+                $fromPeg: /bali/elements/Symbol
+                $toPeg: /bali/elements/Symbol
+                $withPeg: /bali/elements/Symbol
             )
-        ]($private)
+        ]($access: $private)
         $moveDisk: [
             $description: "This procedure causes the game to move the top disk from one peg to another."
             $parameters: [
@@ -149,10 +139,10 @@
                     "Move disk {disk} from {fromPeg} to {toPeg}."
                 )
             }(
-                $fromPeg
-                $toPeg
+                $fromPeg: /bali/elements/Symbol
+                $toPeg: /bali/elements/Symbol
             )
-        ]($private)
+        ]($access: $private)
     ]
 ](
     $type: /bali/abstractions/Class/v1

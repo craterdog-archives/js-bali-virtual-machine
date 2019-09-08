@@ -103,12 +103,11 @@ exports.api = function(notary, repository, compiler, debug) {
             const constants = type.getValue('$constants');
 
             // set the parameter values
-            var counter = 1;
             const parameters = bali.catalog();
             var iterator = procedure.getValue('$parameters').getIterator();
             while (iterator.hasNext()) {
                 var key = iterator.getNext();
-                var value = message.getParameters().getParameter(key, counter++);
+                var value = message.getParameters().getValue(key);
                 value = value || bali.pattern.NONE;
                 parameters.setValue(key, value);
             }

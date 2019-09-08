@@ -411,12 +411,11 @@ const pushContext = async function(processor, target, typeName, passedParameters
     const constants = type.getValue('$constants');
 
     // set the parameter values
-    var counter = 1;
     const parameters = bali.catalog();
     var iterator = procedure.getValue('$parameters').getIterator();
     while (iterator.hasNext()) {
         var key = iterator.getNext();
-        var value = passedParameters.getParameter(key, counter++);
+        var value = passedParameters.getValue(key);
         value = value || bali.pattern.NONE;
         parameters.setValue(key, value);
     }

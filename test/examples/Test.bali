@@ -14,7 +14,7 @@
                     return first
                 }
                 return false
-            }($first)
+            }($first: /bali/elements/Probability)
         ]
         $message1: [
             $source: {
@@ -27,7 +27,10 @@
                     return true
                 }
                 return false
-            }($first, $second)
+            }(
+                $first: /bali/elements/Number
+                $second: /bali/elements/Text
+            )
         ]
     ]
 ](

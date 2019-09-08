@@ -352,12 +352,10 @@ const functions = [
     },
 
     // $getParameter
-    function(parameters, key, index) {
+    function(parameters, key) {
         validateParameterType('$getParameter', '$Parameters', parameters);
-        validateParameterAbstraction('$getParameter', '$Element', key);
-        validateParameterType('$getParameter', '$Number', index);
-        validateIndex('$getParameter', parameters.getSize(), index);
-        return parameters.getParameter(key, index);
+        validateParameterAbstraction('$getParameter', '$Symbol', key);
+        return parameters.getValue(key);
     },
 
     // $getParameters
@@ -523,12 +521,6 @@ const functions = [
         return constructCollection('$list', parameters);
     },
 
-    // $literal
-    function(element) {
-        validateParameterAbstraction('$literal', '$Element', element);
-        return bali.text(bali.literal(element));
-    },
-
     // $logarithm
     function(number) {
         validateParameterType('$logarithm', '$Number', number);
@@ -573,11 +565,9 @@ const functions = [
     },
 
     // $parse
-    function(document, parameters, debug) {
+    function(document) {
         validateParameterType('$parse', '$Text', document);
-        validateParameterType('$parse', '$Parameters', parameters);
-        validateParameterType('$parse', '$Probability', debug);
-        return bali.parse(document.getValue(), parameters, debug.toBoolean());
+        return bali.parse(document.getValue());
     },
 
     // $pattern
@@ -656,8 +646,8 @@ const functions = [
     },
 
     // $range
-    function(first, last, parameters) {
-        return constructRange(first, last, parameters);
+    function(parameters, first, last) {
+        return constructRange(parameters, first, last);
     },
 
     // $reciprocal
@@ -786,13 +776,6 @@ const functions = [
         return list;
     },
 
-    // $setParameters
-    function(element, parameters) {
-        validateParameterAbstraction('$setParameters', '$Element', element);
-        element.setParameters(parameters);
-        return element;
-    },
-
     // $setValue
     function(catalog, key, value) {
         validateParameterType('$setValue', '$Catalog', catalog);
@@ -880,11 +863,6 @@ const functions = [
         return constructElement('$text', value, parameters);
     },
 
-    // $tree
-    function(type) {
-        return constructTree(type);
-    },
-
     // $validNextVersion
     function(current, next) {
         validateParameterType('$validNextVersion', '$Version', current);
@@ -915,7 +893,7 @@ const functions = [
 function getType(component) {
     var reference;
     if (component.isType('$Catalog') && component.isParameterized()) {
-        const value = component.getParameters().getParameter('$type');
+        const value = component.getParameters().getValue('$type');
         if (value && value.isType('$Name')) {
             // the type is a explicitly named type
             reference = value;
@@ -931,7 +909,7 @@ function getType(component) {
 function constructElement(procedure, value, parameters) {
     if (value.isType('$Text')) {
         throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
+            $module: '/bali/vm/Intrinsics',
             $procedure: procedure,
             $exception: '$parameterType',
             $expected: '$Text',
@@ -941,7 +919,7 @@ function constructElement(procedure, value, parameters) {
     }
     if (!parameters.isType('$Parameters') && !parameters.isEqualTo(bali.pattern.NONE)) {
         throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
+            $module: '/bali/vm/Intrinsics',
             $procedure: procedure,
             $exception: '$parameterType',
             $expected: '$Parameters',
@@ -957,7 +935,7 @@ function constructElement(procedure, value, parameters) {
 function constructSource(procedure, parameters) {
     if (!procedure.isProcedural()) {
         throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
+            $module: '/bali/vm/Intrinsics',
             $procedure: procedure,
             $exception: '$parameterType',
             $expected: '$Tree',
@@ -967,7 +945,7 @@ function constructSource(procedure, parameters) {
     }
     if (!parameters.isType('$Parameters') && !parameters.isEqualTo(bali.pattern.NONE)) {
         throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
+            $module: '/bali/vm/Intrinsics',
             $procedure: procedure,
             $exception: '$parameterType',
             $expected: '$Parameters',
@@ -983,7 +961,7 @@ function constructSource(procedure, parameters) {
 function constructRange(first, last, parameters) {
     if (!first.isElement()) {
         throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
+            $module: '/bali/vm/Intrinsics',
             $procedure: '$range',
             $exception: '$parameterType',
             $expected: '$Element',
@@ -993,7 +971,7 @@ function constructRange(first, last, parameters) {
     }
     if (first.getType() !== last.getType()) {
         throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
+            $module: '/bali/vm/Intrinsics',
             $procedure: '$range',
             $exception: '$parameterType',
             $expected: first.getType(),
@@ -1003,7 +981,7 @@ function constructRange(first, last, parameters) {
     }
     if (!parameters.isType('$Parameters') && !parameters.isEqualTo(bali.pattern.NONE)) {
         throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
+            $module: '/bali/vm/Intrinsics',
             $procedure: '$range',
             $exception: '$parameterType',
             $expected: '$Parameters',
@@ -1016,26 +994,10 @@ function constructRange(first, last, parameters) {
 }
 
 
-function constructTree(symbol) {
-    if (!symbol.isType('$Symbol')) {
-        throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
-            $procedure: '$tree',
-            $exception: '$parameterType',
-            $expected: '$Symbol',
-            $actual: symbol.getType(),
-            $message: 'An invalid parameter type was passed into an intrinsic function.'
-        });
-    }
-    const tree = bali.tree(symbol.getType());
-    return tree;
-}
-
-
 function constructCollection(procedure, parameters) {
     if (parameters && !parameters.isType('$Parameters') && !parameters.isEqualTo(bali.pattern.NONE)) {
         throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
+            $module: '/bali/vm/Intrinsics',
             $procedure: procedure,
             $exception: '$parameterType',
             $expected: '$Parameters',
@@ -1051,7 +1013,7 @@ function constructCollection(procedure, parameters) {
 function validateParameterType(procedure, type, parameter) {
     if (!parameter.isType(type)) {
         throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
+            $module: '/bali/vm/Intrinsics',
             $procedure: procedure,
             $exception: '$parameterType',
             $expected: type,
@@ -1065,7 +1027,7 @@ function validateParameterType(procedure, type, parameter) {
 function validateParameterAbstraction(procedure, abstraction, parameter) {
     if (!(parameter['is' + abstraction.slice(1)]())) {
         throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
+            $module: '/bali/vm/Intrinsics',
             $procedure: procedure,
             $exception: '$parameterType',
             $expected: abstraction,
@@ -1080,7 +1042,7 @@ function validateIndex(procedure, size, index) {
     index = Math.abs(index);
     if (index === 0 || index > size) {
         throw bali.exception({
-            $module: '/bali/compiler/Intrinsics',
+            $module: '/bali/vm/Intrinsics',
             $procedure: procedure,
             $exception: '$parameterValue',
             $expected: bali.range(1, size),

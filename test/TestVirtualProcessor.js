@@ -25,7 +25,7 @@ const EOL = '\n';  // POSIX end of line character
 
 function extractId(catalog) {
     const parameters = catalog.getParameters();
-    const id = parameters.getParameter('$tag').getValue() + parameters.getParameter('$version');
+    const id = parameters.getValue('$tag').getValue() + parameters.getValue('$version');
     return id;
 }
 
