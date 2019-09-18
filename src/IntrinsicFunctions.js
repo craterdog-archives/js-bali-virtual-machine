@@ -13,7 +13,7 @@
  * This library encapsulates the intrinsic functions supported by the Nebula
  * Virtual Processor.
  */
-const bali = require('bali-component-framework');
+const bali = require('bali-component-framework').api();
 
 
 // PUBLIC INTRINSIC FUNCTIONS

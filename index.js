@@ -9,7 +9,7 @@
  ************************************************************************/
 'use strict';
 
-const bali = require('bali-component-framework');
+const bali = require('bali-component-framework').api();
 const VirtualProcessor = require('./src/VirtualProcessor').VirtualProcessor;
 
 

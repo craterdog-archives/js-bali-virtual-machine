@@ -12,7 +12,7 @@
 /*
  * This class implements the virtual processor for The Bali Nebula™.
  */
-const bali = require('bali-component-framework');
+const bali = require('bali-component-framework').api();
 const intrinsics = require('./IntrinsicFunctions');
 
 const ACTIVE = '$active';
@@ -163,11 +163,11 @@ const exportTask = function(task) {
 
 
 const captureState = function(processor) {
-    const task = bali.duplicate(exportTask(processor.task));  // copy the task state
+    const task = exportTask(processor.task).duplicate();  // copy the task state
     const contexts = task.getValue('$contexts');
     if (processor.context) {
         const currentContext = exportCurrentContext(processor);
-        contexts.addItem(bali.duplicate(currentContext));  // add a copy of the context
+        contexts.addItem(currentContext.duplicate());  // add a copy of the context
     }
     return task;
 };
@@ -223,10 +223,11 @@ const importCurrentContext = function(processor) {
 const exportCurrentContext = function(processor) {
     const context = processor.context;
     const bytes = processor.compiler.bytes(context.bytecode);
-    const base16 = bali.codex.base16Encode(bytes);
+    const codex = bali.codex();
+    const base16 = codex.base16Encode(bytes);
     var source = "'%bytecode'($encoding: $base16, $mediatype: \"application/bcod\")";
     source = source.replace(/%bytecode/, base16);
-    const bytecode = bali.parse(source);
+    const bytecode = bali.component(source);
     const catalog = bali.catalog();
     catalog.setValue('$type', context.type);
     catalog.setValue('$name', context.name);
@@ -394,7 +395,7 @@ const pushContext = async function(processor, target, typeName, passedParameters
     const citation = await processor.repository.fetchCitation(typeName);
     const typeId = extractId(citation);
     const source = await processor.repository.fetchDocument(typeId);
-    const document = bali.parse(source);
+    const document = bali.component(source);
     const type = document.getValue('$component');
 
     // retrieve the procedures for this type
@@ -606,7 +607,7 @@ const instructionHandlers = [
         const source = await processor.repository.dequeueMessage(queue);
         if (source) {
             // validate the document
-            const document = bali.parse(source);
+            const document = bali.component(source);
             await validateDocument(processor.notary, processor.repository, document);
             message = document.getValue('$component');
         }
@@ -629,7 +630,7 @@ const instructionHandlers = [
         // retrieve the cited draft from the document repository
         const documentId = extractId(citation);
         const source = await processor.repository.fetchDraft(documentId);
-        const document = bali.parse(source);
+        const document = bali.component(source);
         await processor.notary.citationMatches(citation, document);
         await validateDocument(processor.notary, processor.repository, document);
         const draft = document.getValue('$component');
@@ -647,7 +648,7 @@ const instructionHandlers = [
         // retrieve the cited document from the document repository
         const documentId = extractId(citation);
         const source = await processor.repository.fetchDocument(documentId);
-        var document = bali.parse(source);
+        var document = bali.component(source);
         await processor.notary.citationMatches(citation, document);
         await validateDocument(processor.notary, processor.repository, document);
         document = document.getValue('$component');
