@@ -344,7 +344,7 @@ const publishCompletionEvent = async function(processor) {
     } else {
         event.setValue('$exception', task.exception);
     }
-    event = await processor.notary.notarizeDocument(event);
+    event = await processor.notary.notarizeComponent(event);
     await processor.repository.queueMessage(EVENT_QUEUE, event);
 };
 
@@ -364,7 +364,7 @@ const publishSuspensionEvent = async function(processor) {
         $permissions: '/bali/permissions/public/v1',
         $previous: bali.pattern.NONE
     }));
-    event = await processor.notary.notarizeDocument(event);
+    event = await processor.notary.notarizeComponent(event);
     await processor.repository.queueMessage(EVENT_QUEUE, event);
 };
 
@@ -376,7 +376,7 @@ const queueTaskContext = async function(processor) {
     // convert the task context into its corresponding source document
     var task = exportTask(processor.task).toString();
     // queue up the task for a new virtual processor
-    task = await processor.notary.notarizeDocument(task);
+    task = await processor.notary.notarizeComponent(task);
     await processor.repository.queueMessage(WAIT_QUEUE, task);
 };
 
@@ -676,7 +676,7 @@ const instructionHandlers = [
         const queue = processor.context.variables.getItem(index).getValue();
         // TODO: jump to exception handler if queue isn't a tag
         // send the message to the queue in the document repository
-        message = await processor.notary.notarizeDocument(message);
+        message = await processor.notary.notarizeComponent(message);
         await processor.repository.queueMessage(queue, message);
         processor.context.address++;
     },
@@ -687,7 +687,7 @@ const instructionHandlers = [
         // pop the draft that is on top of the component stack off the stack
         var draft = processor.task.stack.removeItem();
         // write the draft to the document repository
-        draft = await processor.notary.notarizeDocument(draft);
+        draft = await processor.notary.notarizeComponent(draft);
         const citation = await processor.notary.citeDocument(draft);
         const draftId = extractId(citation);
         await processor.repository.saveDraft(draftId, draft);
@@ -700,9 +700,9 @@ const instructionHandlers = [
     async function(processor, operand) {
         const index = operand;
         // pop the document that is on top of the component stack off the stack
-        var document = processor.task.stack.removeItem();
+        const component = processor.task.stack.removeItem();
         // write the document to the document repository
-        document = await processor.notary.notarizeDocument(document);
+        const document = await processor.notary.notarizeComponent(component);
         const citation = await processor.notary.citeDocument(document);
         const documentId = extractId(citation);
         await processor.repository.createDocument(documentId, document);

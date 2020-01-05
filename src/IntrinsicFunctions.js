@@ -191,13 +191,6 @@ const functions = [
         return proposedValue.isEqualTo(bali.pattern.NONE) ? defaultValue : proposedValue;
     },
 
-    // $deleteAll
-    function(collection) {
-        validateParameterAbstraction('$deleteAll', '$Collection', collection);
-        collection.deleteAll();
-        return collection;
-    },
-
     // $difference
     function(first, second) {
         validateParameterAbstraction('$difference', '$Scalable', first);
@@ -239,7 +232,7 @@ const functions = [
     // $format
     function(component, indentation) {
         validateParameterType('$format', '$Text', indentation);
-        return bali.text(bali.format(component, indentation.getValue()));
+        return bali.text(component.toBDN(indentation.getValue()));
     },
 
     // $getAssociationKey
@@ -289,12 +282,6 @@ const functions = [
     // $getHash
     function(component) {
         return bali.number(component.getHash());
-    },
-
-    // $getHead
-    function(queue) {
-        validateParameterType('$getHead', '$Queue', queue);
-        return queue.getHead();
     },
 
     // $getImaginary
@@ -399,12 +386,6 @@ const functions = [
         return bali.number(sequence.getSize());
     },
 
-    // $getTop
-    function(stack) {
-        validateParameterType('$getTop', '$Stack', stack);
-        return stack.getTop();
-    },
-
     // $getType
     function(component) {
         return getType(component);
@@ -422,6 +403,12 @@ const functions = [
         validateParameterType('$getValues', '$Catalog', catalog);
         validateParameterType('$getValues', '$List', keys);
         return catalog.getValues(keys);
+    },
+
+    // $headItem
+    function(queue) {
+        validateParameterType('$getHead', '$Queue', queue);
+        return queue.headItem();
     },
 
     // $insertItem
@@ -674,6 +661,13 @@ const functions = [
         return first.constructor.remainder(first, second);
     },
 
+    // $removeAll
+    function(collection) {
+        validateParameterAbstraction('$removeAll', '$Collection', collection);
+        collection.removeAll();
+        return collection;
+    },
+
     // $removeHead
     function(queue) {
         validateParameterType('$removeHead', '$Queue', queue);
@@ -863,6 +857,12 @@ const functions = [
         return constructElement('$text', value, parameters);
     },
 
+    // $topItem
+    function(stack) {
+        validateParameterType('$topItem', '$Stack', stack);
+        return stack.topItem();
+    },
+
     // $validNextVersion
     function(current, next) {
         validateParameterType('$validNextVersion', '$Version', current);
@@ -933,7 +933,7 @@ function constructElement(procedure, value, parameters) {
 
 
 function constructSource(procedure, parameters) {
-    if (!procedure.isProcedural()) {
+    if (!procedure.supportsInterface('$Procedural')) {
         throw bali.exception({
             $module: '/bali/vm/Intrinsics',
             $procedure: procedure,

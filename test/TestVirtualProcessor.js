@@ -38,7 +38,7 @@ describe('Bali Nebula™ Virtual Machine™', function() {
         it('should generate the notary key and publish its certificate', async function() {
             const certificate = await notary.generateKey();
             expect(certificate).to.exist;
-            const document = await notary.notarizeDocument(certificate);
+            const document = await notary.notarizeComponent(certificate);
             expect(document).to.exist;
             const citation = await notary.activateKey(document);
             expect(citation).to.exist;
@@ -56,9 +56,9 @@ describe('Bali Nebula™ Virtual Machine™', function() {
                 const prefix = file.split('.').slice(0, 1);
                 const typeFile = testFolder + prefix + '.bali';
                 const source = await pfs.readFile(typeFile, 'utf8');
-                var document = bali.component(source, debug);
-                expect(document).to.exist;
-                document = await notary.notarizeDocument(document);
+                const component = bali.component(source, debug);
+                expect(component).to.exist;
+                var document = await notary.notarizeDocument(component);
                 expect(document).to.exist;
                 const citation = await notary.citeDocument(document);
                 expect(citation).to.exist;
@@ -67,11 +67,11 @@ describe('Bali Nebula™ Virtual Machine™', function() {
                 const documentId = citation.getValue('$tag').getValue() + citation.getValue('$version');
                 expect(documentId).to.exist;
                 await repository.createDocument(documentId, document);
-                var type = await compiler.compileType(document);
+                const type = await compiler.compileType(document);
                 expect(type).to.exist;
-                type = await notary.notarizeDocument(type);
-                expect(type).to.exist;
-                await repository.createType(documentId, type);
+                document = await notary.notarizeComponent(type);
+                expect(document).to.exist;
+                await repository.createType(documentId, document);
             }
         });
 
