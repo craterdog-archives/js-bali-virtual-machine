@@ -27,7 +27,7 @@ const EVENT_QUEUE = '3RMGDVN7D6HLAPFXQNPF7DV71V3MAL43';
 
 /**
  * This function creates a new processor to execute the specified task.
- * 
+ *
  * @constructor
  * @param {Object} notary An object that implements the Bali Nebula™ digital notary interface.
  * @param {Object} repository An object that implements the Bali Nebula™ document repository interface.
@@ -53,7 +53,7 @@ exports.VirtualProcessor = VirtualProcessor;
 /**
  * This method returns a string representation of the current processor state using
  * Bali Document Notation™.
- * 
+ *
  * @returns {String} A string representation of the current processor state.
  */
 VirtualProcessor.prototype.toString = function() {
@@ -64,7 +64,7 @@ VirtualProcessor.prototype.toString = function() {
 
 /**
  * This method executes the next instruction in the current task.
- * 
+ *
  * @returns {Boolean} Whether or not an instruction was executed.
  */
 VirtualProcessor.prototype.step = async function() {
@@ -125,7 +125,7 @@ VirtualProcessor.prototype.run = async function() {
 /**
  * This function extracts the '$tag' and '$version' attributes from the specified catalog
  * and uses them to form a unique identification string.
- * 
+ *
  * @param {Catalog} catalog A catalog component.
  * @returns {String} A unique identification string for the component.
  */

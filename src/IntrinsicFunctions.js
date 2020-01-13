@@ -21,7 +21,7 @@ const bali = require('bali-component-framework').api();
 /**
  * This function invokes the intrinsic function associated with the specified index using
  * the specified arguments.
- * 
+ *
  * @param {Number} index The index of the intrinsic function to invoke.
  * @param {Array} args The arguments to be passed to the function invocation.
  * @returns {Object} The result of the intrinsic function invocation.

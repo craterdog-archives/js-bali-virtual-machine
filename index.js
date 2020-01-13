@@ -15,7 +15,7 @@ const VirtualProcessor = require('./src/VirtualProcessor').VirtualProcessor;
 
 /**
  * This function returns an object that implements the Bali Nebula™ virtual machine interface.
- * 
+ *
  * @param {Object} notary An object that implements the Bali Nebula™ digital notary interface.
  * @param {Object} repository An object that implements the Bali Nebula™ document repository interface.
  * @param {Object} compiler An object that implements the Bali Nebula™ procedure compiler interface.
@@ -30,7 +30,7 @@ exports.api = function(notary, repository, compiler, debug) {
 
         /**
          * This function returns a new message that can be sent to a target component.
-         * 
+         *
          * @param {Symbol} procedure The name of the procedure defined by the target's type.
          * @param {Parameters} parameters The parameters that are passed.
          * @param {Tag} queue The queue on which to place the result of the message handling.
@@ -55,7 +55,7 @@ exports.api = function(notary, repository, compiler, debug) {
 
         /**
          * This function returns a new task that is ready to execute on a virtual processor.
-         * 
+         *
          * @param {Component} target The component that is the target of the message.
          * @param {Catalog} message The message and parameters to be sent to the target.
          * @param {Number} tokens The maximum number of tokens that can be spent on this task.
@@ -157,7 +157,7 @@ exports.api = function(notary, repository, compiler, debug) {
 
         /**
          * This function returns a new virtual process for the specified task.
-         * 
+         *
          * @param {Catalog} task A catalog containing the task definition for the processor.
          * @returns {VirtualProcessor} A new virtual processor initialized with the task.
          */
