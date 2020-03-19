@@ -1,12 +1,12 @@
-![Logo](docs/images/CraterDogLogo.png)
-
-### Bali Nebula™ Virtual Machine
-This project provides a JavaScript version of the the Bali Nebula™ virtual machine.
-
-![Pyramid](docs/images/BaliPyramid.png)
+## Bali Nebula™ Virtual Machine
+<img src="https://craterdog.com/images/CraterDogLogo.png" width="50%">
 
 _**WARNING**_
 _This project is still in its early stages and the classes and interfaces to the classes are likely to change._
+
+This project provides a JavaScript version of the the Bali Nebula™ virtual machine.
+
+![Pyramid](docs/images/BaliPyramid.png)
 
 ### Quick Links
 For more information on this project click on the following links:
