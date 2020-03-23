@@ -9,7 +9,6 @@
  ************************************************************************/
 'use strict';
 
-const bali = require('bali-component-framework').api();
 const VirtualProcessor = require('./src/VirtualProcessor').VirtualProcessor;
 
 
@@ -25,6 +24,7 @@ const VirtualProcessor = require('./src/VirtualProcessor').VirtualProcessor;
  */
 exports.api = function(notary, repository, compiler, debug) {
     debug = debug || false;
+    const bali = require('bali-component-framework').api(debug);
 
     return {
 

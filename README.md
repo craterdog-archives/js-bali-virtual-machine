@@ -18,6 +18,7 @@ npm install bali-virtual-machine
 ```
 Then add the following line to your NodeJS modules:
 ```
+const debug = 1;  // debugging level: [0..3]
 const machine = require('bali-virtual-machine').api(notary, repository, compiler, debug);
 ```
 
