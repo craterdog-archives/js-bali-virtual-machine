@@ -50,15 +50,15 @@ const functions = [
 
     // $addItem
     function(collection, item) {
-        validateParameterAbstraction('$addItem', '$Collection', collection);
+        validateParameterInterface('$addItem', '$Collection', collection);
         collection.addItem(item);
         return collection;
     },
 
     // $addItems
     function(collection, items) {
-        validateParameterAbstraction('$addItems', '$Collection', collection);
-        validateParameterAbstraction('$addItems', '$Collection', items);
+        validateParameterInterface('$addItems', '$Collection', collection);
+        validateParameterInterface('$addItems', '$Collection', items);
         collection.addItems(items);
         return collection;
     },
@@ -70,8 +70,8 @@ const functions = [
 
     // $and
     function(first, second) {
-        validateParameterAbstraction('$and', '$Logical', first);
-        validateParameterAbstraction('$and', '$Logical', second);
+        validateParameterInterface('$and', '$Logical', first);
+        validateParameterInterface('$and', '$Logical', second);
         validateAreSameTypes('$and', first, second);
         return first.constructor.and(first, second);
     },
@@ -102,7 +102,7 @@ const functions = [
 
     // $association
     function(key, value) {
-        validateParameterAbstraction('$association', '$Element', key);
+        validateParameterInterface('$association', '$Element', key);
         return bali.association(key, value);
     },
 
@@ -150,7 +150,7 @@ const functions = [
 
     // $boolean
     function(component) {
-        validateParameterAbstraction('$boolean', '$Component', component);
+        validateParameterInterface('$boolean', '$Component', component);
         return bali.probability(component.toBoolean());
     },
 
@@ -162,7 +162,7 @@ const functions = [
 
     // $catalog
     function(items, parameters) {
-        validateOptionalParameterAbstraction('$catalog', '$Collection', items);
+        validateOptionalParameterInterface('$catalog', '$Collection', items);
         validateOptionalParameterType('$catalog', '$Catalog', parameters);
         return bali.catalog(items, parameters);
     },
@@ -193,8 +193,8 @@ const functions = [
 
     // $concatenation
     function(first, second) {
-        validateParameterAbstraction('$concatenation', '$Chainable', first);
-        validateParameterAbstraction('$concatenation', '$Chainable', second);
+        validateParameterInterface('$concatenation', '$Chainable', first);
+        validateParameterInterface('$concatenation', '$Chainable', second);
         validateAreSameTypes('$concatenation', first, second);
         return first.constructor.concatenation(first, second);
     },
@@ -207,21 +207,21 @@ const functions = [
 
     // $containsAll
     function(collection, items) {
-        validateParameterAbstraction('$containsAll', '$Collection', collection);
-        validateParameterAbstraction('$containsAll', '$Collection', items);
+        validateParameterInterface('$containsAll', '$Collection', collection);
+        validateParameterInterface('$containsAll', '$Collection', items);
         return bali.probability(collection.containsAll(items));
     },
 
     // $containsAny
     function(collection, items) {
-        validateParameterAbstraction('$containsAny', '$Collection', collection);
-        validateParameterAbstraction('$containsAny', '$Collection', items);
+        validateParameterInterface('$containsAny', '$Collection', collection);
+        validateParameterInterface('$containsAny', '$Collection', items);
         return bali.probability(collection.containsAny(items));
     },
 
     // $containsItem
     function(collection, item) {
-        validateParameterAbstraction('$containsItem', '$Collection', collection);
+        validateParameterInterface('$containsItem', '$Collection', collection);
         return bali.probability(collection.containsItem(item));
     },
 
@@ -239,8 +239,8 @@ const functions = [
 
     // $difference
     function(first, second) {
-        validateParameterAbstraction('$difference', '$Scalable', first);
-        validateParameterAbstraction('$difference', '$Scalable', second);
+        validateParameterInterface('$difference', '$Scalable', first);
+        validateParameterInterface('$difference', '$Scalable', second);
         validateAreSameTypes('$difference', first, second);
         return first.constructor.difference(first, second);
     },
@@ -316,13 +316,13 @@ const functions = [
 
     // $getIndex
     function(collection, item) {
-        validateParameterAbstraction('$getIndex', '$Collection', collection);
+        validateParameterInterface('$getIndex', '$Collection', collection);
         return bali.number(collection.getIndex(item));
     },
 
     // $getItem
     function(collection, index) {
-        validateParameterAbstraction('$getItem', '$Collection', collection);
+        validateParameterInterface('$getItem', '$Collection', collection);
         validateParameterType('$getItem', '$Number', index);
         validateIndex('$getItem', collection.getSize(), index);
         return collection.getItem(index.getNumber());
@@ -330,7 +330,7 @@ const functions = [
 
     // $getItems
     function(collection, range) {
-        validateParameterAbstraction('$getItems', '$Collection', collection);
+        validateParameterInterface('$getItems', '$Collection', collection);
         validateParameterType('$getItems', '$Range', range);
         return collection.getItems(range);
     },
@@ -349,7 +349,7 @@ const functions = [
 
     // $getParameter
     function(component, key) {
-        validateParameterAbstraction('$getParameter', '$Element', key);
+        validateParameterInterface('$getParameter', '$Element', key);
         return component.getParameter(key);
     },
 
@@ -373,7 +373,7 @@ const functions = [
     // $getValue
     function(catalog, key) {
         validateParameterType('$getValue', '$Catalog', catalog);
-        validateParameterAbstraction('$getValue', '$Element', key);
+        validateParameterInterface('$getValue', '$Element', key);
         return catalog.getValue(key) || bali.pattern.NONE;
     },
 
@@ -420,7 +420,7 @@ const functions = [
     function(list, index, items) {
         validateParameterType('$insertItems', '$List', list);
         validateParameterType('$insertItems', '$Number', index);
-        validateParameterAbstraction('$insertItems', '$Collection', items);
+        validateParameterInterface('$insertItems', '$Collection', items);
         validateIndex('$insertItems', list.getSize(), index);
         list.insertItems(index.getNumber(), items);
         return list;
@@ -433,13 +433,13 @@ const functions = [
 
     // $inverse
     function(scalable) {
-        validateParameterAbstraction('$inverse', '$Scalable', scalable);
+        validateParameterInterface('$inverse', '$Scalable', scalable);
         return scalable.constructor.inverse(scalable);
     },
 
     // $isEmpty
     function(sequential) {
-        validateParameterAbstraction('$isEmpty', '$Sequential', sequential);
+        validateParameterInterface('$isEmpty', '$Sequential', sequential);
         return bali.probability(sequential.isEmpty());
     },
 
@@ -499,7 +499,7 @@ const functions = [
 
     // $list
     function(items, parameters) {
-        validateOptionalParameterAbstraction('$list', '$Collection', items);
+        validateOptionalParameterInterface('$list', '$Collection', items);
         validateOptionalParameterType('$list', '$Catalog', parameters);
         return bali.list(items, parameters);
     },
@@ -532,7 +532,7 @@ const functions = [
 
     // $not
     function(logical) {
-        validateParameterAbstraction('$not', '$Logical', logical);
+        validateParameterInterface('$not', '$Logical', logical);
         return logical.constructor.not(logical);
     },
 
@@ -548,8 +548,8 @@ const functions = [
 
     // $or
     function(first, second) {
-        validateParameterAbstraction('$or', '$Logical', first);
-        validateParameterAbstraction('$or', '$Logical', second);
+        validateParameterInterface('$or', '$Logical', first);
+        validateParameterInterface('$or', '$Logical', second);
         validateAreSameTypes('$or', first, second);
         return first.constructor.or(first, second);
     },
@@ -604,7 +604,7 @@ const functions = [
 
     // $queue
     function(items, parameters) {
-        validateOptionalParameterAbstraction('$queue', '$Collection', items);
+        validateOptionalParameterInterface('$queue', '$Collection', items);
         validateOptionalParameterType('$queue', '$Catalog', parameters);
         return bali.queue(items, parameters);
     },
@@ -650,7 +650,7 @@ const functions = [
 
     // $removeAll
     function(collection) {
-        validateParameterAbstraction('$removeAll', '$Collection', collection);
+        validateParameterInterface('$removeAll', '$Collection', collection);
         collection.removeAll();
         return collection;
     },
@@ -678,7 +678,7 @@ const functions = [
     // $removeItems
     function(set, items) {
         validateParameterType('$removeItems', '$Set', set);
-        validateParameterAbstraction('$removeItems', '$Collection', items);
+        validateParameterInterface('$removeItems', '$Collection', items);
         return bali.number(set.removeItems(items));
     },
 
@@ -698,7 +698,7 @@ const functions = [
     // $removeValue
     function(catalog, key) {
         validateParameterType('$removeValue', '$Catalog', catalog);
-        validateParameterAbstraction('$removeValue', '$Element', key);
+        validateParameterInterface('$removeValue', '$Element', key);
         return catalog.removeValue(key);
     },
 
@@ -711,22 +711,22 @@ const functions = [
 
     // $reverseItems
     function(sortable) {
-        validateParameterAbstraction('$reverseItems', '$Sortable', sortable);
+        validateParameterInterface('$reverseItems', '$Sortable', sortable);
         sortable.reverseItems();
         return sortable;
     },
 
     // $sans
     function(first, second) {
-        validateParameterAbstraction('$sans', '$Logical', first);
-        validateParameterAbstraction('$sans', '$Logical', second);
+        validateParameterInterface('$sans', '$Logical', first);
+        validateParameterInterface('$sans', '$Logical', second);
         validateAreSameType('$sans', first, second);
         return first.constructor.sans(first, second);
     },
 
     // $scaled
     function(scalable, factor) {
-        validateParameterAbstraction('$scaled', '$Scalable', scalable);
+        validateParameterInterface('$scaled', '$Scalable', scalable);
         validateParameterType('$scaled', '$Number', factor);
         return scalable.constructor.scaled(scalable, factor);
     },
@@ -739,7 +739,7 @@ const functions = [
 
     // $set
     function(items, parameters) {
-        validateOptionalParameterAbstraction('$set', '$Collection', items);
+        validateOptionalParameterInterface('$set', '$Collection', items);
         validateOptionalParameterType('$set', '$Catalog', parameters);
         return bali.set(items, parameters);
     },
@@ -756,7 +756,7 @@ const functions = [
     // $setValue
     function(catalog, key, value) {
         validateParameterType('$setValue', '$Catalog', catalog);
-        validateParameterAbstraction('$setValue', '$Element', key);
+        validateParameterInterface('$setValue', '$Element', key);
         catalog.setValue(key, value);
         return catalog;
     },
@@ -776,20 +776,20 @@ const functions = [
 
     // $size
     function(sequential) {
-        validateParameterAbstraction('$size', '$Sequential', sequential);
+        validateParameterInterface('$size', '$Sequential', sequential);
         return bali.number(sequential.getSize());
     },
 
     // $sortItems
     function(sortable) {
-        validateParameterAbstraction('$sortItems', '$Sortable', sortable);
+        validateParameterInterface('$sortItems', '$Sortable', sortable);
         sortable.sortItems();
         return sortable;
     },
 
     // $stack
     function(items, parameters) {
-        validateOptionalParameterAbstraction('$stack', '$Collection', items);
+        validateOptionalParameterInterface('$stack', '$Collection', items);
         validateOptionalParameterType('$stack', '$Catalog', parameters);
         return bali.stack(items, parameters);
     },
@@ -802,8 +802,8 @@ const functions = [
 
     // $sum
     function(first, second) {
-        validateParameterAbstraction('$sum', '$Scalable', first);
-        validateParameterAbstraction('$sum', '$Scalable', second);
+        validateParameterInterface('$sum', '$Scalable', first);
+        validateParameterInterface('$sum', '$Scalable', second);
         validateAreSameType('$sum', first, second);
         return first.constructor.sum(first, second);
     },
@@ -857,7 +857,7 @@ const functions = [
     // $tree
     function(type, children) {
         validateParameterType('$tree', '$Name', type);
-        validateOptionalParameterAbstraction('$tree', '$Collection', children);
+        validateOptionalParameterInterface('$tree', '$Collection', children);
         return bali.tree(type, children);
     },
 
@@ -881,8 +881,8 @@ const functions = [
 
     // $xor
     function(first, second) {
-        validateParameterAbstraction('$xor', '$Logical', first);
-        validateParameterAbstraction('$xor', '$Logical', second);
+        validateParameterInterface('$xor', '$Logical', first);
+        validateParameterInterface('$xor', '$Logical', second);
         validateAreSameType('$xor', first, second);
         return first.constructor.xor(first, second);
     }
@@ -892,25 +892,6 @@ const functions = [
 
 // PRIVATE FUNCTIONS
 
-/*
- * This function returns the type name for the specified component
- */
-function getType(component) {
-    var reference;
-    if (component.isType('$Catalog') && component.isParameterized()) {
-        const value = component.getParameters().getValue('$type');
-        if (value && value.isType('$Name')) {
-            // the type is a explicitly named type
-            reference = value;
-        }
-    } else {
-        // the type is the component type
-        reference = bali.parse(bali.type(component));
-    }
-    return reference;
-}
-
-
 function validateParameterType(procedure, type, parameter) {
     if (!parameter.isType(type)) {
         throw bali.exception({
@@ -918,23 +899,37 @@ function validateParameterType(procedure, type, parameter) {
             $procedure: procedure,
             $exception: '$parameterType',
             $expected: type,
-            $actual: parameter.getType(),
-            $message: 'An invalid parameter type was passed into an intrinsic function.'
+            $actual: parameter.getAncestry(),
+            $message: 'A parameter passed into an intrinsic function does not have the required ancestry.'
         });
     }
 }
 
 
-function validateParameterAbstraction(procedure, abstraction, parameter) {
-    if (!(parameter['is' + abstraction.slice(1)]())) {
+function validateOptionalParameterType(procedure, type, parameter) {
+    if (parameter && !parameter.isEqualTo(bali.pattern.NONE)) {
+        validateParameterType(procedure, type, parameter);
+    }
+}
+
+
+function validateParameterInterface(procedure, iface, parameter) {
+    if (!parameter.supportsInterface(iface)) {
         throw bali.exception({
             $module: '/bali/vm/Intrinsics',
             $procedure: procedure,
             $exception: '$parameterType',
-            $expected: abstraction,
+            $expected: iface,
             $actual: parameter.getType(),
-            $message: 'An invalid parameter type was passed into an intrinsic function.'
+            $message: 'A parameter passed into an intrinsic function does not support a required interface.'
         });
+    }
+}
+
+
+function validateOptionalParameterInterface(procedure, iface, parameter) {
+    if (parameter && !parameter.isEqualTo(bali.pattern.NONE)) {
+        validateParameterInterface(procedure, iface, parameter);
     }
 }
 
@@ -948,7 +943,7 @@ function validateIndex(procedure, size, index) {
             $exception: '$parameterValue',
             $expected: bali.range(1, size),
             $actual: index,
-            $message: 'An invalid parameter type was passed into an intrinsic function.'
+            $message: 'An invalid index was passed into an intrinsic function.'
         });
     }
 }
