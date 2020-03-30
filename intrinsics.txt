@@ -1,0 +1,133 @@
+addItem(collection, item) -> collection
+addItems(collection, items) -> collection
+ancestry(component) -> list(name)
+and(firstLogical, secondLogical) -> logical
+arccosine(ratio) -> angle
+arcsine(ratio) -> angle
+arctangent(opposite, adjacent) -> angle
+association(key, value) -> association
+authority(reference) -> text
+base2(binary, indentation) -> text
+base16(binary, indentation) -> text
+base32(binary, indentation) -> text
+base64(binary, indentation) -> text
+binary(number, parameters) -> binary(random)
+boolean(component) -> probability(boolean)
+bytes(tag) -> binary
+catalog(associations, parameters) -> catalog
+coinToss(probability) -> probability(boolean)
+comparison(firstComponent, secondComponent) -> number(-1..1)
+complement(angle) -> angle
+component(text) -> component
+concatenation(firstSequential, secondSequential) -> sequential
+conjugate(number) -> number
+containsAll(collection, items) -> probability(boolean)
+containsAny(collection, items) -> probability(boolean)
+containsItem(collection, item) -> probability(boolean)
+cosine(angle) -> number
+default(component, component) -> component
+degrees(angle) -> number
+difference(firstScalable, secondScalable) -> scalable
+document(component, indentation) -> text
+duplicate(component) -> component
+duration(firstMoment, lastMoment) -> duration
+earlier(moment, duration) -> moment
+equal(first, second) -> probability(boolean)
+exponential(base, exponent) -> number
+extraction(catalog, keys) -> catalog
+factorial(number) -> number
+format(moment) -> text
+fragment(reference) -> text
+getFirst(range) -> element
+getHead(queue) -> component
+getIndex(collection, item) -> number(1..infinity)
+getItem(collection, index) -> component
+getItems(collection, range) -> collection
+getLast(range) -> element
+getNext(iterator) -> component
+getParameter(component, key) -> component
+getPrevious(iterator) -> component
+getTop(stack) -> component
+getValue(catalog, key) -> component
+getValues(catalog, keys) -> list
+hash(component) -> number
+hasNext(iterator) -> probability(boolean)
+hasPrevious(iterator) -> probability(boolean)
+HTML(component, style) -> text
+imaginary(number) -> number
+insertItem(list, index, item) -> list
+insertItems(list, index, items) -> list
+interfaces(component) -> list(name)
+inverse(scalable) -> scalable
+isEmpty(sequential) -> probability(boolean)
+isInfinite(number) -> probability(boolean)
+isParameterized(component) -> probability(boolean)
+isType(component, type) -> probability(boolean)
+isUndefined(number) -> probability(boolean)
+isZero(number) -> probability(boolean)
+key(association) -> element
+keys(catalog) -> list
+later(moment, duration) -> moment
+less(first, second) -> probability(boolean)
+levels(version) -> list(1..infinity)
+list(items, parameters) -> list
+logarithm(base, value) -> number
+magnitude(number) -> number
+matches(component, pattern) -> probability(boolean)
+more(first, second) -> probability(boolean)
+nextVersion(version, level) -> version
+not(logical) -> logical
+now() -> moment(current)
+number(numerical) -> number
+or(firstLogical, secondLogical) -> logical
+parameters(component) -> catalog
+parent(tree) -> tree
+path(reference) -> text
+phase(number) -> angle
+probability() -> probability(random)
+procedure(statements, parameters) -> procedure
+product(firstNumber, secondNumber) -> number
+query(reference) -> text
+queue(items, parameters) -> queue
+quotient(firstNumber, secondNumber) -> number
+radians(angle) -> number
+range(firstItem, lastItem, parameters) -> range
+real(number) -> number
+reciprocal(number) -> number
+remainder(firstNumber, secondNumber) -> number
+removeAll(collection) -> collection
+removeHead(queue) -> component
+removeIndex(list, index) -> component
+removeItem(set, item) -> probability(boolean)
+removeItems(set, items) -> number(0..infinity)
+removeRange(list, range) -> list
+removeTop(stack) -> component
+removeValue(catalog, key) -> component
+removeValues(catalog, keys) -> list
+reverseItems(sequential) -> sequential
+same(first, second) -> probability(boolean)
+sans(firstLogical, secondLogical) -> logical
+scaled(scalable, factor) -> scalable
+scheme(reference) -> text
+set(items, parameters) -> set
+setItem(list, index, item) -> list
+setValue(catalog, key, value) -> catalog
+shuffleItems(list) -> list
+sine(angle) -> number
+size(sequential) -> number
+sortItems(sequential) -> sequential
+stack(items, parameters) -> stack
+statements(procedure) -> tree
+sum(firstNumber, secondNumber) -> number
+supplement(angle) -> angle
+supportsInterface(component, interface) -> probability(boolean)
+tag(size) -> tag
+tangent(angle) -> number
+toEnd(iterator) -> iterator
+toSlot(iterator, slot) -> iterator
+toStart(iterator) -> iterator
+tree(type, children) -> tree
+type(component) -> name
+validNextVersion(version, nextVersion) -> probability(boolean)
+value(association) -> component
+xor(firstLogical, secondLogical) -> logical

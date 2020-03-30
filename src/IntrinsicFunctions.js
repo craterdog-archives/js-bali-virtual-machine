@@ -42,12 +42,6 @@ const functions = [
         throw new Error('PROCESSOR: No intrinsic function should have an index of zero.');
     },
 
-    // $HTML
-    function(component, style) {
-        validateParameterType('$HTML', '$Reference', style);
-        return bali.text(EOL + component.toHTML(style.getValue().toString()) + EOL);
-    },
-
     // $addItem
     function(collection, item) {
         validateParameterInterface('$addItem', '$Collection', collection);
@@ -93,11 +87,6 @@ const functions = [
         validateParameterType('$arctangent', '$Number', opposite);
         validateParameterType('$arctangent', '$Number', adjacent);
         return bali.angle.arctangent(opposite.toNumber(), adjacent.toNumber());
-    },
-
-    // $areEqual
-    function(first, second) {
-        return bali.probability(first.isEqualTo(second));
     },
 
     // $association
@@ -231,6 +220,11 @@ const functions = [
         return bali.number(bali.angle.cosine(angle));
     },
 
+    // $default
+    function(component, defaultValue) {
+        return !component.isEqualTo(bali.pattern.NONE) ? component : defaultValue;
+    },
+
     // $degrees
     function(angle) {
         validateParameterType('$degrees', '$Angle', angle);
@@ -268,6 +262,11 @@ const functions = [
         validateParameterType('$earlier', '$Moment', moment);
         validateParameterType('$earlier', '$Duration', duration);
         return bali.moment.earlier(moment, duration);
+    },
+
+    // $equal
+    function(first, second) {
+        return bali.probability(first.isEqualTo(second));
     },
 
     // $exponential
@@ -353,11 +352,6 @@ const functions = [
         return component.getParameter(key);
     },
 
-    // $getParameters
-    function(component) {
-        return component.getParameters();
-    },
-
     // $getPrevious
     function(iterator) {
         validateParameterType('$getPrevious', '$Iterator', iterator);
@@ -384,6 +378,11 @@ const functions = [
         return catalog.getValues(keys);
     },
 
+    // $hash
+    function(component) {
+        return bali.number(component.getHash());
+    },
+
     // $hasNext
     function(iterator) {
         validateParameterType('$hasNext', '$Iterator', iterator);
@@ -396,9 +395,10 @@ const functions = [
         return iterator.hasPrevious();
     },
 
-    // $hash
-    function(component) {
-        return bali.number(component.getHash());
+    // $HTML
+    function(component, style) {
+        validateParameterType('$HTML', '$Reference', style);
+        return bali.text(EOL + component.toHTML(style.getValue().toString()) + EOL);
     },
 
     // $imaginary
@@ -491,6 +491,11 @@ const functions = [
         return bali.moment.later(moment, duration);
     },
 
+    // $less
+    function(first, second) {
+        return bali.probability(first.comparedTo(second) < 0);
+    },
+
     // $levels
     function(version) {
         validateParameterType('$levels', '$Version' , version);
@@ -520,6 +525,11 @@ const functions = [
     function(component, pattern) {
         validateParameterType('$matches', '$Pattern', pattern);
         return bali.probability(component.isMatchedBy(pattern));
+    },
+
+    // $more
+    function(first, second) {
+        return bali.probability(first.comparedTo(second) > 0);
     },
 
     // $nextVersion
@@ -714,6 +724,11 @@ const functions = [
         validateParameterInterface('$reverseItems', '$Sortable', sortable);
         sortable.reverseItems();
         return sortable;
+    },
+
+    // $same
+    function(first, second) {
+        return bali.probability(first === second);
     },
 
     // $sans
