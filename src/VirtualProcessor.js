@@ -13,7 +13,6 @@
  * This class implements the virtual processor for The Bali Nebula™.
  */
 const bali = require('bali-component-framework').api();
-const intrinsics = require('./IntrinsicFunctions');
 
 const ACTIVE = '$active';
 const WAITING = '$waiting';
@@ -716,46 +715,46 @@ const instructionHandlers = [
     async function(processor, operand) {
         const index = operand;
         // call the intrinsic function associated with the index operand
-        const result = intrinsics.invoke(index);
+        const result = processor.compiler.invoke(index);
         // push the result of the function call onto the top of the component stack
         processor.task.stack.addItem(result);
         processor.context.address++;
     },
 
-    // INVOKE symbol WITH PARAMETER
+    // INVOKE symbol WITH 1 ARGUMENT
     async function(processor, operand) {
         const index = operand;
-        // pop the parameter off of the component stack
-        const parameter = processor.task.stack.removeItem();
+        // pop the argument off of the component stack
+        const argument = processor.task.stack.removeItem();
         // call the intrinsic function associated with the index operand
-        const result = intrinsics.invoke(index, parameter);
+        const result = processor.compiler.invoke(index, argument);
         // push the result of the function call onto the top of the component stack
         processor.task.stack.addItem(result);
         processor.context.address++;
     },
 
-    // INVOKE symbol WITH 2 PARAMETERS
+    // INVOKE symbol WITH 2 ARGUMENTS
     async function(processor, operand) {
         const index = operand;
-        // pop the parameters off of the component stack (in reverse order)
-        const parameter2 = processor.task.stack.removeItem();
-        const parameter1 = processor.task.stack.removeItem();
+        // pop the arguments off of the component stack (in reverse order)
+        const argument2 = processor.task.stack.removeItem();
+        const argument1 = processor.task.stack.removeItem();
         // call the intrinsic function associated with the index operand
-        const result = intrinsics.invoke(index, parameter1, parameter2);
+        const result = processor.compiler.invoke(index, argument1, argument2);
         // push the result of the function call onto the top of the component stack
         processor.task.stack.addItem(result);
         processor.context.address++;
     },
 
-    // INVOKE symbol WITH 3 PARAMETERS
+    // INVOKE symbol WITH 3 ARGUMENTS
     async function(processor, operand) {
         const index = operand;
-        // pop the parameters call off of the component stack (in reverse order)
-        const parameter3 = processor.task.stack.removeItem();
-        const parameter2 = processor.task.stack.removeItem();
-        const parameter1 = processor.task.stack.removeItem();
+        // pop the arguments call off of the component stack (in reverse order)
+        const argument3 = processor.task.stack.removeItem();
+        const argument2 = processor.task.stack.removeItem();
+        const argument1 = processor.task.stack.removeItem();
         // call the intrinsic function associated with the index operand
-        const result = intrinsics.invoke(index, parameter1, parameter2, parameter3);
+        const result = processor.compiler.invoke(index, argument1, argument2, argument3);
         // push the result of the function call onto the top of the component stack
         processor.task.stack.addItem(result);
         processor.context.address++;
@@ -765,21 +764,21 @@ const instructionHandlers = [
     async function(processor, operand) {
         // setup the new procedure context
         const index = operand;
-        const parameters = bali.parameters(bali.list());
+        const args = bali.arguments(bali.list());
         const target = bali.pattern.NONE;
         const typeName = processor.task.stack.removeItem();
-        await pushContext(processor, target, typeName, parameters, index);
+        await pushContext(processor, target, typeName, args, index);
         processor.context.address++;
     },
 
-    // EXECUTE symbol WITH PARAMETERS
+    // EXECUTE symbol WITH ARGUMENTS
     async function(processor, operand) {
         // setup the new procedure context
         const index = operand;
-        const parameters = processor.task.stack.removeItem();
+        const args = processor.task.stack.removeItem();
         const target = bali.pattern.NONE;
         const typeName = processor.task.stack.removeItem();
-        await pushContext(processor, target, typeName, parameters, index);
+        await pushContext(processor, target, typeName, args, index);
         processor.context.address++;
     },
 
@@ -787,21 +786,21 @@ const instructionHandlers = [
     async function(processor, operand) {
         // setup the new procedure context
         const index = operand;
-        const parameters = bali.parameters(bali.list());
+        const args = bali.arguments(bali.list());
         const target = processor.task.stack.removeItem();
         const typeName = target.getType();
-        await pushContext(processor, target, typeName, parameters, index);
+        await pushContext(processor, target, typeName, args, index);
         processor.context.address++;
     },
 
-    // EXECUTE symbol ON TARGET WITH PARAMETERS
+    // EXECUTE symbol ON TARGET WITH ARGUMENTS
     async function(processor, operand) {
         // setup the new procedure context
         const index = operand;
-        const parameters = processor.task.stack.removeItem();
+        const args = processor.task.stack.removeItem();
         const target = processor.task.stack.removeItem();
         const typeName = target.getType();
-        await pushContext(processor, target, typeName, parameters, index);
+        await pushContext(processor, target, typeName, args, index);
         processor.context.address++;
     },
 
