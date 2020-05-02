@@ -9,15 +9,13 @@
  ************************************************************************/
 
 const debug = 0;  // set to true for error logging
-const directory = 'test/config/';
 const pfs = require('fs').promises;
 const mocha = require('mocha');
 const expect = require('chai').expect;
-const bali = require('bali-component-framework').api();
+const bali = require('bali-component-framework').api(debug);
 const account = bali.component('#GTDHQ9B8ZGS7WCBJJJBFF6KDCCF55R2P');
-const api = require('bali-digital-notary');
-const securityModule = api.ssm(directory);
-const notary = api.notary(securityModule, account, directory);
+const directory = 'test/config/';
+const notary = require('bali-digital-notary').test(account, directory, debug);
 const repository = require('bali-document-repository').local(directory, debug);
 const compiler = require('bali-type-compiler').api(notary, repository, debug);
 const vm = require('../index').api(notary, repository, compiler, debug);
@@ -38,12 +36,11 @@ describe('Bali Nebula™ Virtual Machine™', function() {
         it('should generate the notary key and publish its certificate', async function() {
             const certificate = await notary.generateKey();
             expect(certificate).to.exist;
-            const document = await notary.notarizeComponent(certificate);
+            const document = await notary.notarizeDocument(certificate);
             expect(document).to.exist;
             const citation = await notary.activateKey(document);
             expect(citation).to.exist;
-            const documentId = extractId(certificate);
-            await repository.createDocument(documentId, document);
+            await repository.writeDocument(document);
         });
 
         it('should compile example type documents into compiled type documents', async function() {
@@ -63,15 +60,13 @@ describe('Bali Nebula™ Virtual Machine™', function() {
                 const citation = await notary.citeDocument(document);
                 expect(citation).to.exist;
                 const name = '/bali/examples/' + prefix + '/v1';
-                await repository.createCitation(name, citation);
-                const documentId = citation.getValue('$tag').getValue() + citation.getValue('$version');
-                expect(documentId).to.exist;
-                await repository.createDocument(documentId, document);
+                await repository.writeName(name, citation);
+                await repository.writeDocument(document);
                 const type = await compiler.compileType(document);
                 expect(type).to.exist;
-                document = await notary.notarizeComponent(type);
+                document = await notary.notarizeDocument(type);
                 expect(document).to.exist;
-                await repository.createType(documentId, document);
+                await repository.writeDocument(document);
             }
         });
 
