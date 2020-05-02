@@ -18,7 +18,7 @@ const ACTIVE = '$active';
 const WAITING = '$waiting';
 const DONE = '$done';
 const EOL = '\n';  // This private constant sets the POSIX end of line character
-const WAIT_QUEUE = '3F8TVTX4SVG5Z12F3RMYZCTWHV2VPX4K';
+const TASK_QUEUE = '3F8TVTX4SVG5Z12F3RMYZCTWHV2VPX4K';
 const EVENT_QUEUE = '3RMGDVN7D6HLAPFXQNPF7DV71V3MAL43';
 
 
@@ -322,7 +322,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         // queue up the task for a new virtual processor
         const task = exportTask();
         task = await notary.notarizeDocument(task);
-        await repository.addMessage(WAIT_QUEUE, task);
+        await repository.addMessage(TASK_QUEUE, task);
     };
 
     const pushContext = async function(target, message, args) {
@@ -348,7 +348,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                 $exception: '$unsupportedMessage',
                 $message: message,
                 $ancestry: ancestry,
-                $text: 'The message passed to the target component is not supported.'
+                $text: 'The message passed to the target component is not supported by any of its types.'
             });
             if (debug > 0) console.error(exception.toString());
             throw exception;
@@ -359,13 +359,13 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         const bytecode = compiler.bytecode(bytes);
 
         // retrieve the literals and constants for the type
-        const literals = type.getValue('$literals');
-        const constants = type.getValue('$constants').duplicate();
-        constants.setValue('$target', target);
+        const literals = type.getValue('$literals') || bali.set();
+        const constants = type.getValue('$constants') || bali.catalog();
 
         // set the argument values for the passed arguments
-        const argumentz = bali.catalog();
+        const argumentz = bali.catalog({$target: target});
         var nameIterator = method.getValue('$arguments').getIterator();
+        nameIterator.getNext();  // skip the $target name
         var valueIterator = args.getIterator();
         while (nameIterator.hasNext() && valueIterator.hasNext()) {
             const name = nameIterator.getNext();
@@ -373,10 +373,11 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             argumentz.setValue(name, value);
         }
 
-        // set the rest of the argument values to 'none' TODO: really should be to the default values
+        // set the rest of the argument values to their default values
+        const procedure = method.getValue('$procedure');
         while (nameIterator.hasNext()) {
             const name = nameIterator.getNext();
-            const value = bali.pattern.NONE;
+            const value = procedure.getParameter(name);
             argumentz.setValue(name, value);
         }
 
@@ -494,7 +495,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const index = operand;
             // lookup the argument associated with the index
-            const argument = context.arguments.getItem(index).getValue();
+            const argument = context.argumentz.getItem(index).getValue();
             state.stack.addItem(argument);
             context.address++;
         },
@@ -516,7 +517,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
 
         // UNIMPLEMENTED POP OPERATION
         async function(operand) {
-            throw bali.exception({
+            const exception = bali.exception({
                 $module: '/bali/processor/VirtualProcessor',
                 $procedure: '$pop3',
                 $exception: '$notImplemented',
@@ -524,11 +525,13 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                 $processor: captureState(),
                 $message: 'An unimplemented POP operation was attempted.'
             });
+            if (debug) console.error(exception.toString());
+            throw exception;
         },
 
         // UNIMPLEMENTED POP OPERATION
         async function(operand) {
-            throw bali.exception({
+            const exception = bali.exception({
                 $module: '/bali/processor/VirtualProcessor',
                 $procedure: '$pop4',
                 $exception: '$notImplemented',
@@ -536,6 +539,8 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                 $processor: captureState(),
                 $message: 'An unimplemented POP operation was attempted.'
             });
+            if (debug) console.error(exception.toString());
+            throw exception;
         },
 
         // LOAD VARIABLE symbol
@@ -731,7 +736,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             const message = context.messages.getItem(index);
             const argumentz = bali.list();
             const name = state.stack.removeItem();
-            await sendMessage(name, message, argumentz);
+            await queueTask(name, message, argumentz);
             context.address++;
         },
 
@@ -741,7 +746,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             const message = context.messages.getItem(index);
             const argumentz = state.stack.removeItem();
             const name = state.stack.removeItem();
-            await sendMessage(name, message, argumentz);
+            await queueTask(name, message, argumentz);
             context.address++;
         },
 
@@ -785,7 +790,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
 
         // UNIMPLEMENTED HANDLE OPERATION
         async function(operand) {
-            throw bali.exception({
+            const exception = bali.exception({
                 $module: '/bali/processor/VirtualProcessor',
                 $procedure: '$handle3',
                 $exception: '$notImplemented',
@@ -793,11 +798,13 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                 $processor: captureState(),
                 $message: 'An unimplemented HANDLE operation was attempted.'
             });
+            if (debug) console.error(exception.toString());
+            throw exception;
         },
 
         // UNIMPLEMENTED HANDLE OPERATION
         async function(operand) {
-            throw bali.exception({
+            const exception = bali.exception({
                 $module: '/bali/processor/VirtualProcessor',
                 $procedure: '$handle4',
                 $exception: '$notImplemented',
@@ -805,6 +812,8 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                 $processor: captureState(),
                 $message: 'An unimplemented HANDLE operation was attempted.'
             });
+            if (debug) console.error(exception.toString());
+            throw exception;
         }
 
     ];
