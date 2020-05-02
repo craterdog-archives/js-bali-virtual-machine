@@ -705,33 +705,43 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             context.address++;
         },
 
-    /*
-        // EXECUTE symbol
-        async function(operand) {
-        },
-
-        // EXECUTE symbol WITH ARGUMENTS
-        async function(operand) {
-        },
-    */
-
-        // EXECUTE symbol ON TARGET
+        // SEND symbol TO COMPONENT
         async function(operand) {
             const index = operand;
             const message = context.messages.getItem(index);
             const argumentz = bali.list();
             const target = state.stack.removeItem();
-            await pushContext(target, argumentz, message);
+            await pushContext(target, message, argumentz);
             context.address++;
         },
 
-        // EXECUTE symbol ON TARGET WITH ARGUMENTS
+        // SEND symbol TO COMPONENT WITH ARGUMENTS
         async function(operand) {
             const index = operand;
             const message = context.messages.getItem(index);
             const argumentz = state.stack.removeItem();
             const target = state.stack.removeItem();
-            await pushContext(target, argumentz, message);
+            await pushContext(target, message, argumentz);
+            context.address++;
+        },
+
+        // SEND symbol TO DOCUMENT
+        async function(operand) {
+            const index = operand;
+            const message = context.messages.getItem(index);
+            const argumentz = bali.list();
+            const name = state.stack.removeItem();
+            await sendMessage(name, message, argumentz);
+            context.address++;
+        },
+
+        // SEND symbol TO DOCUMENT WITH ARGUMENTS
+        async function(operand) {
+            const index = operand;
+            const message = context.messages.getItem(index);
+            const argumentz = state.stack.removeItem();
+            const name = state.stack.removeItem();
+            await sendMessage(name, message, argumentz);
             context.address++;
         },
 
