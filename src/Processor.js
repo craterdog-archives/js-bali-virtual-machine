@@ -692,35 +692,6 @@ exports.createTask = createTask;
 
 // PRIVATE FUNCTIONS
 
-const importTask = function(state) {
-    return {
-        tag: state.getValue('$tag'),
-        account: state.getValue('$account'),
-        balance: state.getValue('$balance').toNumber(),
-        status: state.getValue('$status').toString(),
-        clock: state.getValue('$clock').toNumber(),
-        stack: state.getValue('$stack'),
-        contexts: state.getValue('$contexts')
-    };
-};
-
-const exportTask = function(task, context) {
-    const state = bali.catalog({
-        $tag: task.tag,
-        $account: task.account,
-        $balance: task.balance,
-        $status: task.status,
-        $clock: task.clock,
-        $stack: task.stack.duplicate(),  // capture current state
-        $contexts: task.contexts.duplicate()  // capture current state
-    });
-    if (context) {
-        const contexts = task.getValue('$contexts');
-        contexts.addItem(exportContext(context));
-    }
-    return state;
-};
-
 const createContext = async function(repository, target, message, args) {
     // retrieve the type of the target and method matching the message
     const ancestry = target.getAncestry();
@@ -801,40 +772,4 @@ const createContext = async function(repository, target, message, args) {
         address: 0,  // this will be incremented before the next instruction is executed
         instruction: 0
     };
-};
-
-const importContext = function(context) {
-    const bytes = context.getValue('$bytecode').getValue();
-    const bytecode = compiler.bytecode(bytes);
-    return {
-        target: context.getValue('$target'),
-        message: context.getValue('$message'),
-        argumentz: context.getValue('$arguments'),
-        address: context.getValue('$address').toNumber(),
-        instruction: context.getValue('$instruction').toNumber(),
-        bytecode: bytecode,
-        literals: context.getValue('$literals'),
-        constants: context.getValue('$constants'),
-        variables: context.getValue('$variables'),
-        messages: context.getValue('$messages'),
-        handlers: context.getValue('$handlers')
-    };
-};
-
-const exportContext = function(context) {
-    const bytes = compiler.bytes(context.bytecode);
-    const bytecode = bali.binary(bytes, {$encoding: '$base16', $mediaType: '"application/bcod"'});
-    return bali.catalog({
-        $target: context.target.duplicate(),  // capture current state
-        $message: context.message,
-        $arguments: context.argumentz.duplicate(),  // capture current state
-        $address: context.address,
-        $instruction: context.instruction,
-        $bytecode: bytecode,
-        $literals: context.literals,
-        $constants: context.constants,
-        $variables: context.variables.duplicate(),  // capture current state
-        $messages: context.messages,
-        $handlers: context.handlers.duplicate()  // capture current state
-    });
 };
