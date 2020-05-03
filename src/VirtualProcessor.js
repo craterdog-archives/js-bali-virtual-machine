@@ -13,6 +13,8 @@
  * This class implements the virtual processor for The Bali Nebula™.
  */
 const bali = require('bali-component-framework').api();
+const compiler = require('bali-type-compiler').api();
+const decoder = bali.decoder();
 
 const ACTIVE = '$active';
 const WAITING = '$waiting';
@@ -28,7 +30,7 @@ const EVENT_QUEUE = '3RMGDVN7D6HLAPFXQNPF7DV71V3MAL43';
  * @constructor
  * @param {Object} notary An object that implements the Bali Nebula™ digital notary interface.
  * @param {Object} repository An object that implements the Bali Nebula™ document repository interface.
- * @param {Catalog} task The task for the new processor to execute.
+ * @param {Catalog} state A catalog containing the current state of the task the processor will execute.
  * @param {Boolean|Number} debug An optional number in the range [0..3] that controls the level of
  * debugging that occurs:
  * <pre>
@@ -39,15 +41,11 @@ const EVENT_QUEUE = '3RMGDVN7D6HLAPFXQNPF7DV71V3MAL43';
  * </pre>
  * @returns {VirtualProcessor} The new processor loaded with the task.
  */
-const VirtualProcessor = function(notary, repository, task, debug) {
+const VirtualProcessor = function(notary, repository, state, debug) {
     if (debug === null || debug === undefined) debug = 0;  // default is off
-    const bali = require('bali-component-framework').api(debug);
-    const compiler = require('bali-type-compiler').api(debug);
-    const decoder = bali.decoder();
-    var state, context;  // these are JS objects not Bali catalogs (for performance reasons)
-
-    loadState(task);  // convert the Bali task catalog to a JS object
-    loadContext();  // extract the current context catalog as a JS object
+    // convert the task state and current context catalogs to JS objects for better performance
+    const task = importTask(state);
+    var context = importContext(task.contexts.removeItem());
 
 
     // PUBLIC METHODS
@@ -59,8 +57,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
      * @returns {String} A string representation of the current processor state.
      */
     this.toString = function() {
-        const task = captureState();
-        return task.toString();
+        return exportTask(task, context).toString();
     };
 
     /**
@@ -82,7 +79,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                 $module: '/bali/processor/VirtualProcessor',
                 $procedure: '$step',
                 $exception: '$unexpected',
-                $task: captureState(),
+                $task: exportTask(task, context),
                 $text: 'An unexpected error occurred while attempting to execute a single step of a task.'
             }, cause);
             if (debug) console.error(exception.toString());
@@ -111,7 +108,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                 $module: '/bali/processor/VirtualProcessor',
                 $procedure: '$run',
                 $exception: '$unexpected',
-                $task: captureState(),
+                $task: exportTask(task, context),
                 $text: 'An unexpected error occurred while attempting to run a task.'
             }, cause);
             if (debug) console.error(exception.toString());
@@ -120,82 +117,12 @@ const VirtualProcessor = function(notary, repository, task, debug) {
     };
 
 
-    // PRIVATE FUNCTIONS
-
-    const loadState = function(task) {
-        state = {
-            tag: task.getValue('$tag'),
-            account: task.getValue('$account'),
-            balance: task.getValue('$balance').toNumber(),
-            status: task.getValue('$status').toString(),
-            clock: task.getValue('$clock').toNumber(),
-            stack: task.getValue('$stack'),
-            contexts: task.getValue('$contexts')
-        };
-    };
-
-    const exportTask = function() {
-        return bali.catalog({
-            $tag: state.tag,
-            $account: state.account,
-            $balance: state.balance,
-            $status: state.status,
-            $clock: state.clock,
-            $stack: state.stack,
-            $contexts: state.contexts
-        });
-    };
-
-    const loadContext = function() {
-        const catalog = state.contexts.removeItem();
-        const bytes = catalog.getValue('$bytecode').getValue();
-        const bytecode = compiler.bytecode(bytes);
-        context = {
-            target: catalog.getValue('$target'),
-            message: catalog.getValue('$message'),
-            argumentz: catalog.getValue('$arguments'),
-            address: catalog.getValue('$address').toNumber(),
-            instruction: catalog.getValue('$instruction').toNumber(),
-            bytecode: bytecode,
-            literals: catalog.getValue('$literals'),
-            constants: catalog.getValue('$constants'),
-            variables: catalog.getValue('$variables'),
-            messages: catalog.getValue('$messages'),
-            handlers: catalog.getValue('$handlers')
-        };
-    };
-
-    const exportContext = function() {
-        const bytes = compiler.bytes(context.bytecode);
-        const bytecode = bali.binary(bytes, {$encoding: '$base16', $mediaType: '"application/bcod"'});
-        return bali.catalog({
-            $target: context.target,
-            $message: context.message,
-            $arguments: context.argumentz,
-            $address: context.address,
-            $instruction: context.instruction,
-            $bytecode: bytecode,
-            $literals: context.literals,
-            $constants: context.constants,
-            $variables: context.variables,
-            $messages: context.messages,
-            $handlers: context.handlers
-        });
-    };
-
-    const captureState = function() {
-        const task = exportTask().duplicate();  // take a snapshot of the task
-        const contexts = task.getValue('$contexts');
-        if (context) {
-            contexts.addItem(exportContext().duplicate());  // and a snapshot of the current context
-        }
-        return task;
-    };
+    // PRIVATE METHODS
 
     const isRunnable = function() {
         const hasInstructions = context && context.address <= context.bytecode.length;
-        const isActive = state.status === ACTIVE;
-        const hasTokens = state.balance > 0;
+        const isActive = task.status === ACTIVE;
+        const hasTokens = task.balance > 0;
         return hasInstructions && isActive && hasTokens;
     };
 
@@ -230,8 +157,8 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         }
 
         // update the state of the task context
-        state.clock++;
-        state.balance--;
+        task.clock++;
+        task.balance--;
     };
 
     const handleException = async function(exception) {
@@ -250,18 +177,18 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                 $procedure: '$executeInstruction',
                 $exception: '$processorBug',
                 $type: exception.constructor.name,
-                $processor: captureState(),
+                $processor: exportTask(task, context),
                 $text: exception.toString(),
                 $trace: bali.text(EOL + stack.join(EOL))
             });
             if (debug) console.error('FOUND BUG IN PROCESSOR: ' + exception);
         }
-        state.stack.addItem(exception.attributes);
+        task.stack.addItem(exception.attributes);
         await instructionHandlers[29]();  // HANDLE EXCEPTION instruction
     };
 
     const finalizeProcessing = async function() {
-        const status = state.status;
+        const status = task.status;
         switch (status) {
             case ACTIVE:
                 // the task hit a break point or the account balance is zero so notify any interested parties
@@ -280,33 +207,33 @@ const VirtualProcessor = function(notary, repository, task, debug) {
     };
 
     const publishCompletionEvent = async function() {
-        const task = exportTask();
+        const task = exportTask(task, context);
         const event = bali.catalog({
             $eventType: '$completion',
-            $tag: state.tag,
-            $account: state.account,
-            $balance: state.balance,
-            $clock: state.clock
+            $tag: task.tag,
+            $account: task.account,
+            $balance: task.balance,
+            $clock: task.clock
         }, bali.parameters({
             $tag: bali.tag(),
             $version: bali.version(),
             $permissions: '/bali/permissions/public/v1',
             $previous: bali.pattern.NONE
         }));
-        if (state.result) {
-            event.setValue('$result', state.result);
+        if (task.result) {
+            event.setValue('$result', task.result);
         } else {
-            event.setValue('$exception', state.exception);
+            event.setValue('$exception', task.exception);
         }
         event = await notary.notarizeDocument(event);
         await repository.addMessage(EVENT_QUEUE, event);
     };
 
     const publishSuspensionEvent = async function() {
-        const task = exportTask();
+        const task = exportTask(task, context);
         var event = bali.catalog({
             $eventType: '$suspension',
-            $tag: state.tag,
+            $tag: task.tag,
             $task: task
         }, bali.parameters({
             $tag: bali.tag(),
@@ -318,97 +245,20 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         await repository.addMessage(EVENT_QUEUE, event);
     };
 
-    const queueTaskContext = async function() {
-        // queue up the task for a new virtual processor
-        const task = exportTask();
-        task = await notary.notarizeDocument(task);
-        await repository.addMessage(TASK_QUEUE, task);
+    const pushContext = async function(target, message, args) {
+        task.contexts.addItem(exportContext(context));
+        context = await createContext(repository, target, message, args);
     };
 
-    const pushContext = async function(target, message, args) {
+    const popContext = function() {
+        context = importContext(task.contexts.removeItem());
+    };
 
-        // push the current context onto the context stack
-        state.contexts.addItem(exportContext());
-
-        // retrieve the type of the target and method matching the message
-        const ancestry = target.getAncestry();
-        var type, method;
-        for (i = 0; i < ancestry.length; i++) {
-            const typeName = ancestry[i];
-            const document = await repository.readName(typeName);
-            type = document.getValue('$content');
-            const methods = type.getValue('$methods');
-            method = methods.getValue(message);
-            if (method) break;
-        };
-        if (!method) {
-            const exception = new Exception({
-                $module: '/bali/processor/VirtualProcessor',
-                $procedure: '$createContext',
-                $exception: '$unsupportedMessage',
-                $message: message,
-                $ancestry: ancestry,
-                $text: 'The message passed to the target component is not supported by any of its types.'
-            });
-            if (debug > 0) console.error(exception.toString());
-            throw exception;
-        }
-
-        // retrieve the bytecode for the method
-        const bytes = method.getValue('$bytecode').getValue();
-        const bytecode = compiler.bytecode(bytes);
-
-        // retrieve the literals and constants for the type
-        const literals = type.getValue('$literals') || bali.set();
-        const constants = type.getValue('$constants') || bali.catalog();
-
-        // set the argument values for the passed arguments
-        const argumentz = bali.catalog({$target: target});
-        var nameIterator = method.getValue('$arguments').getIterator();
-        nameIterator.getNext();  // skip the $target name
-        var valueIterator = args.getIterator();
-        while (nameIterator.hasNext() && valueIterator.hasNext()) {
-            const name = nameIterator.getNext();
-            const value = valueIterator.getNext();
-            argumentz.setValue(name, value);
-        }
-
-        // set the rest of the argument values to their default values
-        const procedure = method.getValue('$procedure');
-        while (nameIterator.hasNext()) {
-            const name = nameIterator.getNext();
-            const value = procedure.getParameter(name);
-            argumentz.setValue(name, value);
-        }
-
-        // set the initial values of the variables to 'none'
-        const variables = bali.catalog();
-        const iterator = method.getValue('$variables').getIterator();
-        while (iterator.hasNext()) {
-            const variable = iterator.getNext();
-            variables.setValue(variable, bali.pattern.NONE);
-        }
-
-        // retrieve the sent messages from the method
-        const messages = method.getValue('$messages');
-
-        // create an empty exception handler stack
-        const handlers = bali.stack();
-
-        // create the new method context
-        context = {
-            target: target,
-            message: message,
-            argumentz: argumentz,
-            variables: variables,
-            constants: constants,
-            literals: literals,
-            messages: messages,
-            handlers: handlers,
-            bytecode: bytecode,
-            address: 0,  // this will be incremented before the next instruction is executed
-            instruction: 0
-        };
+    const queueTaskContext = async function() {
+        // queue up the task for a new virtual processor
+        const state = exportTask(task, context);
+        state = await notary.notarizeDocument(state);
+        await repository.addMessage(TASK_QUEUE, state);
     };
 
     // PRIVATE MACHINE INSTRUCTION HANDLERS (ASYNCHRONOUS)
@@ -430,7 +280,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const address = operand;
             // pop the condition component off the component stack
-            const condition = state.stack.removeItem();
+            const condition = task.stack.removeItem();
             // if the condition is 'none' then use the address as the next instruction to be executed
             if (condition.isEqualTo(bali.pattern.NONE)) {
                 context.address = address;
@@ -443,7 +293,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const address = operand;
             // pop the condition component off the component stack
-            const condition = state.stack.removeItem();
+            const condition = task.stack.removeItem();
             // if the condition is 'true' then use the address as the next instruction to be executed
             if (condition.toBoolean()) {
                 context.address = address;
@@ -456,7 +306,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const address = operand;
             // pop the condition component off the component stack
-            const condition = state.stack.removeItem();
+            const condition = task.stack.removeItem();
             // if the condition is 'false' then use the address as the next instruction to be executed
             if (!condition.toBoolean()) {
                 context.address = address;
@@ -478,7 +328,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             const index = operand;
             // lookup the literal associated with the index
             const literal = context.literals.getItem(index);
-            state.stack.addItem(literal);
+            task.stack.addItem(literal);
             context.address++;
         },
 
@@ -487,7 +337,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             const index = operand;
             // lookup the constant associated with the index
             const constant = context.constants.getItem(index).getValue();
-            state.stack.addItem(constant);
+            task.stack.addItem(constant);
             context.address++;
         },
 
@@ -496,7 +346,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             const index = operand;
             // lookup the argument associated with the index
             const argument = context.argumentz.getItem(index).getValue();
-            state.stack.addItem(argument);
+            task.stack.addItem(argument);
             context.address++;
         },
 
@@ -511,7 +361,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         // POP COMPONENT
         async function(operand) {
             // remove the component that is on top of the component stack since it was not used
-            state.stack.removeItem();
+            task.stack.removeItem();
             context.address++;
         },
 
@@ -522,7 +372,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                 $procedure: '$pop3',
                 $exception: '$notImplemented',
                 $operand: operand,
-                $processor: captureState(),
+                $processor: exportTask(task, context),
                 $message: 'An unimplemented POP operation was attempted.'
             });
             if (debug) console.error(exception.toString());
@@ -536,7 +386,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                 $procedure: '$pop4',
                 $exception: '$notImplemented',
                 $operand: operand,
-                $processor: captureState(),
+                $processor: exportTask(task, context),
                 $message: 'An unimplemented POP operation was attempted.'
             });
             if (debug) console.error(exception.toString());
@@ -548,7 +398,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             const index = operand;
             // lookup the variable associated with the index
             const variable = context.variables.getItem(index).getValue();
-            state.stack.addItem(variable);
+            task.stack.addItem(variable);
             context.address++;
         },
 
@@ -568,11 +418,11 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             }
             if (message) {
                 // place the message on the stack
-                state.stack.addItem(message);
+                task.stack.addItem(message);
                 context.address++;
             } else {
                 // set the task status to 'waiting'
-                state.status = WAITING;
+                task.status = WAITING;
             }
         },
 
@@ -588,7 +438,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             await notary.citationMatches(citation, document);
             const draft = document.getValue('$content');
             // push the draft on top of the component stack
-            state.stack.addItem(draft);
+            task.stack.addItem(draft);
             context.address++;
         },
 
@@ -604,7 +454,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             await notary.citationMatches(citation, document);
             document = document.getValue('$content');
             // push the document on top of the component stack
-            state.stack.addItem(document);
+            task.stack.addItem(document);
             context.address++;
         },
 
@@ -612,7 +462,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const index = operand;
             // pop the component that is on top of the component stack off the stack
-            const component = state.stack.removeItem();
+            const component = task.stack.removeItem();
             // and store the component in the variable associated with the index
             context.variables.getItem(index).setValue(component);
             context.address++;
@@ -622,7 +472,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const index = operand;
             // pop the message that is on top of the component stack off the stack
-            var message = state.stack.removeItem();
+            var message = task.stack.removeItem();
             // lookup the queue tag associated with the index operand
             const queue = context.variables.getItem(index).getValue();
             // TODO: jump to exception handler if queue isn't a tag
@@ -636,7 +486,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const index = operand;
             // pop the draft that is on top of the component stack off the stack
-            var draft = state.stack.removeItem();
+            var draft = task.stack.removeItem();
             // write the draft to the document repository
             draft = await notary.notarizeDocument(draft);
             const citation = await notary.citeDocument(draft);
@@ -650,7 +500,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const index = operand;
             // pop the document that is on top of the component stack off the stack
-            const component = state.stack.removeItem();
+            const component = task.stack.removeItem();
             // write the document to the document repository
             const document = await notary.notarizeDocument(component);
             const citation = await notary.citeDocument(document);
@@ -667,7 +517,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             // call the intrinsic function associated with the index operand
             const result = compiler.invoke(index);
             // push the result of the function call onto the top of the component stack
-            state.stack.addItem(result);
+            task.stack.addItem(result);
             context.address++;
         },
 
@@ -675,11 +525,11 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const index = operand;
             // pop the argument off of the component stack
-            const argument = state.stack.removeItem();
+            const argument = task.stack.removeItem();
             // call the intrinsic function associated with the index operand
             const result = compiler.invoke(index, argument);
             // push the result of the function call onto the top of the component stack
-            state.stack.addItem(result);
+            task.stack.addItem(result);
             context.address++;
         },
 
@@ -687,12 +537,12 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const index = operand;
             // pop the arguments off of the component stack (in reverse order)
-            const argument2 = state.stack.removeItem();
-            const argument1 = state.stack.removeItem();
+            const argument2 = task.stack.removeItem();
+            const argument1 = task.stack.removeItem();
             // call the intrinsic function associated with the index operand
             const result = compiler.invoke(index, argument1, argument2);
             // push the result of the function call onto the top of the component stack
-            state.stack.addItem(result);
+            task.stack.addItem(result);
             context.address++;
         },
 
@@ -700,13 +550,13 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const index = operand;
             // pop the arguments call off of the component stack (in reverse order)
-            const argument3 = state.stack.removeItem();
-            const argument2 = state.stack.removeItem();
-            const argument1 = state.stack.removeItem();
+            const argument3 = task.stack.removeItem();
+            const argument2 = task.stack.removeItem();
+            const argument1 = task.stack.removeItem();
             // call the intrinsic function associated with the index operand
             const result = compiler.invoke(index, argument1, argument2, argument3);
             // push the result of the function call onto the top of the component stack
-            state.stack.addItem(result);
+            task.stack.addItem(result);
             context.address++;
         },
 
@@ -715,7 +565,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             const index = operand;
             const message = context.messages.getItem(index);
             const argumentz = bali.list();
-            const target = state.stack.removeItem();
+            const target = task.stack.removeItem();
             await pushContext(target, message, argumentz);
             context.address++;
         },
@@ -724,8 +574,8 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const index = operand;
             const message = context.messages.getItem(index);
-            const argumentz = state.stack.removeItem();
-            const target = state.stack.removeItem();
+            const argumentz = task.stack.removeItem();
+            const target = task.stack.removeItem();
             await pushContext(target, message, argumentz);
             context.address++;
         },
@@ -735,7 +585,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
             const index = operand;
             const message = context.messages.getItem(index);
             const argumentz = bali.list();
-            const name = state.stack.removeItem();
+            const name = task.stack.removeItem();
             await queueTask(name, message, argumentz);
             context.address++;
         },
@@ -744,22 +594,22 @@ const VirtualProcessor = function(notary, repository, task, debug) {
         async function(operand) {
             const index = operand;
             const message = context.messages.getItem(index);
-            const argumentz = state.stack.removeItem();
-            const name = state.stack.removeItem();
+            const argumentz = task.stack.removeItem();
+            const name = task.stack.removeItem();
             await queueTask(name, message, argumentz);
             context.address++;
         },
 
         // HANDLE RESULT
         async function(operand) {
-            if (!state.contexts.isEmpty()) {
+            if (!task.contexts.isEmpty()) {
                 // retrieve the previous context from the stack
-                context = importCurrentContext(processor);
+                popContext();
                 context.address++;
             } else {
                 // task completed with a result
-                state.result = state.stack.removeItem();
-                state.status = DONE;
+                task.result = task.stack.removeItem();
+                task.status = DONE;
                 context = undefined;
             }
         },
@@ -775,13 +625,13 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                     context.address = handlerAddress;
                     break;
                 } else {
-                    if (!state.contexts.isEmpty()) {
+                    if (!task.contexts.isEmpty()) {
                         // retrieve the previous context from the stack
-                        context = importCurrentContext(processor);
+                        popContext();
                     } else {
                         // task completed with an unhandled exception
-                        state.exception = state.stack.removeItem();
-                        state.status = DONE;
+                        task.exception = task.stack.removeItem();
+                        task.status = DONE;
                         context = undefined;
                     }
                 }
@@ -795,7 +645,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                 $procedure: '$handle3',
                 $exception: '$notImplemented',
                 $operand: operand,
-                $processor: captureState(),
+                $processor: exportTask(task, context),
                 $message: 'An unimplemented HANDLE operation was attempted.'
             });
             if (debug) console.error(exception.toString());
@@ -809,7 +659,7 @@ const VirtualProcessor = function(notary, repository, task, debug) {
                 $procedure: '$handle4',
                 $exception: '$notImplemented',
                 $operand: operand,
-                $processor: captureState(),
+                $processor: exportTask(task, context),
                 $message: 'An unimplemented HANDLE operation was attempted.'
             });
             if (debug) console.error(exception.toString());
@@ -822,3 +672,169 @@ const VirtualProcessor = function(notary, repository, task, debug) {
 };
 VirtualProcessor.prototype.constructor = VirtualProcessor;
 exports.VirtualProcessor = VirtualProcessor;
+
+
+const createTask = async function(repository, account, balance, target, message, args) {
+    const task = {
+        tag: bali.tag(),
+        account: account,
+        balance: balance,
+        status: WAITING,
+        clock: 0,
+        stack: bali.stack(),
+        contexts: bali.stack()
+    };
+    task.contexts.addItem(exportContext(createContext(repository, target, message, args)));
+    return task;
+};
+exports.createTask = createTask;
+
+
+// PRIVATE FUNCTIONS
+
+const importTask = function(state) {
+    return {
+        tag: state.getValue('$tag'),
+        account: state.getValue('$account'),
+        balance: state.getValue('$balance').toNumber(),
+        status: state.getValue('$status').toString(),
+        clock: state.getValue('$clock').toNumber(),
+        stack: state.getValue('$stack'),
+        contexts: state.getValue('$contexts')
+    };
+};
+
+const exportTask = function(task, context) {
+    const state = bali.catalog({
+        $tag: task.tag,
+        $account: task.account,
+        $balance: task.balance,
+        $status: task.status,
+        $clock: task.clock,
+        $stack: task.stack.duplicate(),  // capture current state
+        $contexts: task.contexts.duplicate()  // capture current state
+    });
+    if (context) {
+        const contexts = task.getValue('$contexts');
+        contexts.addItem(exportContext(context));
+    }
+    return state;
+};
+
+const createContext = async function(repository, target, message, args) {
+    // retrieve the type of the target and method matching the message
+    const ancestry = target.getAncestry();
+    var type, method;
+    for (i = 0; i < ancestry.length; i++) {
+        const typeName = ancestry[i];
+        const document = await repository.readName(typeName);
+        type = document.getValue('$content');
+        const methods = type.getValue('$methods');
+        method = methods.getValue(message);
+        if (method) break;
+    };
+    if (!method) {
+        const exception = new Exception({
+            $module: '/bali/processor/VirtualProcessor',
+            $procedure: '$createContext',
+            $exception: '$unsupportedMessage',
+            $message: message,
+            $ancestry: ancestry,
+            $text: 'The message passed to the target component is not supported by any of its types.'
+        });
+        if (debug > 0) console.error(exception.toString());
+        throw exception;
+    }
+
+    // retrieve the bytecode for the method
+    const bytes = method.getValue('$bytecode').getValue();
+    const bytecode = compiler.bytecode(bytes);
+
+    // retrieve the literals and constants for the type
+    const literals = type.getValue('$literals') || bali.set();
+    const constants = type.getValue('$constants') || bali.catalog();
+
+    // set the argument values for the passed arguments
+    const argumentz = bali.catalog({$target: target});
+    var nameIterator = method.getValue('$arguments').getIterator();
+    nameIterator.getNext();  // skip the $target name
+    var valueIterator = args.getIterator();
+    while (nameIterator.hasNext() && valueIterator.hasNext()) {
+        const name = nameIterator.getNext();
+        const value = valueIterator.getNext();
+        argumentz.setValue(name, value);
+    }
+
+    // set the rest of the argument values to their default values
+    const procedure = method.getValue('$procedure');
+    while (nameIterator.hasNext()) {
+        const name = nameIterator.getNext();
+        const value = procedure.getParameter(name);
+        argumentz.setValue(name, value);
+    }
+
+    // set the initial values of the variables to 'none'
+    const variables = bali.catalog();
+    const iterator = method.getValue('$variables').getIterator();
+    while (iterator.hasNext()) {
+        const variable = iterator.getNext();
+        variables.setValue(variable, bali.pattern.NONE);
+    }
+
+    // retrieve the sent messages from the method
+    const messages = method.getValue('$messages');
+
+    // create an empty exception handler stack
+    const handlers = bali.stack();
+
+    // create the new method context
+    return {
+        target: target,
+        message: message,
+        argumentz: argumentz,
+        variables: variables,
+        constants: constants,
+        literals: literals,
+        messages: messages,
+        handlers: handlers,
+        bytecode: bytecode,
+        address: 0,  // this will be incremented before the next instruction is executed
+        instruction: 0
+    };
+};
+
+const importContext = function(context) {
+    const bytes = context.getValue('$bytecode').getValue();
+    const bytecode = compiler.bytecode(bytes);
+    return {
+        target: context.getValue('$target'),
+        message: context.getValue('$message'),
+        argumentz: context.getValue('$arguments'),
+        address: context.getValue('$address').toNumber(),
+        instruction: context.getValue('$instruction').toNumber(),
+        bytecode: bytecode,
+        literals: context.getValue('$literals'),
+        constants: context.getValue('$constants'),
+        variables: context.getValue('$variables'),
+        messages: context.getValue('$messages'),
+        handlers: context.getValue('$handlers')
+    };
+};
+
+const exportContext = function(context) {
+    const bytes = compiler.bytes(context.bytecode);
+    const bytecode = bali.binary(bytes, {$encoding: '$base16', $mediaType: '"application/bcod"'});
+    return bali.catalog({
+        $target: context.target.duplicate(),  // capture current state
+        $message: context.message,
+        $arguments: context.argumentz.duplicate(),  // capture current state
+        $address: context.address,
+        $instruction: context.instruction,
+        $bytecode: bytecode,
+        $literals: context.literals,
+        $constants: context.constants,
+        $variables: context.variables.duplicate(),  // capture current state
+        $messages: context.messages,
+        $handlers: context.handlers.duplicate()  // capture current state
+    });
+};
