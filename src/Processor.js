@@ -363,9 +363,9 @@ const Processor = function(notary, repository, debug) {
             // otherwise it is a SKIP INSTRUCTION (aka NOOP)
             if (operand) {
                 const address = operand;
-                context.address = address;
+                context.jumpToAddress(address);
             } else {
-                context.address++;
+                context.incrementAddress();
             }
         },
 
@@ -376,9 +376,9 @@ const Processor = function(notary, repository, debug) {
             const condition = task.popComponent();
             // if the condition is 'none' then use the address as the next instruction to be executed
             if (condition.isEqualTo(bali.pattern.NONE)) {
-                context.address = address;
+                context.jumpToAddress(address);
             } else {
-                context.address++;
+                context.incrementAddress();
             }
         },
 
@@ -389,9 +389,9 @@ const Processor = function(notary, repository, debug) {
             const condition = task.popComponent();
             // if the condition is 'true' then use the address as the next instruction to be executed
             if (condition.toBoolean()) {
-                context.address = address;
+                context.jumpToAddress(address);
             } else {
-                context.address++;
+                context.incrementAddress();
             }
         },
 
@@ -402,9 +402,9 @@ const Processor = function(notary, repository, debug) {
             const condition = task.popComponent();
             // if the condition is 'false' then use the address as the next instruction to be executed
             if (!condition.toBoolean()) {
-                context.address = address;
+                context.jumpToAddress(address);
             } else {
-                context.address++;
+                context.incrementAddress();
             }
         },
 
@@ -412,50 +412,50 @@ const Processor = function(notary, repository, debug) {
         async function(operand) {
             const handlerAddress = operand;
             // push the address of the current exception handlers onto the handlers stack
-            context.handlers.addItem(bali.number(handlerAddress));
-            context.address++;
+            context.pushHandler(handlerAddress);
+            context.incrementAddress();
         },
 
         // PUSH LITERAL literal
         async function(operand) {
             const index = operand;
             // lookup the literal associated with the index
-            const literal = context.literals.getItem(index);
+            const literal = context.getLiteral(index);
             task.pushComponent(literal);
-            context.address++;
+            context.incrementAddress();
         },
 
         // PUSH CONSTANT constant
         async function(operand) {
             const index = operand;
             // lookup the constant associated with the index
-            const constant = context.constants.getItem(index).getValue();
+            const constant = context.getConstant(index).getValue();
             task.pushComponent(constant);
-            context.address++;
+            context.incrementAddress();
         },
 
         // PUSH ARGUMENT argument
         async function(operand) {
             const index = operand;
             // lookup the argument associated with the index
-            const argument = context.argumentz.getItem(index).getValue();
+            const argument = context.getArgument(index).getValue();
             task.pushComponent(argument);
-            context.address++;
+            context.incrementAddress();
         },
 
         // POP HANDLER
         async function(operand) {
             // remove the current exception handler address from the top of the handlers stack
             // since it is no longer in scope
-            context.handlers.removeItem();
-            context.address++;
+            context.popHandler();
+            context.incrementAddress();
         },
 
         // POP COMPONENT
         async function(operand) {
             // remove the component that is on top of the component stack since it was not used
             task.popComponent();
-            context.address++;
+            context.incrementAddress();
         },
 
         // UNIMPLEMENTED POP OPERATION
@@ -490,16 +490,16 @@ const Processor = function(notary, repository, debug) {
         async function(operand) {
             const index = operand;
             // lookup the variable associated with the index
-            const variable = context.variables.getItem(index).getValue();
+            const variable = context.getVariable(index).getValue();
             task.pushComponent(variable);
-            context.address++;
+            context.incrementAddress();
         },
 
         // LOAD MESSAGE symbol
         async function(operand) {
             const index = operand;
             // lookup the queue tag associated with the index
-            const queue = context.variables.getItem(index).getValue();
+            const queue = context.getVariable(index).getValue();
             // TODO: jump to exception handler if queue isn't a tag
             // attempt to receive a message from the queue in the document repository
             var message;
@@ -512,7 +512,7 @@ const Processor = function(notary, repository, debug) {
             if (message) {
                 // place the message on the stack
                 task.pushComponent(message);
-                context.address++;
+                context.incrementAddress();
             } else {
                 // set the task status to 'waiting'
                 task.passivate();
@@ -523,7 +523,7 @@ const Processor = function(notary, repository, debug) {
         async function(operand) {
             const index = operand;
             // lookup the citation associated with the index
-            const citation = context.variables.getItem(index).getValue();
+            const citation = context.getVariable(index).getValue();
             // TODO: jump to exception handler if the citation isn't a citation
             // retrieve the cited draft from the document repository
             const source = await repository.readDraft(citation);
@@ -532,14 +532,14 @@ const Processor = function(notary, repository, debug) {
             const draft = document.getValue('$content');
             // push the draft on top of the component stack
             task.pushComponent(draft);
-            context.address++;
+            context.incrementAddress();
         },
 
         // LOAD DOCUMENT symbol
         async function(operand) {
             const index = operand;
             // lookup the citation associated with the index
-            const citation = context.variables.getItem(index).getValue();
+            const citation = context.getVariable(index).getValue();
             // TODO: jump to exception handler if the citation isn't a citation
             // retrieve the cited document from the document repository
             const source = await repository.readDocument(citation);
@@ -548,7 +548,7 @@ const Processor = function(notary, repository, debug) {
             document = document.getValue('$content');
             // push the document on top of the component stack
             task.pushComponent(document);
-            context.address++;
+            context.incrementAddress();
         },
 
         // STORE VARIABLE symbol
@@ -557,8 +557,8 @@ const Processor = function(notary, repository, debug) {
             // pop the component that is on top of the component stack off the stack
             const component = task.popComponent();
             // and store the component in the variable associated with the index
-            context.variables.getItem(index).setValue(component);
-            context.address++;
+            context.getVariable(index).setValue(component);
+            context.incrementAddress();
         },
 
         // STORE MESSAGE symbol
@@ -567,12 +567,12 @@ const Processor = function(notary, repository, debug) {
             // pop the message that is on top of the component stack off the stack
             var message = task.popComponent();
             // lookup the queue tag associated with the index operand
-            const queue = context.variables.getItem(index).getValue();
+            const queue = context.getVariable(index).getValue();
             // TODO: jump to exception handler if queue isn't a tag
             // send the message to the queue in the document repository
             message = await notary.notarizeDocument(message);
             await repository.addMessage(queue, message);
-            context.address++;
+            context.incrementAddress();
         },
 
         // STORE DRAFT symbol
@@ -585,8 +585,8 @@ const Processor = function(notary, repository, debug) {
             const citation = await notary.citeDocument(draft);
             await repository.writeDraft(draft);
             // and store the resulting citation in the variable associated with the index
-            context.variables.getItem(index).setValue(citation);
-            context.address++;
+            context.getVariable(index).setValue(citation);
+            context.incrementAddress();
         },
 
         // STORE DOCUMENT symbol
@@ -600,8 +600,8 @@ const Processor = function(notary, repository, debug) {
             await repository.writeDocument(document);
             await repository.deleteDraft(citation);
             // and store the resulting citation in the variable associated with the index
-            context.variables.getItem(index).setValue(citation);
-            context.address++;
+            context.getVariable(index).setValue(citation);
+            context.incrementAddress();
         },
 
         // INVOKE symbol
@@ -611,7 +611,7 @@ const Processor = function(notary, repository, debug) {
             const result = compiler.invoke(index);
             // push the result of the function call onto the top of the component stack
             task.pushComponent(result);
-            context.address++;
+            context.incrementAddress();
         },
 
         // INVOKE symbol WITH 1 ARGUMENT
@@ -623,7 +623,7 @@ const Processor = function(notary, repository, debug) {
             const result = compiler.invoke(index, argument);
             // push the result of the function call onto the top of the component stack
             task.pushComponent(result);
-            context.address++;
+            context.incrementAddress();
         },
 
         // INVOKE symbol WITH 2 ARGUMENTS
@@ -636,7 +636,7 @@ const Processor = function(notary, repository, debug) {
             const result = compiler.invoke(index, argument1, argument2);
             // push the result of the function call onto the top of the component stack
             task.pushComponent(result);
-            context.address++;
+            context.incrementAddress();
         },
 
         // INVOKE symbol WITH 3 ARGUMENTS
@@ -650,47 +650,47 @@ const Processor = function(notary, repository, debug) {
             const result = compiler.invoke(index, argument1, argument2, argument3);
             // push the result of the function call onto the top of the component stack
             task.pushComponent(result);
-            context.address++;
+            context.incrementAddress();
         },
 
         // SEND symbol TO COMPONENT
         async function(operand) {
             const index = operand;
-            const message = context.messages.getItem(index);
+            const message = context.getMessage(index);
             const argumentz = bali.list();
             const target = task.popComponent();
             await pushContext(target, message, argumentz);
-            context.address++;
+            context.incrementAddress();
         },
 
         // SEND symbol TO COMPONENT WITH ARGUMENTS
         async function(operand) {
             const index = operand;
-            const message = context.messages.getItem(index);
+            const message = context.getMessage(index);
             const argumentz = task.popComponent();
             const target = task.popComponent();
             await pushContext(target, message, argumentz);
-            context.address++;
+            context.incrementAddress();
         },
 
         // SEND symbol TO DOCUMENT
         async function(operand) {
             const index = operand;
-            const message = context.messages.getItem(index);
+            const message = context.getMessage(index);
             const argumentz = bali.list();
             const name = task.popComponent();
             await queueTask(name, message, argumentz);
-            context.address++;
+            context.incrementAddress();
         },
 
         // SEND symbol TO DOCUMENT WITH ARGUMENTS
         async function(operand) {
             const index = operand;
-            const message = context.messages.getItem(index);
+            const message = context.getMessage(index);
             const argumentz = task.popComponent();
             const name = task.popComponent();
             await queueTask(name, message, argumentz);
-            context.address++;
+            context.incrementAddress();
         },
 
         // HANDLE RESULT
@@ -699,7 +699,7 @@ const Processor = function(notary, repository, debug) {
                 // retrieve the previous context from the stack
                 popContext();
                 context = new Context(task.popContext(), debug);
-                context.address++;
+                context.incrementAddress();
             } else {
                 // task completed with a result
                 const result = task.popComponent();
@@ -712,11 +712,9 @@ const Processor = function(notary, repository, debug) {
         async function(operand) {
             // search up the stack for a handler
             while (context) {
-                if (!context.handlers.isEmpty()) {
-                    // retrieve the address of the next exception handler
-                    var handlerAddress = context.handlers.removeItem().toNumber();
-                    // use that address as the next instruction to be executed
-                    context.address = handlerAddress;
+                if (context.hasHandlers()) {
+                    // jump to the next exception handler
+                    context.jumpToHandler();
                     break;
                 } else {
                     if (task.hasContexts()) {

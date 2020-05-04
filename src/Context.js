@@ -53,10 +53,6 @@ const Context = async function(catalog, debug) {
 
     // PUBLIC METHODS
 
-    this.toString = function() {
-        return this.toCatalog().toString();
-    };
-
     this.toCatalog = function() {
         return bali.catalog({
             $target: target.duplicate(),  // capture the current state
@@ -71,6 +67,10 @@ const Context = async function(catalog, debug) {
             $instruction: instruction,
             $address: address
         });
+    };
+
+    this.toString = function() {
+        return this.toCatalog().toString();
     };
 
     this.getTarget = function() {
@@ -106,7 +106,7 @@ const Context = async function(catalog, debug) {
     };
 
     this.popHandler = function() {
-        return handlers.removeItem();
+        return handlers.removeItem().toNumber();
     };
 
     this.hasInstruction = function() {
@@ -126,8 +126,8 @@ const Context = async function(catalog, debug) {
         address++;
     };
 
-    this.jumpToAddress = function(addr) {
-        address = addr;
+    this.jumpToAddress = function(address) {
+        this.address = address;
     };
 
     this.jumpToHandler = function() {
