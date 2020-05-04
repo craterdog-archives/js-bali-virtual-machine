@@ -10,7 +10,7 @@
 'use strict';
 
 /*
- * This class implements the virtual processor for The Bali Nebula™.
+ * This class implements the processor for The Bali Virtual Machine™.
  */
 
 const EOL = '\n';  // This private constant sets the POSIX end of line character
@@ -19,11 +19,11 @@ const EVENT_QUEUE = '3RMGDVN7D6HLAPFXQNPF7DV71V3MAL43';
 
 
 /**
- * This function creates a new processor to execute the specified task.
+ * This function creates a new processor.  The processor has not been initialized with any task.
  *
  * @constructor
- * @param {Object} notary An object that implements the Bali Nebula™ digital notary interface.
- * @param {Object} repository An object that implements the Bali Nebula™ document repository interface.
+ * @param {Object} notary An object that implements the Bali Digital Notary™ interface.
+ * @param {Object} repository An object that implements the Bali Document Repository™ interface.
  * @param {Boolean|Number} debug An optional number in the range [0..3] that controls the level of
  * debugging that occurs:
  * <pre>
@@ -32,7 +32,7 @@ const EVENT_QUEUE = '3RMGDVN7D6HLAPFXQNPF7DV71V3MAL43';
  *   2: perform argument validation and log exceptions to console.error
  *   3: perform argument validation and log exceptions to console.error and debug info to console.log
  * </pre>
- * @returns {Processor} The new processor loaded with the task.
+ * @returns {Processor} A new processor.
  */
 const Processor = function(notary, repository, debug) {
     if (debug === null || debug === undefined) debug = 0;  // default is off
@@ -68,49 +68,51 @@ const Processor = function(notary, repository, debug) {
     /**
      * This method creates a new task for this processor to execute based on the specified
      * account information, target component, and message with any arguments that were passed
-     * with it.
+     * with it.  Once created, the task is activated and ready to run.
      *
-     * @param {Tag} account The tag for the account that this task execution should be billed to.
-     * @param {Number} balance The maximum number of tokens that should be used during execution.
+     * @param {Tag} account The tag for the account to which this task execution should be billed.
+     * @param {Number} tokens The maximum number of tokens that should be used during execution.
      * @param {Component} target The component that received the specified message.
      * @param {Symbol} message The symbol for the message corresponding to the method to be
      * executed.
      * @param {List} args The list of argument values (if any) that were passed with the message.
      */
-    this.createTask = async function(account, balance, target, message, args) {
+    this.createTask = async function(account, tokens, target, message, args) {
         const catalog = bali.catalog({
             tag: bali.tag(),  // new unique task tag
             account: account,
-            balance: balance,
-            status: Task.RUNNING,
+            tokens: tokens,
+            status: Task.PASSIVE,
             clock: 0,
             components: bali.stack(),
             contexts: bali.stack()
         });
         task = new Task(catalog, debug);
         context = new Context(await createContext(target, message, args), debug);
+        task.activate();
     };
 
     /**
-     * This method loads an existing task into this processor for execution.
+     * This method loads an existing task into this processor for execution.  Once loaded, the
+     * task is activated and ready to run.
      *
-     * @param {type} catalog
-     * @returns {undefined}
+     * @param {Catalog} catalog A catalog containing the current state of the existing task.
      */
     this.loadTask = function(catalog) {
         task = new Task(catalog, debug);
-        task.activate();
         popContext();
+        task.activate();
     };
 
     /**
-     * This method executes the next instruction in the current task.
+     * This method executes the next instruction in the current task.  The task must be in an
+     * active state and at least one token must remain.
      *
      * @returns {Boolean} Whether or not an instruction was executed.
      */
     this.stepClock = async function() {
         try {
-            if (task && task.isRunning() && context.hasInstruction()) {
+            if (notDone()) {
                 await executeInstruction();
                 return true;
             } else {
@@ -120,7 +122,7 @@ const Processor = function(notary, repository, debug) {
         } catch (cause) {
             const exception = bali.exception({
                 $module: '/bali/vm/Processor',
-                $procedure: '$step',
+                $procedure: '$stepClock',
                 $exception: '$unexpected',
                 $task: this.toCatalog(),
                 $text: 'An unexpected error occurred while attempting to execute a single step of a task.'
@@ -134,22 +136,22 @@ const Processor = function(notary, repository, debug) {
      * This method executes all of the instructions in the current task until one of the
      * following occurs:
      * <pre>
-     *  * the end of the instructions is reached,
-     *  * an unhandled exception is thrown,
-     *  * the account balance reaches zero,
-     *  * or the task is waiting to receive a message from a queue.
+     *  * the number of tokens for the account has reached zero,  {$active}
+     *  * the task is waiting to receive a message from a queue,  {$passive}
+     *  * the end of the instructions has been reached,           {$completed}
+     *  * or an unhandled exception has been thrown.              {$failed}
      * </pre>
      */
     this.runClock = async function() {
         try {
-            while (task && task.isRunning() && context.hasInstruction()) {
+            while (notDone()) {
                 await executeInstruction();
             }
             await finalizeProcessing();
         } catch (cause) {
             const exception = bali.exception({
                 $module: '/bali/vm/Processor',
-                $procedure: '$run',
+                $procedure: '$runClock',
                 $exception: '$unexpected',
                 $task: this.toCatalog(),
                 $text: 'An unexpected error occurred while attempting to run a task.'
@@ -161,6 +163,10 @@ const Processor = function(notary, repository, debug) {
 
 
     // PRIVATE FUNCTIONS
+
+    const notDone = function() {
+        return task && task.isActive() && context.hasInstruction();
+    };
 
     const createContext = async function(target, message, args) {
         // retrieve the type of the target and method matching the message
@@ -294,19 +300,9 @@ const Processor = function(notary, repository, debug) {
     };
 
     const finalizeProcessing = async function() {
-        if (task.isRunning()) {
-            await publishSuspensionEvent();
-        } else if (task.isWaiting()) {
-            await queueTaskContext();
-        } else {
-            await publishCompletionEvent();
-        }
-    };
-
-    const publishCompletionEvent = async function() {
-        const task = this.toCatalog();
         const event = bali.catalog({
-            $eventType: '$completion',
+            $tag: task.getTag(),
+            $type: '/bali/vm/' + task.getState().slice(1) + '/v1',  // remove leading '$'
             $task: task.toCatalog()
         }, bali.parameters({
             $tag: bali.tag(),
@@ -314,28 +310,8 @@ const Processor = function(notary, repository, debug) {
             $permissions: '/bali/permissions/public/v1',
             $previous: bali.pattern.NONE
         }));
-        if (task.result) {
-            event.setValue('$result', task.result);
-        } else {
-            event.setValue('$exception', task.exception);
-        }
-        event = await notary.notarizeDocument(event);
-        await repository.addMessage(EVENT_QUEUE, event);
-    };
-
-    const publishSuspensionEvent = async function() {
-        const task = this.toCatalog();
-        var event = bali.catalog({
-            $eventType: '$suspension',
-            $task: task.toCatalog()
-        }, bali.parameters({
-            $tag: bali.tag(),
-            $version: bali.version(),
-            $permissions: '/bali/permissions/public/v1',
-            $previous: bali.pattern.NONE
-        }));
-        event = await notary.notarizeDocument(event);
-        await repository.addMessage(EVENT_QUEUE, event);
+        const message = await notary.notarizeDocument(event);
+        await repository.addMessage(EVENT_QUEUE, message);
     };
 
     const pushContext = async function(target, message, args) {
@@ -500,7 +476,7 @@ const Processor = function(notary, repository, debug) {
             const index = operand;
             // lookup the queue tag associated with the index
             const queue = context.getVariable(index).getValue();
-            // TODO: jump to exception handler if queue isn't a tag
+            // TODO: jump to exception handler if queue isn't a named queue
             // attempt to receive a message from the queue in the document repository
             var message;
             const source = await repository.borrowMessage(queue);
@@ -516,6 +492,7 @@ const Processor = function(notary, repository, debug) {
             } else {
                 // set the task status to 'waiting'
                 task.passivate();
+                await requeueTask();
             }
         },
 

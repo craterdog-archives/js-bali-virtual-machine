@@ -14,15 +14,16 @@
  */
 
 // define the finite state machine for a task
-const REQUESTS = [  //                     possible request types
-                  '$activate',     '$tick',     '$passivate',   '$complete',      '$fail'
+const REQUESTS = [  //                       possible request types
+                  '$activate',  '$tick',  '$passivate',  '$freeze',   '$complete',   '$abandon'
 ];
 const STATES = {
-//   current                                allowed next states
-    $passive:   [  '$active',     undefined,     '$passive',      undefined,    '$failed' ],
-    $active:    [  '$active',     '$active',     '$passive',   '$completed',    '$failed' ],
-    $completed: [  undefined,     undefined,      undefined,     undefined,     undefined ],
-    $failed:    [  undefined,     undefined,      undefined,     undefined,     undefined ]
+//   current                                  allowed next states
+    $passive:   [  '$active',  undefined,  '$passive',   undefined,     undefined,  '$abandoned' ],
+    $active:    [  '$active',  '$active',  '$passive',   '$frozen',  '$completed',  '$abandoned' ],
+    $frozen:    [  '$active',  undefined,   undefined,   '$frozen',     undefined,  '$abandoned' ],
+    $completed: [  undefined,  undefined,   undefined,   undefined,  '$completed',    undefined  ],
+    $abandoned: [  undefined,  undefined,   undefined,   undefined,     undefined,  '$abandoned' ]
 };
 
 
@@ -113,6 +114,14 @@ const Task = async function(catalog, debug) {
         controller.transitionState('$passivate');
     };
 
+    this.isFrozen = function() {
+        return controller.getState() === Task.FROZEN;
+    };
+
+    this.freezeTask = function() {
+        controller.transitionState('$freeze');
+    };
+
     this.hasCompleted = function() {
         return controller.getState() === Task.COMPLETED;
     };
@@ -123,14 +132,14 @@ const Task = async function(catalog, debug) {
         controller.transitionState('$complete');
     };
 
-    this.hasFailed = function() {
-        return controller.getState() === Task.FAILED;
+    this.wasAbandoned = function() {
+        return controller.getState() === Task.ABANDONED;
     };
 
-    this.failTask = function(exception) {
-        controller.validateEvent('$fail');
+    this.abandonTask = function(exception) {
+        controller.validateEvent('$abandon');
         response = exception;
-        controller.transitionState('$fail');
+        controller.transitionState('$abandon');
     };
 
     this.getClock = function() {
@@ -176,6 +185,7 @@ const Task = async function(catalog, debug) {
 Task.prototype.constructor = Task;
 Task.ACTIVE = '$active';
 Task.PASSIVE = '$passive';
+Task.FROZEN = '$frozen';
 Task.COMPLETED = '$completed';
-Task.FAILED = '$failed';
+Task.ABANDONED = '$abandoned';
 exports.Task = Task;
