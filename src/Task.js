@@ -87,16 +87,24 @@ const Task = async function(catalog, debug) {
         if (--balance) status = Task.DONE;
     };
 
-    this.getStatus = function() {
-        return status;
+    this.isRunning = function() {
+        return status === Task.RUNNING;
     };
 
     this.activate = function() {
         status = Task.RUNNING;
     };
 
+    this.isWaiting = function() {
+        return status === Task.WAITING;
+    };
+
     this.passivate = function() {
         status = Task.WAITING;
+    };
+
+    this.isDone = function() {
+        return status === Task.DONE;
     };
 
     this.complete = function() {
@@ -116,7 +124,7 @@ const Task = async function(catalog, debug) {
     };
 
     return this;
-    this.popContext = function(context) {
+    this.popContext = function() {
         return contexts.removeItem();
     };
 

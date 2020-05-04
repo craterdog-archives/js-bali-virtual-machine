@@ -110,7 +110,7 @@ const Context = async function(catalog, debug) {
     };
 
     this.hasInstruction = function() {
-        if (isRunnable()) {
+        if (address <= bytecode.length) {
             instruction = bytecode[address - 1];  // convert to JS indexing
             return true;
         } else {
@@ -120,10 +120,6 @@ const Context = async function(catalog, debug) {
 
     this.getInstruction = function() {
         return instruction;
-    };
-
-    this.isRunnable = function() {
-        return address <= bytecode.length;
     };
 
     this.incrementAddress = function() {
