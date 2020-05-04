@@ -13,6 +13,18 @@
  * This class implements a task that can be run in the Bali Nebula™.
  */
 
+// define the finite state machine for a task
+const REQUESTS = [  //                     possible request types
+                  '$activate',     '$tick',     '$passivate',   '$complete',      '$fail'
+];
+const STATES = {
+//   current                                allowed next states
+    $passive:   [  '$active',     undefined,     '$passive',      undefined,    '$failed' ],
+    $active:    [  '$active',     '$active',     '$passive',   '$completed',    '$failed' ],
+    $completed: [  undefined,     undefined,      undefined,     undefined,     undefined ],
+    $failed:    [  undefined,     undefined,      undefined,     undefined,     undefined ]
+};
+
 
 /**
  * This constructor creates a new task from a catalog containing the task attributes.  The
@@ -37,11 +49,12 @@ const Task = async function(catalog, debug) {
 
     const tag = catalog.getValue('$tag') || bali.tag();
     const account = catalog.getValue('$account');
-    var balance = catalog.getValue('$balance').toNumber();  // optimization
-    var status = catalog.getValue('$status').toString();  // optimization
+    var tokens = catalog.getValue('$tokens').toNumber();  // optimization
+    const controller = bali.controller(REQUESTS, STATES, catalog.getValue('$state').toString(), debug);
     var clock = catalog.getValue('$clock').toNumber();  // optimization
     const components = catalog.getValue('$components') || bali.stack();
     const contexts = catalog.getValue('$contexts') || bali.stack();
+    var response;
 
 
     // PUBLIC METHODS
@@ -54,8 +67,8 @@ const Task = async function(catalog, debug) {
         return bali.catalog({
             $tag: tag,
             $account: account,
-            $balance: balance,
-            $status: status,
+            $tokens: tokens,
+            $state: controller.getState(),
             $clock: clock,
             $components: components.duplicate(),  // capture current state
             $contexts: contexts.duplicate()  // capture current state
@@ -70,12 +83,54 @@ const Task = async function(catalog, debug) {
         return account;
     };
 
-    this.getBalance = function() {
-        return balance;
+    this.hasTokens = function() {
+        return tokens > 0;
     };
 
-    this.addTokens = function(tokens) {
-        balance += tokens;
+    this.getTokens = function() {
+        return tokens;
+    };
+
+    this.getState = function() {
+        return controller.getState();
+    };
+
+    this.isActive = function() {
+        return controller.getState() === Task.ACTIVE;
+    };
+
+    this.activateTask = function(tokens) {
+        controller.validateEvent('$activate');
+        this.tokens += tokens;
+        controller.transitionState('$activate');
+    };
+
+    this.isPassive = function() {
+        return controller.getState() === Task.PASSIVE;
+    };
+
+    this.passivateTask = function() {
+        controller.transitionState('$passivate');
+    };
+
+    this.hasCompleted = function() {
+        return controller.getState() === Task.COMPLETED;
+    };
+
+    this.completeTask = function(result) {
+        controller.validateEvent('$complete');
+        response = result;
+        controller.transitionState('$complete');
+    };
+
+    this.hasFailed = function() {
+        return controller.getState() === Task.FAILED;
+    };
+
+    this.failTask = function(exception) {
+        controller.validateEvent('$fail');
+        response = exception;
+        controller.transitionState('$fail');
     };
 
     this.getClock = function() {
@@ -83,32 +138,16 @@ const Task = async function(catalog, debug) {
     };
 
     this.tickClock = function() {
+        controller.validateEvent('$tick');
         clock++;
-        if (--balance) status = Task.DONE;
+        if (--tokens === 0) {
+            controller.transitionState('$passivate');
+        }
+        controller.transitionState('$tick');
     };
 
-    this.isRunning = function() {
-        return status === Task.RUNNING;
-    };
-
-    this.activate = function() {
-        status = Task.RUNNING;
-    };
-
-    this.isWaiting = function() {
-        return status === Task.WAITING;
-    };
-
-    this.passivate = function() {
-        status = Task.WAITING;
-    };
-
-    this.isDone = function() {
-        return status === Task.DONE;
-    };
-
-    this.complete = function() {
-        status = Task.DONE;
+    this.hasComponents = function() {
+        return !components.isEmpty();
     };
 
     this.pushComponent = function(component) {
@@ -117,6 +156,10 @@ const Task = async function(catalog, debug) {
 
     this.popComponent = function() {
         return components.removeItem();
+    };
+
+    this.hasContexts = function() {
+        return !contexts.isEmpty();
     };
 
     this.pushContext = function(context) {
@@ -131,7 +174,8 @@ const Task = async function(catalog, debug) {
     return this;
 };
 Task.prototype.constructor = Task;
-Task.RUNNING = '$running';
-Task.WAITING = '$waiting';
-Task.DONE = '$done';
+Task.ACTIVE = '$active';
+Task.PASSIVE = '$passive';
+Task.COMPLETED = '$completed';
+Task.FAILED = '$failed';
 exports.Task = Task;

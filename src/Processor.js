@@ -39,7 +39,7 @@ const Processor = function(notary, repository, debug) {
     const bali = require('bali-component-framework').api(debug);
     const compiler = require('bali-type-compiler').api(debug);
     const decoder = bali.decoder();
-    var task, context;
+    var task, context;  // these are optimized versions of their corresponding catalogs
 
 
     // PUBLIC METHODS
@@ -82,16 +82,13 @@ const Processor = function(notary, repository, debug) {
             tag: bali.tag(),  // new unique task tag
             account: account,
             balance: balance,
-            status: Task.WAITING,
+            status: Task.RUNNING,
             clock: 0,
             components: bali.stack(),
             contexts: bali.stack()
         });
-
-        // convert the task state and current context catalogs to JS objects for better performance
         task = new Task(catalog, debug);
         context = new Context(await createContext(target, message, args), debug);
-        task.activate();
     };
 
     /**
@@ -102,8 +99,8 @@ const Processor = function(notary, repository, debug) {
      */
     this.loadTask = function(catalog) {
         task = new Task(catalog, debug);
-        context = new Context(task.popContext(), debug);
         task.activate();
+        popContext();
     };
 
     /**
@@ -297,21 +294,12 @@ const Processor = function(notary, repository, debug) {
     };
 
     const finalizeProcessing = async function() {
-        const status = task.status;
-        switch (status) {
-            case ACTIVE:
-                // the task hit a break point or the account balance is zero so notify any interested parties
-                await publishSuspensionEvent();
-                break;
-            case WAITING:
-                // the task is waiting on a message so requeue the task context
-                await queueTaskContext();
-                break;
-            case DONE:
-                // the task completed successfully or with an exception so notify any interested parties
-                await publishCompletionEvent();
-                break;
-            default:
+        if (task.isRunning()) {
+            await publishSuspensionEvent();
+        } else if (task.isWaiting()) {
+            await queueTaskContext();
+        } else {
+            await publishCompletionEvent();
         }
     };
 
@@ -527,7 +515,7 @@ const Processor = function(notary, repository, debug) {
                 context.address++;
             } else {
                 // set the task status to 'waiting'
-                task.status = WAITING;
+                task.passivate();
             }
         },
 
@@ -707,14 +695,15 @@ const Processor = function(notary, repository, debug) {
 
         // HANDLE RESULT
         async function(operand) {
-            if (!task.contexts.isEmpty()) {
+            if (task.hasContexts()) {
                 // retrieve the previous context from the stack
                 popContext();
+                context = new Context(task.popContext(), debug);
                 context.address++;
             } else {
                 // task completed with a result
-                task.result = task.popComponent();
-                task.status = DONE;
+                const result = task.popComponent();
+                task.complete(result);
                 context = undefined;
             }
         },
@@ -730,13 +719,13 @@ const Processor = function(notary, repository, debug) {
                     context.address = handlerAddress;
                     break;
                 } else {
-                    if (!task.contexts.isEmpty()) {
+                    if (task.hasContexts()) {
                         // retrieve the previous context from the stack
                         popContext();
                     } else {
                         // task completed with an unhandled exception
-                        task.exception = task.popComponent();
-                        task.status = DONE;
+                        const exception = task.popComponent();
+                        task.fail(exception);
                         context = undefined;
                     }
                 }
