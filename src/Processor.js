@@ -107,7 +107,7 @@ const Processor = function(notary, repository, debug) {
                 await executeInstruction();
                 return true;
             } else {
-                await finalizeProcessing();
+                if (task) await finalizeProcessing();
                 return false;
             }
         } catch (cause) {
@@ -138,7 +138,7 @@ const Processor = function(notary, repository, debug) {
             while (notDone()) {
                 await executeInstruction();
             }
-            await finalizeProcessing();
+            if (task) await finalizeProcessing();
         } catch (cause) {
             const exception = bali.exception({
                 $module: '/bali/vm/Processor',
@@ -289,7 +289,7 @@ const Processor = function(notary, repository, debug) {
             });
             exception = bali.catalog({
                 $module: '/bali/vm/Processor',
-                $procedure: '$executeInstruction',
+                $procedure: '$handleException',
                 $exception: '$processorBug',
                 $type: exception.constructor.name,
                 $processor: this.toCatalog(),
