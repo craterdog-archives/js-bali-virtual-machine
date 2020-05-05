@@ -149,7 +149,7 @@ const Processor = function(notary, repository, debug) {
 
     // PRIVATE FUNCTIONS
 
-    const createTask = async function(account, tokens) {
+    const createTask = function(account, tokens) {
         return bali.catalog({
             $tag: bali.tag(),  // new unique task tag
             $account: account,
