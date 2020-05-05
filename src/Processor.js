@@ -151,7 +151,6 @@ const Processor = function(notary, repository, debug) {
 
     const createTask = function(account, tokens) {
         return bali.catalog({
-            $tag: bali.tag(),  // new unique task tag
             $account: account,
             $tokens: tokens,
             $status: Task.ACTIVE,
@@ -275,7 +274,7 @@ const Processor = function(notary, repository, debug) {
 
     const handleException = async function(exception) {
         if (exception.constructor.name !== 'Exception') {
-            // it's a bug in the compiler or processor
+            // it's a bug in the compiler or processor, convert it to a Bali exception
             const stack = exception.stack.split(EOL).slice(1);  // remove the first line of the stack
             stack.forEach(function(line, index) {
                 line = '  ' + line;
@@ -315,7 +314,7 @@ const Processor = function(notary, repository, debug) {
     };
 
     const pushContext = async function(target, message, args) {
-        task.pushContext(context.toCatalog());
+        task.pushContext(context.toCatalog());  // add the current context to the context stack
         context = new Context(await createContext(target, message, args), debug);
     };
 
@@ -324,7 +323,7 @@ const Processor = function(notary, repository, debug) {
     };
 
     const bagTask = async function(target, message, args) {
-        const t = createTask(task.getAccount(), task.getTokens());  // TODO: how many tokens should it be??
+        const t = createTask(task.getAccount(), task.splitTokens());
         const c = await createContext(target, message, args);
         t.pushContext(c);
         const m = await notary.notarizeDocument(t);

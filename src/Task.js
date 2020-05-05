@@ -48,7 +48,7 @@ const Task = function(catalog, debug) {
 
     // PRIVATE ATTRIBUTES
 
-    const tag = catalog.getValue('$tag') || bali.tag();
+    const tag = catalog.getParameter('$tag') || bali.tag();
     const account = catalog.getValue('$account');
     var tokens = catalog.getValue('$tokens').toNumber();  // optimization
     const controller = bali.controller(REQUESTS, STATES, catalog.getValue('$state').toString(), debug);
@@ -66,14 +66,18 @@ const Task = function(catalog, debug) {
 
     this.toCatalog = function() {
         return bali.catalog({
-            $tag: tag,
             $account: account,
             $tokens: tokens,
             $state: controller.getState(),
             $clock: clock,
             $components: components.duplicate(),  // capture current state
             $contexts: contexts.duplicate()  // capture current state
-        });
+        }, bali.parameters({
+            $tag: tag,
+            $version: bali.version(),
+            $permissions: '/bali/permissions/public/v1',
+            $previous: bali.pattern.NONE
+        }));
     };
 
     this.getTag = function() {
@@ -88,8 +92,10 @@ const Task = function(catalog, debug) {
         return tokens > 0;
     };
 
-    this.getTokens = function() {
-        return tokens;
+    this.splitTokens = function() {
+        const split = Math.floor(tokens / 2);
+        tokens -= split;
+        return split;
     };
 
     this.getState = function() {
