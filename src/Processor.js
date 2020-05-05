@@ -14,8 +14,8 @@
  */
 
 const EOL = '\n';  // This private constant sets the POSIX end of line character
-const TASK_QUEUE = '3F8TVTX4SVG5Z12F3RMYZCTWHV2VPX4K';
-const EVENT_QUEUE = '3RMGDVN7D6HLAPFXQNPF7DV71V3MAL43';
+const TASK_BAG = '/bali/vm/tasks/v1';
+const EVENT_BAG = '/bali/vm/events/v1';
 
 
 /**
@@ -39,6 +39,8 @@ const Processor = function(notary, repository, debug) {
     const bali = require('bali-component-framework').api(debug);
     const compiler = require('bali-type-compiler').api(debug);
     const decoder = bali.decoder();
+    const taskBag = notary.citeDocument(repository.readName(TASK_BAG));
+    const eventBag = notary.citeDocument(repository.readName(EVENT_BAG));
     var task, context;  // these are optimized versions of their corresponding catalogs
 
 
@@ -77,19 +79,9 @@ const Processor = function(notary, repository, debug) {
      * executed.
      * @param {List} args The list of argument values (if any) that were passed with the message.
      */
-    this.createTask = async function(account, tokens, target, message, args) {
-        const catalog = bali.catalog({
-            tag: bali.tag(),  // new unique task tag
-            account: account,
-            tokens: tokens,
-            status: Task.PASSIVE,
-            clock: 0,
-            components: bali.stack(),
-            contexts: bali.stack()
-        });
-        task = new Task(catalog, debug);
+    this.newTask = async function(account, tokens, target, message, args) {
+        task = new Task(createTask(account, tokens), debug);
         context = new Context(await createContext(target, message, args), debug);
-        task.activate();
     };
 
     /**
@@ -101,7 +93,6 @@ const Processor = function(notary, repository, debug) {
     this.loadTask = function(catalog) {
         task = new Task(catalog, debug);
         popContext();
-        task.activate();
     };
 
     /**
@@ -137,7 +128,7 @@ const Processor = function(notary, repository, debug) {
      * following occurs:
      * <pre>
      *  * the number of tokens for the account has reached zero,  {$active}
-     *  * the task is waiting to receive a message from a queue,  {$passive}
+     *  * the task is waiting to receive a message from a bag,    {$passive}
      *  * the end of the instructions has been reached,           {$completed}
      *  * or an unhandled exception has been thrown.              {$failed}
      * </pre>
@@ -166,6 +157,18 @@ const Processor = function(notary, repository, debug) {
 
     const notDone = function() {
         return task && task.isActive() && context.hasInstruction();
+    };
+
+    this.createTask = async function(account, tokens) {
+        return bali.catalog({
+            $tag: bali.tag(),  // new unique task tag
+            $account: account,
+            $tokens: tokens,
+            $status: Task.ACTIVE,
+            $clock: 0,
+            $components: bali.stack(),
+            $contexts: bali.stack()
+        });
     };
 
     const createContext = async function(target, message, args) {
@@ -311,7 +314,7 @@ const Processor = function(notary, repository, debug) {
             $previous: bali.pattern.NONE
         }));
         const message = await notary.notarizeDocument(event);
-        await repository.addMessage(EVENT_QUEUE, message);
+        await repository.addMessage(eventBag, message);
     };
 
     const pushContext = async function(target, message, args) {
@@ -323,11 +326,20 @@ const Processor = function(notary, repository, debug) {
         context = new Context(task.popContext(), debug);
     };
 
-    const queueTaskContext = async function() {
-        // queue up the task for a new virtual processor
-        const state = this.toCatalog();
-        state = await notary.notarizeDocument(state);
-        await repository.addMessage(TASK_QUEUE, state);
+    const bagTask = async function(target, message, args) {
+        const t = createTask(task.getAccount(), task.getTokens());  // TODO: how many tokens should it be??
+        const c = await createContext(target, message, args);
+        t.pushContext(c);
+        const message = await notary.notarizeDocument(t);
+        await repository.addMessage(taskBag, message);
+    };
+
+    const rebagTask = async function() {
+        // store this task in the task bag for a new virtual processor to process
+        const message = await notary.notarizeDocument(this.toCatalog());
+        await repository.addMessage(taskBag, message);
+        task = undefined;
+        context = undefined;
     };
 
     // PRIVATE MACHINE INSTRUCTION HANDLERS (ASYNCHRONOUS)
@@ -474,25 +486,19 @@ const Processor = function(notary, repository, debug) {
         // LOAD MESSAGE symbol
         async function(operand) {
             const index = operand;
-            // lookup the queue tag associated with the index
-            const queue = context.getVariable(index).getValue();
-            // TODO: jump to exception handler if queue isn't a named queue
-            // attempt to receive a message from the queue in the document repository
-            var message;
-            const source = await repository.borrowMessage(queue);
-            if (source) {
-                // validate the document
-                const document = bali.component(source);
-                message = document.getValue('$content');
-            }
+            // lookup the bag name associated with the index
+            const name = context.getVariable(index).getValue();
+            // TODO: jump to exception handler if name isn't a name
+            const bag = notary.citeDocument(repository.readName(name));
+            // attempt to retrieve a message from the bag in the document repository
+            const message = await repository.borrowMessage(bag);
             if (message) {
+                const component = message.getValue('$content');
                 // place the message on the stack
-                task.pushComponent(message);
+                task.pushComponent(component);
                 context.incrementAddress();
             } else {
-                // set the task status to 'waiting'
-                task.passivate();
-                await requeueTask();
+                await rebagTask();  // the new processor will retry this last instruction
             }
         },
 
@@ -541,14 +547,15 @@ const Processor = function(notary, repository, debug) {
         // STORE MESSAGE symbol
         async function(operand) {
             const index = operand;
-            // pop the message that is on top of the component stack off the stack
-            var message = task.popComponent();
-            // lookup the queue tag associated with the index operand
-            const queue = context.getVariable(index).getValue();
-            // TODO: jump to exception handler if queue isn't a tag
-            // send the message to the queue in the document repository
-            message = await notary.notarizeDocument(message);
-            await repository.addMessage(queue, message);
+            // pop the component that is on top of the component stack off the stack
+            var component = task.popComponent();
+            // lookup the bag name associated with the index operand
+            const name = context.getVariable(index).getValue();
+            // TODO: jump to exception handler if name isn't a name
+            const bag = notary.citeDocument(repository.readName(name));
+            // store the message in the bag in the document repository
+            message = await notary.notarizeDocument(component);
+            await repository.addMessage(bag, message);
             context.incrementAddress();
         },
 
@@ -656,7 +663,7 @@ const Processor = function(notary, repository, debug) {
             const message = context.getMessage(index);
             const argumentz = bali.list();
             const name = task.popComponent();
-            await queueTask(name, message, argumentz);
+            await bagTask(name, message, argumentz);
             context.incrementAddress();
         },
 
@@ -666,7 +673,7 @@ const Processor = function(notary, repository, debug) {
             const message = context.getMessage(index);
             const argumentz = task.popComponent();
             const name = task.popComponent();
-            await queueTask(name, message, argumentz);
+            await bagTask(name, message, argumentz);
             context.incrementAddress();
         },
 
