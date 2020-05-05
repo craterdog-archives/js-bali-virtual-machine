@@ -12,7 +12,8 @@
 /*
  * This class implements the processor for The Bali Virtual Machine™.
  */
-
+const Task = require('./Task').Task;
+const Context = require('./Context').Context;
 const EOL = '\n';  // This private constant sets the POSIX end of line character
 const TASK_BAG = '/bali/vm/tasks/v1';
 const EVENT_BAG = '/bali/vm/events/v1';
@@ -64,7 +65,7 @@ const Processor = function(notary, repository, debug) {
      * @returns {String} A string representation of the current processor state.
      */
     this.toString = function() {
-        return this.toCatalog().toString();
+        return toCatalog().toString();
     };
 
     /**
@@ -103,19 +104,13 @@ const Processor = function(notary, repository, debug) {
      */
     this.stepClock = async function() {
         try {
-            if (notDone()) {
-                await executeInstruction();
-                return true;
-            } else {
-                if (task) await finalizeProcessing();
-                return false;
-            }
+            if (notDone()) await executeInstruction();
         } catch (cause) {
             const exception = bali.exception({
                 $module: '/bali/vm/Processor',
                 $procedure: '$stepClock',
                 $exception: '$unexpected',
-                $task: this.toCatalog(),
+                $task: toCatalog(),
                 $text: 'An unexpected error occurred while attempting to execute a single step of a task.'
             }, cause);
             if (debug) console.error(exception.toString());
@@ -127,24 +122,23 @@ const Processor = function(notary, repository, debug) {
      * This method executes all of the instructions in the current task until one of the
      * following occurs:
      * <pre>
-     *  * the number of tokens for the account has reached zero,  {$active}
-     *  * the task is waiting to receive a message from a bag,    {$passive}
+     *  * the number of tokens for the account has reached zero,  {$frozen}
+     *  * the task is waiting to receive a message from a bag,    {$active}
      *  * the end of the instructions has been reached,           {$completed}
      *  * or an unhandled exception has been thrown.              {$failed}
      * </pre>
      */
     this.runClock = async function() {
         try {
-            while (notDone()) {
-                await executeInstruction();
-            }
-            if (task) await finalizeProcessing();
+            while (notDone()) await executeInstruction();
+            if (wasTerminated()) await publishNotification();
+            resetProcessor();
         } catch (cause) {
             const exception = bali.exception({
                 $module: '/bali/vm/Processor',
                 $procedure: '$runClock',
                 $exception: '$unexpected',
-                $task: this.toCatalog(),
+                $task: toCatalog(),
                 $text: 'An unexpected error occurred while attempting to run a task.'
             }, cause);
             if (debug) console.error(exception.toString());
@@ -155,11 +149,7 @@ const Processor = function(notary, repository, debug) {
 
     // PRIVATE FUNCTIONS
 
-    const notDone = function() {
-        return task && task.isActive() && context.hasInstruction();
-    };
-
-    this.createTask = async function(account, tokens) {
+    const createTask = async function(account, tokens) {
         return bali.catalog({
             $tag: bali.tag(),  // new unique task tag
             $account: account,
@@ -248,9 +238,16 @@ const Processor = function(notary, repository, debug) {
             $messages: messages,
             $handlers: handlers,
             $bytecode: bytecode,
-            $instruction: 0,
-            $address: 0  // this will be incremented before the next instruction is executed
+            $address: 1
         });
+    };
+
+    const notDone = function() {
+        return task && task.isActive() && context.hasInstruction();
+    };
+
+    const wasTerminated = function() {
+        return task && !task.isPaused();
     };
 
     const executeInstruction = async function() {
@@ -292,7 +289,7 @@ const Processor = function(notary, repository, debug) {
                 $procedure: '$handleException',
                 $exception: '$processorBug',
                 $type: exception.constructor.name,
-                $processor: this.toCatalog(),
+                $processor: toCatalog(),
                 $text: exception.toString(),
                 $trace: bali.text(EOL + stack.join(EOL))
             });
@@ -302,7 +299,7 @@ const Processor = function(notary, repository, debug) {
         await instructionHandlers[29]();  // HANDLE EXCEPTION instruction
     };
 
-    const finalizeProcessing = async function() {
+    const publishNotification = async function() {
         const event = bali.catalog({
             $tag: task.getTag(),
             $type: '/bali/vm/' + task.getState().slice(1) + '/v1',  // remove leading '$'
@@ -330,17 +327,10 @@ const Processor = function(notary, repository, debug) {
         const t = createTask(task.getAccount(), task.getTokens());  // TODO: how many tokens should it be??
         const c = await createContext(target, message, args);
         t.pushContext(c);
-        const message = await notary.notarizeDocument(t);
-        await repository.addMessage(taskBag, message);
+        const m = await notary.notarizeDocument(t);
+        await repository.addMessage(taskBag, m);
     };
 
-    const rebagTask = async function() {
-        // store this task in the task bag for a new virtual processor to process
-        const message = await notary.notarizeDocument(this.toCatalog());
-        await repository.addMessage(taskBag, message);
-        task = undefined;
-        context = undefined;
-    };
 
     // PRIVATE MACHINE INSTRUCTION HANDLERS (ASYNCHRONOUS)
 
@@ -453,7 +443,7 @@ const Processor = function(notary, repository, debug) {
                 $procedure: '$pop3',
                 $exception: '$notImplemented',
                 $operand: operand,
-                $processor: this.toCatalog(),
+                $processor: toCatalog(),
                 $message: 'An unimplemented POP operation was attempted.'
             });
             if (debug) console.error(exception.toString());
@@ -467,7 +457,7 @@ const Processor = function(notary, repository, debug) {
                 $procedure: '$pop4',
                 $exception: '$notImplemented',
                 $operand: operand,
-                $processor: this.toCatalog(),
+                $processor: toCatalog(),
                 $message: 'An unimplemented POP operation was attempted.'
             });
             if (debug) console.error(exception.toString());
@@ -498,7 +488,10 @@ const Processor = function(notary, repository, debug) {
                 task.pushComponent(component);
                 context.incrementAddress();
             } else {
-                await rebagTask();  // the new processor will retry this last instruction
+                // store this task in the task bag for a new virtual processor to retry
+                const message = await notary.notarizeDocument(toCatalog());
+                await repository.addMessage(taskBag, message);
+                task.pauseTask();
             }
         },
 
@@ -682,13 +675,11 @@ const Processor = function(notary, repository, debug) {
             if (task.hasContexts()) {
                 // retrieve the previous context from the stack
                 popContext();
-                context = new Context(task.popContext(), debug);
                 context.incrementAddress();
             } else {
                 // task completed with a result
                 const result = task.popComponent();
-                task.complete(result);
-                context = undefined;
+                task.completeTask(result);
             }
         },
 
@@ -707,8 +698,7 @@ const Processor = function(notary, repository, debug) {
                     } else {
                         // task completed with an unhandled exception
                         const exception = task.popComponent();
-                        task.fail(exception);
-                        context = undefined;
+                        task.abandonTask(exception);
                     }
                 }
             }
@@ -721,7 +711,7 @@ const Processor = function(notary, repository, debug) {
                 $procedure: '$handle3',
                 $exception: '$notImplemented',
                 $operand: operand,
-                $processor: this.toCatalog(),
+                $processor: toCatalog(),
                 $message: 'An unimplemented HANDLE operation was attempted.'
             });
             if (debug) console.error(exception.toString());
@@ -735,7 +725,7 @@ const Processor = function(notary, repository, debug) {
                 $procedure: '$handle4',
                 $exception: '$notImplemented',
                 $operand: operand,
-                $processor: this.toCatalog(),
+                $processor: toCatalog(),
                 $message: 'An unimplemented HANDLE operation was attempted.'
             });
             if (debug) console.error(exception.toString());

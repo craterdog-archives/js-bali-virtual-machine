@@ -9,7 +9,9 @@
  ************************************************************************/
 'use strict';
 
-const VirtualProcessor = require('./src/VirtualProcessor').VirtualProcessor;
+const Context = require('./src/Context').Context;
+const Task = require('./src/Task').Task;
+const Processor = require('./src/Processor').Processor;
 
 
 /**
@@ -159,10 +161,10 @@ exports.api = function(notary, repository, compiler, debug) {
          * This function returns a new virtual process for the specified task.
          *
          * @param {Catalog} task A catalog containing the task definition for the processor.
-         * @returns {VirtualProcessor} A new virtual processor initialized with the task.
+         * @returns {Processor} A new virtual processor initialized with the task.
          */
         processor: function(task) {
-            const processor = new VirtualProcessor(notary, repository, compiler, task, debug);
+            const processor = new Processor(notary, repository, compiler, task, debug);
             return processor;
         }
 

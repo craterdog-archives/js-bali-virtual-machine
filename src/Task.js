@@ -14,16 +14,16 @@
  */
 
 // define the finite state machine for a task
-const REQUESTS = [  //                       possible request types
-                  '$activate',  '$tick',  '$passivate',  '$freeze',   '$complete',   '$abandon'
+const REQUESTS = [  //               possible request types
+                 '$activate',  '$pause',  '$freeze',   '$complete',   '$abandon'
 ];
 const STATES = {
-//   current                                  allowed next states
-    $passive:   [  '$active',  undefined,  '$passive',   undefined,     undefined,  '$abandoned' ],
-    $active:    [  '$active',  '$active',  '$passive',   '$frozen',  '$completed',  '$abandoned' ],
-    $frozen:    [  '$active',  undefined,   undefined,   '$frozen',     undefined,  '$abandoned' ],
-    $completed: [  undefined,  undefined,   undefined,   undefined,  '$completed',    undefined  ],
-    $abandoned: [  undefined,  undefined,   undefined,   undefined,     undefined,  '$abandoned' ]
+//   current                          allowed next states
+    $active:    [ '$active',  '$paused',  '$frozen',  '$completed',  '$abandoned' ],
+    $frozen:    [ '$active',  undefined,  undefined,     undefined,  '$abandoned' ],
+    $paused:    [ undefined,  undefined,  undefined,     undefined,     undefined ],
+    $completed: [ undefined,  undefined,  undefined,     undefined,     undefined ],
+    $abandoned: [ undefined,  undefined,  undefined,     undefined,     undefined ]
 };
 
 
@@ -42,7 +42,7 @@ const STATES = {
  * </pre>
  * @returns {Task} The new task.
  */
-const Task = async function(catalog, debug) {
+const Task = function(catalog, debug) {
     if (debug === null || debug === undefined) debug = 0;  // default is off
     const bali = require('bali-component-framework').api(debug);
 
@@ -106,20 +106,20 @@ const Task = async function(catalog, debug) {
         controller.transitionState('$activate');
     };
 
-    this.isPassive = function() {
-        return controller.getState() === Task.PASSIVE;
-    };
-
-    this.passivateTask = function() {
-        controller.transitionState('$passivate');
-    };
-
     this.isFrozen = function() {
         return controller.getState() === Task.FROZEN;
     };
 
     this.freezeTask = function() {
         controller.transitionState('$freeze');
+    };
+
+    this.isPaused = function() {
+        return controller.getState() === Task.PAUSED;
+    };
+
+    this.pauseTask = function() {
+        controller.transitionState('$pause');
     };
 
     this.hasCompleted = function() {
@@ -147,12 +147,10 @@ const Task = async function(catalog, debug) {
     };
 
     this.tickClock = function() {
-        controller.validateEvent('$tick');
         clock++;
-        if (--tokens === 0) {
-            controller.transitionState('$passivate');
+        if (--tokens < 1) {
+            controller.transitionState('$freeze');
         }
-        controller.transitionState('$tick');
     };
 
     this.hasComponents = function() {
@@ -184,8 +182,8 @@ const Task = async function(catalog, debug) {
 };
 Task.prototype.constructor = Task;
 Task.ACTIVE = '$active';
-Task.PASSIVE = '$passive';
 Task.FROZEN = '$frozen';
+Task.PAUSED = '$paused';
 Task.COMPLETED = '$completed';
 Task.ABANDONED = '$abandoned';
 exports.Task = Task;

@@ -30,7 +30,7 @@
  * </pre>
  * @returns {Context} The new context.
  */
-const Context = async function(catalog, debug) {
+const Context = function(catalog, debug) {
     if (debug === null || debug === undefined) debug = 0;  // default is off
     const bali = require('bali-component-framework').api(debug);
     const compiler = require('bali-type-compiler').api(debug);
@@ -48,7 +48,6 @@ const Context = async function(catalog, debug) {
     const bytes = catalog.getValue('$bytecode').getValue();
     const bytecode = compiler.bytecode(bytes);  // optimization
     var address = catalog.getValue('$address').toNumber();  // optimization
-    var instruction = catalog.getValue('$bytecode').toNumber();  // optimization
 
 
     // PUBLIC METHODS
@@ -64,8 +63,8 @@ const Context = async function(catalog, debug) {
             $messages: messages,
             $handlers: handlers.duplicate(),  // capture the current state
             $bytecode: bali.binary(bytes, {$encoding: '$base16', $mediaType: '"application/bcod"'}),
-            $instruction: instruction,
-            $address: address
+            $address: address,
+            $instruction: getInstruction()
         });
     };
 
@@ -110,16 +109,11 @@ const Context = async function(catalog, debug) {
     };
 
     this.hasInstruction = function() {
-        if (address <= bytecode.length) {
-            instruction = bytecode[address - 1];  // convert to JS indexing
-            return true;
-        } else {
-            return false;
-        }
+        return address <= bytecode.length;
     };
 
     this.getInstruction = function() {
-        return instruction;
+        return bytecode[address - 1];  // convert to JS indexing
     };
 
     this.incrementAddress = function() {
@@ -131,8 +125,7 @@ const Context = async function(catalog, debug) {
     };
 
     this.jumpToHandler = function() {
-        const handler = handlers.removeItem().toNumber();  // optimized
-        address = handler;
+        address = handlers.removeItem().toNumber();  // optimized
     };
 
     return this;
