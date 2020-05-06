@@ -322,7 +322,7 @@ const Processor = function(notary, repository, debug) {
         context = new Context(task.popContext(), debug);
     };
 
-    const bagTask = async function(name, message, args) {
+    const spawnTask = async function(name, message, args) {
         const target = await repository.readName(name);
         const childTask = createTask(task.getAccount(), task.splitTokens());
         const childContext = await createContext(target, message, args);
@@ -576,7 +576,7 @@ const Processor = function(notary, repository, debug) {
             const message = context.getMessage(operand);
             const argumentz = bali.list();
             const name = task.popComponent();
-            await bagTask(name, message, argumentz);
+            await spawnTask(name, message, argumentz);
             context.incrementAddress();
         },
 
@@ -585,7 +585,7 @@ const Processor = function(notary, repository, debug) {
             const message = context.getMessage(operand);
             const argumentz = task.popComponent();
             const name = task.popComponent();
-            await bagTask(name, message, argumentz);
+            await spawnTask(name, message, argumentz);
             context.incrementAddress();
         },
 
