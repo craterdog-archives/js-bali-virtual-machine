@@ -309,8 +309,8 @@ const Processor = function(notary, repository, debug) {
             $permissions: '/bali/permissions/public/v1',
             $previous: bali.pattern.NONE
         }));
-        const message = await notary.notarizeDocument(event);
-        await repository.addMessage(eventBag, message);
+        const document = await notary.notarizeDocument(event);
+        await repository.addMessage(eventBag, document);
     };
 
     const pushContext = async function(target, message, args) {
@@ -322,12 +322,13 @@ const Processor = function(notary, repository, debug) {
         context = new Context(task.popContext(), debug);
     };
 
-    const bagTask = async function(target, message, args) {
-        const t = createTask(task.getAccount(), task.splitTokens());
-        const c = await createContext(target, message, args);
-        t.pushContext(c);
-        const m = await notary.notarizeDocument(t);
-        await repository.addMessage(taskBag, m);
+    const bagTask = async function(name, message, args) {
+        const target = await repository.readName(name);
+        const childTask = createTask(task.getAccount(), task.splitTokens());
+        const childContext = await createContext(target, message, args);
+        childTask.pushContext(childContext);
+        const document = await notary.notarizeDocument(childTask);
+        await repository.addMessage(taskBag, document);
     };
 
 
@@ -336,11 +337,8 @@ const Processor = function(notary, repository, debug) {
     const instructionHandlers = [
         // JUMP TO label
         async function(operand) {
-            // if the operand is not zero then use it as the next instruction to be executed,
-            // otherwise it is a SKIP INSTRUCTION (aka NOOP)
             if (operand) {
-                const address = operand;
-                context.jumpToAddress(address);
+                context.jumpToAddress(operand);
             } else {
                 context.incrementAddress();
             }
@@ -348,12 +346,9 @@ const Processor = function(notary, repository, debug) {
 
         // JUMP TO label ON NONE
         async function(operand) {
-            const address = operand;
-            // pop the condition component off the component stack
             const condition = task.popComponent();
-            // if the condition is 'none' then use the address as the next instruction to be executed
             if (condition.isEqualTo(bali.pattern.NONE)) {
-                context.jumpToAddress(address);
+                context.jumpToAddress(operand);
             } else {
                 context.incrementAddress();
             }
@@ -361,12 +356,9 @@ const Processor = function(notary, repository, debug) {
 
         // JUMP TO label ON TRUE
         async function(operand) {
-            const address = operand;
-            // pop the condition component off the component stack
             const condition = task.popComponent();
-            // if the condition is 'true' then use the address as the next instruction to be executed
             if (condition.toBoolean()) {
-                context.jumpToAddress(address);
+                context.jumpToAddress(operand);
             } else {
                 context.incrementAddress();
             }
@@ -374,12 +366,9 @@ const Processor = function(notary, repository, debug) {
 
         // JUMP TO label ON FALSE
         async function(operand) {
-            const address = operand;
-            // pop the condition component off the component stack
             const condition = task.popComponent();
-            // if the condition is 'false' then use the address as the next instruction to be executed
             if (!condition.toBoolean()) {
-                context.jumpToAddress(address);
+                context.jumpToAddress(operand);
             } else {
                 context.incrementAddress();
             }
@@ -387,50 +376,39 @@ const Processor = function(notary, repository, debug) {
 
         // PUSH HANDLER label
         async function(operand) {
-            const handlerAddress = operand;
-            // push the address of the current exception handlers onto the handlers stack
-            context.pushHandler(handlerAddress);
+            context.pushHandler(operand);
             context.incrementAddress();
         },
 
         // PUSH LITERAL literal
         async function(operand) {
-            const index = operand;
-            // lookup the literal associated with the index
-            const literal = context.getLiteral(index);
+            const literal = context.getLiteral(operand);
             task.pushComponent(literal);
             context.incrementAddress();
         },
 
         // PUSH CONSTANT constant
         async function(operand) {
-            const index = operand;
-            // lookup the constant associated with the index
-            const constant = context.getConstant(index).getValue();
+            const constant = context.getConstant(operand).getValue();
             task.pushComponent(constant);
             context.incrementAddress();
         },
 
         // PUSH ARGUMENT argument
         async function(operand) {
-            const index = operand;
-            // lookup the argument associated with the index
-            const argument = context.getArgument(index).getValue();
+            const argument = context.getArgument(operand).getValue();
             task.pushComponent(argument);
             context.incrementAddress();
         },
 
         // POP HANDLER
         async function(operand) {
-            // remove the current exception handler address from the top of the handlers stack
-            // since it is no longer in scope
             context.popHandler();
             context.incrementAddress();
         },
 
         // POP COMPONENT
         async function(operand) {
-            // remove the component that is on top of the component stack since it was not used
             task.popComponent();
             context.incrementAddress();
         },
@@ -465,174 +443,119 @@ const Processor = function(notary, repository, debug) {
 
         // LOAD VARIABLE symbol
         async function(operand) {
-            const index = operand;
-            // lookup the variable associated with the index
-            const variable = context.getVariable(index).getValue();
+            const variable = context.getVariable(operand).getValue();
             task.pushComponent(variable);
             context.incrementAddress();
         },
 
         // LOAD MESSAGE symbol
         async function(operand) {
-            const index = operand;
-            // lookup the bag name associated with the index
-            const name = context.getVariable(index).getValue();
-            // TODO: jump to exception handler if name isn't a name
-            const bag = notary.citeDocument(repository.readName(name));
-            // attempt to retrieve a message from the bag in the document repository
-            const message = await repository.borrowMessage(bag);
+            const name = context.getVariable(operand).getValue();
+            const messageBag = notary.citeDocument(repository.readName(name));
+            const message = await repository.borrowMessage(messageBag);
             if (message) {
                 const component = message.getValue('$content');
-                // place the message on the stack
                 task.pushComponent(component);
                 context.incrementAddress();
             } else {
-                // store this task in the task bag for a new virtual processor to retry
-                const message = await notary.notarizeDocument(toCatalog());
-                await repository.addMessage(taskBag, message);
-                task.pauseTask();
+                const document = await notary.notarizeDocument(toCatalog());
+                await repository.addMessage(taskBag, document);
+                task.pauseTask();  // will retry again on a different processor
             }
         },
 
         // LOAD DRAFT symbol
         async function(operand) {
-            const index = operand;
-            // lookup the citation associated with the index
-            const citation = context.getVariable(index).getValue();
-            // TODO: jump to exception handler if the citation isn't a citation
-            // retrieve the cited draft from the document repository
-            const source = await repository.readDraft(citation);
-            const document = bali.component(source);
-            await notary.citationMatches(citation, document);
-            const draft = document.getValue('$content');
-            // push the draft on top of the component stack
-            task.pushComponent(draft);
+            const citation = context.getVariable(operand).getValue();
+            const draft = await repository.readDraft(citation);
+            await notary.citationMatches(citation, draft);
+            const component = draft.getValue('$content');
+            task.pushComponent(component);
             context.incrementAddress();
         },
 
         // LOAD DOCUMENT symbol
         async function(operand) {
-            const index = operand;
-            // lookup the citation associated with the index
-            const citation = context.getVariable(index).getValue();
-            // TODO: jump to exception handler if the citation isn't a citation
-            // retrieve the cited document from the document repository
-            const source = await repository.readDocument(citation);
-            var document = bali.component(source);
+            const citation = context.getVariable(operand).getValue();
+            const document = await repository.readDocument(citation);
             await notary.citationMatches(citation, document);
-            document = document.getValue('$content');
-            // push the document on top of the component stack
-            task.pushComponent(document);
+            const component = document.getValue('$content');
+            task.pushComponent(component);
             context.incrementAddress();
         },
 
         // STORE VARIABLE symbol
         async function(operand) {
-            const index = operand;
-            // pop the component that is on top of the component stack off the stack
             const component = task.popComponent();
-            // and store the component in the variable associated with the index
-            context.getVariable(index).setValue(component);
+            context.getVariable(operand).setValue(component);
             context.incrementAddress();
         },
 
         // STORE MESSAGE symbol
         async function(operand) {
-            const index = operand;
-            // pop the component that is on top of the component stack off the stack
             var component = task.popComponent();
-            // lookup the bag name associated with the index operand
-            const name = context.getVariable(index).getValue();
-            // TODO: jump to exception handler if name isn't a name
-            const bag = notary.citeDocument(repository.readName(name));
-            // store the message in the bag in the document repository
-            message = await notary.notarizeDocument(component);
-            await repository.addMessage(bag, message);
+            const name = context.getVariable(operand).getValue();
+            const messageBag = notary.citeDocument(repository.readName(name));
+            const document = await notary.notarizeDocument(component);
+            await repository.addMessage(messageBag, document);
             context.incrementAddress();
         },
 
         // STORE DRAFT symbol
         async function(operand) {
-            const index = operand;
-            // pop the draft that is on top of the component stack off the stack
-            var draft = task.popComponent();
-            // write the draft to the document repository
-            draft = await notary.notarizeDocument(draft);
-            const citation = await notary.citeDocument(draft);
-            await repository.writeDraft(draft);
-            // and store the resulting citation in the variable associated with the index
-            context.getVariable(index).setValue(citation);
+            var component = task.popComponent();
+            const draft = await notary.notarizeDocument(component);
+            const citation = await repository.writeDraft(draft);
+            context.getVariable(operand).setValue(citation);
             context.incrementAddress();
         },
 
         // STORE DOCUMENT symbol
         async function(operand) {
-            const index = operand;
-            // pop the document that is on top of the component stack off the stack
             const component = task.popComponent();
-            // write the document to the document repository
             const document = await notary.notarizeDocument(component);
-            const citation = await notary.citeDocument(document);
-            await repository.writeDocument(document);
-            await repository.deleteDraft(citation);
-            // and store the resulting citation in the variable associated with the index
-            context.getVariable(index).setValue(citation);
+            const citation = await repository.writeDocument(document);
+            context.getVariable(operand).setValue(citation);
             context.incrementAddress();
         },
 
         // INVOKE symbol
         async function(operand) {
-            const index = operand;
-            // call the intrinsic function associated with the index operand
-            const result = compiler.invoke(index);
-            // push the result of the function call onto the top of the component stack
+            const result = compiler.invoke(operand);
             task.pushComponent(result);
             context.incrementAddress();
         },
 
         // INVOKE symbol WITH 1 ARGUMENT
         async function(operand) {
-            const index = operand;
-            // pop the argument off of the component stack
             const argument = task.popComponent();
-            // call the intrinsic function associated with the index operand
-            const result = compiler.invoke(index, argument);
-            // push the result of the function call onto the top of the component stack
+            const result = compiler.invoke(operand, argument);
             task.pushComponent(result);
             context.incrementAddress();
         },
 
         // INVOKE symbol WITH 2 ARGUMENTS
         async function(operand) {
-            const index = operand;
-            // pop the arguments off of the component stack (in reverse order)
             const argument2 = task.popComponent();
             const argument1 = task.popComponent();
-            // call the intrinsic function associated with the index operand
-            const result = compiler.invoke(index, argument1, argument2);
-            // push the result of the function call onto the top of the component stack
+            const result = compiler.invoke(operand, argument1, argument2);
             task.pushComponent(result);
             context.incrementAddress();
         },
 
         // INVOKE symbol WITH 3 ARGUMENTS
         async function(operand) {
-            const index = operand;
-            // pop the arguments call off of the component stack (in reverse order)
             const argument3 = task.popComponent();
             const argument2 = task.popComponent();
             const argument1 = task.popComponent();
-            // call the intrinsic function associated with the index operand
-            const result = compiler.invoke(index, argument1, argument2, argument3);
-            // push the result of the function call onto the top of the component stack
+            const result = compiler.invoke(operand, argument1, argument2, argument3);
             task.pushComponent(result);
             context.incrementAddress();
         },
 
         // SEND symbol TO COMPONENT
         async function(operand) {
-            const index = operand;
-            const message = context.getMessage(index);
+            const message = context.getMessage(operand);
             const argumentz = bali.list();
             const target = task.popComponent();
             await pushContext(target, message, argumentz);
@@ -641,8 +564,7 @@ const Processor = function(notary, repository, debug) {
 
         // SEND symbol TO COMPONENT WITH ARGUMENTS
         async function(operand) {
-            const index = operand;
-            const message = context.getMessage(index);
+            const message = context.getMessage(operand);
             const argumentz = task.popComponent();
             const target = task.popComponent();
             await pushContext(target, message, argumentz);
@@ -651,8 +573,7 @@ const Processor = function(notary, repository, debug) {
 
         // SEND symbol TO DOCUMENT
         async function(operand) {
-            const index = operand;
-            const message = context.getMessage(index);
+            const message = context.getMessage(operand);
             const argumentz = bali.list();
             const name = task.popComponent();
             await bagTask(name, message, argumentz);
@@ -661,8 +582,7 @@ const Processor = function(notary, repository, debug) {
 
         // SEND symbol TO DOCUMENT WITH ARGUMENTS
         async function(operand) {
-            const index = operand;
-            const message = context.getMessage(index);
+            const message = context.getMessage(operand);
             const argumentz = task.popComponent();
             const name = task.popComponent();
             await bagTask(name, message, argumentz);
@@ -672,11 +592,9 @@ const Processor = function(notary, repository, debug) {
         // HANDLE RESULT
         async function(operand) {
             if (task.hasContexts()) {
-                // retrieve the previous context from the stack
                 popContext();
                 context.incrementAddress();
             } else {
-                // task completed with a result
                 const result = task.popComponent();
                 task.completeTask(result);
             }
@@ -684,18 +602,14 @@ const Processor = function(notary, repository, debug) {
 
         // HANDLE EXCEPTION
         async function(operand) {
-            // search up the stack for a handler
             while (context) {
                 if (context.hasHandlers()) {
-                    // jump to the next exception handler
                     context.jumpToHandler();
                     break;
                 } else {
                     if (task.hasContexts()) {
-                        // retrieve the previous context from the stack
                         popContext();
                     } else {
-                        // task completed with an unhandled exception
                         const exception = task.popComponent();
                         task.abandonTask(exception);
                     }
