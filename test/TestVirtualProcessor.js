@@ -45,10 +45,12 @@ describe('Bali Virtual Machine™', function() {
                 const source = await pfs.readFile(typeFile, 'utf8');
                 const type = bali.component(source, debug);
                 expect(type).to.exist;
-                await compiler.compileType(type);
-                const citation = await repository.writeDocument(type);
+                compiler.compileType(type);
+                if (prefix.toString() === 'Test') console.log('type: ' + type);
+                const document = await notary.notarizeDocument(type);
+                const citation = await repository.writeDocument(document);
                 expect(citation).to.exist;
-                const name = '/bali/examples/' + prefix + '/v1';
+                const name = '/bali/tests/' + prefix + '/v1';
                 await repository.writeName(name, citation);
             }
         });

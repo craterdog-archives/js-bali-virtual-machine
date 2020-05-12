@@ -1,42 +1,66 @@
 [
     $description: "
-        This class contains test procedures used for testing the virtual machine EXECUTE and HANDLE instructions.
-    "
-    $procedures: [
-        $function1: [
-            $source: {
-                return true
+        This type defines a method that tests each type of instruction at least once.
+    "($mediaType: "application/bsmd")
+    $parent: none
+    $constants: [
+        $good: "good"
+    ]
+    $methods: [
+        $test1: [
+            $description: "
+                This method tests each type of instruction at least once.
+            "($mediaType: "application/bsmd")
+            $type: /bali/elements/Text/v1
+            $parameters: [
+                $argument: [
+                    $description: "
+                        This parameter specifies the argument to be passed to the test message.
+                    "($mediaType: "application/bsmd")
+                    $type: /bali/elements/Text/v1
+                ]
+            ]
+            $procedure: {
+                target.test2()
+                $x := target.test3(argument) handle $exception matching "good" with {
+                    return good
+                } matching "bad" with {
+                    return "bad"
+                }
+            }($argument: "ugly")
+        ]
+        $test2: [
+            $description: "
+                This method tests each type of instruction at least once.
+            "($mediaType: "application/bsmd")
+            $type: /bali/collections/Set/v1
+            $procedure: {
+                return [
+                    "alpha"
+                ]($type: /bali/collections/Set/v1)
             }
         ]
-        $function2: [
-            $source: {
-                throw none handle $exception matching "none"? with {
-                    return first
-                }
-                return false
-            }($first: /bali/elements/Probability)
-        ]
-        $message1: [
-            $source: {
-                return target
+        $test3: [
+            $description: "
+                This method tests each type of instruction at least once.
+            "($mediaType: "application/bsmd")
+            $parameters: [
+                $text: [
+                    $description: "
+                        This parameter specifies the text to be thrown in an exception.
+                    "($mediaType: "application/bsmd")
+                    $type: /bali/elements/Text/v1
+                ]
+            ]
+            $procedure: {
+                throw text
             }
-        ]
-        $message2: [
-            $source: {
-                throw second handle $exception matching "none"? with {
-                    return true
-                }
-                return false
-            }(
-                $first: /bali/elements/Number
-                $second: /bali/elements/Text
-            )
         ]
     ]
 ](
-    $type: /bali/abstractions/Class/v1
-    $name: /bali/examples/Test/v1
-    $tag: #M8G7XJH640RR4YBCLGNDYABD6328741S
+    $name: /bali/tests/PUSH/v1
+    $type: /bali/types/Primitive/v1
+    $tag: #JXPSTDZSDHW4J1N5YF98D45QC8ZAQPXV
     $version: v1
     $permissions: /bali/permissions/public/v1
     $previous: none
