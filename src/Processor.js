@@ -40,8 +40,7 @@ const Processor = function(notary, repository, debug) {
     const bali = require('bali-component-framework').api(debug);
     const compiler = require('bali-type-compiler').api(debug);
     const decoder = bali.decoder();
-    const taskBag = notary.citeDocument(repository.readName(TASK_BAG));
-    const eventBag = notary.citeDocument(repository.readName(EVENT_BAG));
+    var taskBag, eventBag;  // these require asynchronous calls to initialize
     var task, context;  // these are optimized versions of their corresponding catalogs
 
 
@@ -149,11 +148,16 @@ const Processor = function(notary, repository, debug) {
 
     // PRIVATE FUNCTIONS
 
+    const loadBags = async function() {
+        taskBag = notary.citeDocument(await repository.readName(TASK_BAG));
+        eventBag = notary.citeDocument(await repository.readName(EVENT_BAG));
+    };
+
     const createTask = function(account, tokens) {
         return bali.catalog({
             $account: account,
             $tokens: tokens,
-            $status: Task.ACTIVE,
+            $state: Task.ACTIVE,
             $clock: 0,
             $components: bali.stack(),
             $contexts: bali.stack()
@@ -164,13 +168,14 @@ const Processor = function(notary, repository, debug) {
         // retrieve the type of the target and method matching the message
         const ancestry = target.getAncestry();
         var type, method;
-        for (i = 0; i < ancestry.length; i++) {
-            const typeName = ancestry[i];
+        var typeName = target.getParameter('$type') || bali.component(target.getType() + '/v1');  // YUCK!
+        while (typeName.toString() !== 'none') {
             const document = await repository.readName(typeName);
             type = document.getValue('$content');
             const methods = type.getValue('$methods');
             method = methods.getValue(message);
             if (method) break;
+            typeName = type.getValue('$parent');
         };
         if (!method) {
             const exception = new Exception({
@@ -309,6 +314,7 @@ const Processor = function(notary, repository, debug) {
             $permissions: '/bali/permissions/public/v1',
             $previous: bali.pattern.NONE
         }));
+        if (!eventBag) loadBags();
         const document = await notary.notarizeDocument(event);
         await repository.addMessage(eventBag, document);
     };
@@ -323,6 +329,7 @@ const Processor = function(notary, repository, debug) {
     };
 
     const spawnTask = async function(name, message, args) {
+        if (!taskBag) await loadBags();
         const target = await repository.readName(name);
         const childTask = createTask(task.getAccount(), task.splitTokens());
         const childContext = await createContext(target, message, args);
@@ -458,6 +465,7 @@ const Processor = function(notary, repository, debug) {
                 task.pushComponent(component);
                 context.incrementAddress();
             } else {
+                if (!taskBag) await loadBags();
                 const document = await notary.notarizeDocument(toCatalog());
                 await repository.addMessage(taskBag, document);
                 task.pauseTask();  // will retry again on a different processor

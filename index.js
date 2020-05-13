@@ -37,7 +37,7 @@ exports.api = function(notary, repository, debug) {
          * This method creates a virtual processor.
          * @returns {Processor} A new virtual processor.
          */
-        processor: async function() {
+        processor: function() {
             const processor = new Processor(notary, repository, debug);
             return processor;
         }
