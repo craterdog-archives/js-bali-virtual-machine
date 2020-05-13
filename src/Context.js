@@ -53,6 +53,10 @@ const Context = function(catalog, debug) {
     // PUBLIC METHODS
 
     this.toCatalog = function() {
+        const instruction = bytecode[address - 1];  // convert to JS indexing
+        const operation = compiler.operation(instruction);
+        const modifier = compiler.modifier(instruction);
+        const operand = compiler.operand(instruction);
         return bali.catalog({
             $target: target.duplicate(),  // capture the current state
             $message: message,
@@ -64,7 +68,7 @@ const Context = function(catalog, debug) {
             $handlers: handlers.duplicate(),  // capture the current state
             $bytecode: bali.binary(bytes, {$encoding: '$base16', $mediaType: '"application/bcod"'}),
             $address: address,
-            $instruction: getInstruction()
+            $instruction: compiler.string(operation, modifier, operand)
         });
     };
 
@@ -77,7 +81,7 @@ const Context = function(catalog, debug) {
     };
 
     this.getArgument = function(index) {
-        return arguments.getItem(index);
+        return argumentz.getItem(index);
     };
 
     this.getVariables = function() {

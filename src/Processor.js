@@ -47,17 +47,6 @@ const Processor = function(notary, repository, debug) {
     // PUBLIC METHODS
 
     /**
-     * This method returns a catalog containing a copy of the current processor state.
-     *
-     * @returns {Catalog} The current processor state.
-     */
-    this.toCatalog = function() {
-        const catalog = task.toCatalog();
-        catalog.getValue('$contexts').addItem(context.toCatalog());
-        return catalog;
-    };
-
-    /**
      * This method returns a string representation of the current processor state using
      * Bali Document Notation™.
      *
@@ -103,13 +92,17 @@ const Processor = function(notary, repository, debug) {
      */
     this.stepClock = async function() {
         try {
-            if (notDone()) await executeInstruction();
+            if (notDone()) {
+                await executeInstruction();
+                return true;
+            }
+            return false;
         } catch (cause) {
             const exception = bali.exception({
                 $module: '/bali/vm/Processor',
                 $procedure: '$stepClock',
                 $exception: '$unexpected',
-                $task: toCatalog(),
+                $processor: toCatalog(),
                 $text: 'An unexpected error occurred while attempting to execute a single step of a task.'
             }, cause);
             if (debug) console.error(exception.toString());
@@ -137,7 +130,7 @@ const Processor = function(notary, repository, debug) {
                 $module: '/bali/vm/Processor',
                 $procedure: '$runClock',
                 $exception: '$unexpected',
-                $task: toCatalog(),
+                $processor: toCatalog(),
                 $text: 'An unexpected error occurred while attempting to run a task.'
             }, cause);
             if (debug) console.error(exception.toString());
@@ -147,6 +140,12 @@ const Processor = function(notary, repository, debug) {
 
 
     // PRIVATE FUNCTIONS
+
+    const toCatalog = function() {
+        const catalog = task.toCatalog();
+        catalog.getValue('$contexts').addItem(context.toCatalog());
+        return catalog;
+    };
 
     const loadBags = async function() {
         taskBag = notary.citeDocument(await repository.readName(TASK_BAG));
@@ -235,7 +234,7 @@ const Processor = function(notary, repository, debug) {
         return bali.catalog({
             $target: target,
             $message: message,
-            $argumentz: argumentz,
+            $arguments: argumentz,
             $variables: variables,
             $constants: constants,
             $literals: literals,
@@ -270,6 +269,7 @@ const Processor = function(notary, repository, debug) {
                 await handleException(exception);
             } catch (exception) {
                 if (debug) console.error('Unable to handle exception: ' + exception);
+                throw exception;
             }
         }
 

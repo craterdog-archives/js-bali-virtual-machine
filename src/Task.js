@@ -72,12 +72,12 @@ const Task = function(catalog, debug) {
             $clock: clock,
             $components: components.duplicate(),  // capture current state
             $contexts: contexts.duplicate()  // capture current state
-        }, bali.parameters({
+        }, {
             $tag: tag,
             $version: bali.version(),
             $permissions: '/bali/permissions/public/v1',
             $previous: bali.pattern.NONE
-        }));
+        });
     };
 
     this.getTag = function() {
@@ -179,7 +179,6 @@ const Task = function(catalog, debug) {
         contexts.addItem(context);
     };
 
-    return this;
     this.popContext = function() {
         return contexts.removeItem();
     };

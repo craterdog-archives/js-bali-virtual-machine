@@ -95,6 +95,9 @@ describe('Bali Virtual Machine™', function() {
             const processor = vm.processor();
             expect(processor).to.exist;
             await processor.newTask(account, tokens, target, message, args);
+            while (await processor.stepClock()) {
+                console.log('processor: ' + processor);
+            }
         });
 
     });
