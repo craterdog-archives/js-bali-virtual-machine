@@ -76,10 +76,18 @@ describe('Bali Virtual Machine™', function() {
                 console.log('      ' + file);
                 const prefix = file.split('.').slice(0, 1);
                 const typeFile = testFolder + prefix + '.bali';
-                const source = await pfs.readFile(typeFile, 'utf8');
+                var source = await pfs.readFile(typeFile, 'utf8');
                 const type = bali.component(source, debug);
                 expect(type).to.exist;
                 compiler.compileType(type);
+
+                // check for differences
+                source = type.toString() + '\n';  // POSIX compliant <EOL>
+                await pfs.writeFile(typeFile, source, 'utf8');
+                const expected = await pfs.readFile(typeFile, 'utf8');
+                expect(expected).to.exist;
+                expect(source).to.equal(expected);
+
                 const document = await notary.notarizeDocument(type);
                 const citation = await repository.writeDocument(document);
                 expect(citation).to.exist;

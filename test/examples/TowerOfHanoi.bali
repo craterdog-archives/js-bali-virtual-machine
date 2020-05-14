@@ -2,13 +2,13 @@
     $description: "
         This class encapsulates a /Tower of Hanoi/ game with three pegs (A, B, and C) and a
         parameterized number of disks. To play the game do the following:
-
+        
          # Initialize a game with 3 disks.
         `$game := [:]($type: /bali/examples/TowerOfHanoi/v1)`
-
+        
          # Play the game.
         `game.play()`
-
+        
         The output should be:
         `
          1. Move top disk on peg A to peg C
@@ -26,16 +26,12 @@
             $description: "The three pegs (A, B and C) that are used to hold the disks."
             $type: /bali/collections/Catalog/v1(
                 $keyType: /bali/elements/Symbol/v1
-                $valueType: /bali/collections/Stack/v1(
-                    $itemType: /bali/elements/Number/v1($range: [1..])
-                )
+                $valueType: /bali/collections/Stack/v1($itemType: /bali/elements/Number/v1($range: [1..]))
             )
         ]
         $steps: [
             $description: "The steps needed to move the disks."
-            $type: /bali/collections/List/v1(
-                $itemType: /bali/elements/Text/v1
-            )
+            $type: /bali/collections/List/v1($itemType: /bali/elements/Text/v1)
         ]
     ]
     $methods: [
@@ -53,23 +49,11 @@
             )
             $procedure: {
                 target[$pegs] := [
-                    "peg A": [](
-                        $type: /bali/collections/Stack/v1(
-                            $itemType: /bali/elements/Number/v1($range: [1..])
-                        )
-                    )
-                    "peg B": [](
-                        $type: /bali/collections/Stack/v1(
-                            $itemType: /bali/elements/Number/v1($range: [1..])
-                        )
-                    )
-                    "peg C": [](
-                        $type: /bali/collections/Stack/v1(
-                            $itemType: /bali/elements/Number/v1($range: [1..])
-                        )
-                    )
+                    "peg A": [ ]($type: /bali/collections/Stack/v1($itemType: /bali/elements/Number/v1($range: [1..])))
+                    "peg B": [ ]($type: /bali/collections/Stack/v1($itemType: /bali/elements/Number/v1($range: [1..])))
+                    "peg C": [ ]($type: /bali/collections/Stack/v1($itemType: /bali/elements/Number/v1($range: [1..])))
                 ]
-                target[$steps] := []
+                target[$steps] := [ ]
                 $disks := range(numberOfDisks, 1)
                 with each $n in disks do {
                     target[$pegs, "peg A"].addItem(n)
@@ -77,6 +61,172 @@
                 target.moveTower(numberOfDisks, "peg A", "peg C", "peg B")
                 return target[$steps].asCatalog()
             }
+            $instructions: "
+                1.EvaluateStatement:
+                INVOKE $catalog
+                PUSH LITERAL `"peg A"`
+                PUSH LITERAL `none`
+                INVOKE $catalog
+                PUSH LITERAL `$type`
+                PUSH LITERAL `/bali/collections/Stack/v1`
+                INVOKE $catalog
+                PUSH LITERAL `$itemType`
+                PUSH LITERAL `/bali/elements/Number/v1`
+                INVOKE $catalog
+                PUSH LITERAL `$range`
+                INVOKE $list
+                PUSH LITERAL `1..`
+                INVOKE $addItem WITH 2 ARGUMENTS
+                INVOKE $setValue WITH 3 ARGUMENTS
+                INVOKE $setValue WITH 3 ARGUMENTS
+                INVOKE $setValue WITH 3 ARGUMENTS
+                INVOKE $stack WITH 2 ARGUMENTS
+                INVOKE $association WITH 2 ARGUMENTS
+                INVOKE $addItem WITH 2 ARGUMENTS
+                PUSH LITERAL `"peg B"`
+                PUSH LITERAL `none`
+                INVOKE $catalog
+                PUSH LITERAL `$type`
+                PUSH LITERAL `/bali/collections/Stack/v1`
+                INVOKE $catalog
+                PUSH LITERAL `$itemType`
+                PUSH LITERAL `/bali/elements/Number/v1`
+                INVOKE $catalog
+                PUSH LITERAL `$range`
+                INVOKE $list
+                PUSH LITERAL `1..`
+                INVOKE $addItem WITH 2 ARGUMENTS
+                INVOKE $setValue WITH 3 ARGUMENTS
+                INVOKE $setValue WITH 3 ARGUMENTS
+                INVOKE $setValue WITH 3 ARGUMENTS
+                INVOKE $stack WITH 2 ARGUMENTS
+                INVOKE $association WITH 2 ARGUMENTS
+                INVOKE $addItem WITH 2 ARGUMENTS
+                PUSH LITERAL `"peg C"`
+                PUSH LITERAL `none`
+                INVOKE $catalog
+                PUSH LITERAL `$type`
+                PUSH LITERAL `/bali/collections/Stack/v1`
+                INVOKE $catalog
+                PUSH LITERAL `$itemType`
+                PUSH LITERAL `/bali/elements/Number/v1`
+                INVOKE $catalog
+                PUSH LITERAL `$range`
+                INVOKE $list
+                PUSH LITERAL `1..`
+                INVOKE $addItem WITH 2 ARGUMENTS
+                INVOKE $setValue WITH 3 ARGUMENTS
+                INVOKE $setValue WITH 3 ARGUMENTS
+                INVOKE $setValue WITH 3 ARGUMENTS
+                INVOKE $stack WITH 2 ARGUMENTS
+                INVOKE $association WITH 2 ARGUMENTS
+                INVOKE $addItem WITH 2 ARGUMENTS
+                INVOKE $setSubcomponent WITH 3 ARGUMENTS
+                
+                2.EvaluateStatement:
+                INVOKE $list
+                INVOKE $setSubcomponent WITH 3 ARGUMENTS
+                
+                3.EvaluateStatement:
+                PUSH ARGUMENT $numberOfDisks
+                PUSH LITERAL `1`
+                INVOKE $range WITH 2 ARGUMENTS
+                STORE VARIABLE $disks
+                
+                4.WithStatement:
+                LOAD VARIABLE $disks
+                SEND $iterator TO COMPONENT
+                STORE VARIABLE $iterator-2
+                
+                4.1.ConditionClause:
+                LOAD VARIABLE $iterator-2
+                SEND $hasNext TO COMPONENT
+                JUMP TO 4.WithStatementDone ON FALSE
+                LOAD VARIABLE $iterator-2
+                SEND $next TO COMPONENT
+                STORE VARIABLE $n
+                
+                4.1.1.EvaluateStatement:
+                PUSH ARGUMENT $target
+                PUSH LITERAL `$pegs`
+                INVOKE $subcomponent WITH 2 ARGUMENTS
+                PUSH LITERAL `"peg A"`
+                INVOKE $subcomponent WITH 2 ARGUMENTS
+                INVOKE $list
+                LOAD VARIABLE $n
+                INVOKE $addItem WITH 2 ARGUMENTS
+                SEND $addItem TO COMPONENT WITH ARGUMENTS
+                STORE VARIABLE $result-1
+                
+                4.ConditionRepeat:
+                JUMP TO 4.1.ConditionClause
+                
+                4.WithStatementDone:
+                SKIP INSTRUCTION
+                
+                5.EvaluateStatement:
+                PUSH ARGUMENT $target
+                INVOKE $list
+                PUSH ARGUMENT $numberOfDisks
+                INVOKE $addItem WITH 2 ARGUMENTS
+                PUSH LITERAL `"peg A"`
+                INVOKE $addItem WITH 2 ARGUMENTS
+                PUSH LITERAL `"peg C"`
+                INVOKE $addItem WITH 2 ARGUMENTS
+                PUSH LITERAL `"peg B"`
+                INVOKE $addItem WITH 2 ARGUMENTS
+                SEND $moveTower TO COMPONENT WITH ARGUMENTS
+                STORE VARIABLE $result-1
+                
+                6.ReturnStatement:
+                PUSH ARGUMENT $target
+                PUSH LITERAL `$steps`
+                INVOKE $subcomponent WITH 2 ARGUMENTS
+                SEND $asCatalog TO COMPONENT
+                HANDLE RESULT
+            "($mediaType: "application/basm")
+            $addresses: [
+                "1.EvaluateStatement": 1
+                "2.EvaluateStatement": 60
+                "3.EvaluateStatement": 62
+                "4.WithStatement": 66
+                "4.1.ConditionClause": 69
+                "4.1.1.EvaluateStatement": 75
+                "4.ConditionRepeat": 85
+                "4.WithStatementDone": 86
+                "5.EvaluateStatement": 87
+                "6.ReturnStatement": 99
+            ]
+            $bytecode: '
+                A014280C2804A014280A2801A01428062802A0142808A04F2805B001B881
+                B881B881B086B00BB001280D2804A014280A2801A01428062802A0142808
+                A04F2805B001B881B881B881B086B00BB001280E2804A014280A2801A014
+                28062802A0142808A04F2805B001B881B881B881B086B00BB001B880A04F
+                B88038022803B06B80016001C00480026002C00318566002C00680033801
+                2807B088280CB088A04F6003B001C8018004004500003801A04F3802B001
+                280CB001280EB001280DB001C805800438012809B088C002E000
+            '(
+                $encoding: $base16
+                $mediaType: "application/bcod"
+            )
+            $arguments: [
+                $target
+                $numberOfDisks
+            ]
+            $variables: [
+                $disks
+                $iterator-2
+                $n
+                $result-1
+            ]($type: /bali/collections/Set/v1)
+            $messages: [
+                $addItem
+                $asCatalog
+                $hasNext
+                $iterator
+                $moveTower
+                $next
+            ]($type: /bali/collections/Set/v1)
         ]
         $moveTower: [
             $description: "This procedure causes the game to move a tower of disks of a certain height from one peg to another peg using a third peg as a buffer."
@@ -105,6 +255,90 @@
                     target.moveTower(height - 1, withPeg, toPeg, fromPeg)
                 }
             }
+            $instructions: "
+                1.IfStatement:
+                SKIP INSTRUCTION
+                
+                1.1.ConditionClause:
+                PUSH ARGUMENT $height
+                JUMP TO 1.IfStatementDone ON FALSE
+                
+                1.1.1.EvaluateStatement:
+                PUSH ARGUMENT $target
+                INVOKE $list
+                PUSH ARGUMENT $height
+                PUSH LITERAL `1`
+                INVOKE $difference WITH 2 ARGUMENTS
+                INVOKE $addItem WITH 2 ARGUMENTS
+                PUSH ARGUMENT $fromPeg
+                INVOKE $addItem WITH 2 ARGUMENTS
+                PUSH ARGUMENT $withPeg
+                INVOKE $addItem WITH 2 ARGUMENTS
+                PUSH ARGUMENT $toPeg
+                INVOKE $addItem WITH 2 ARGUMENTS
+                SEND $moveTower TO COMPONENT WITH ARGUMENTS
+                STORE VARIABLE $result-1
+                
+                1.1.2.EvaluateStatement:
+                PUSH ARGUMENT $target
+                INVOKE $list
+                PUSH ARGUMENT $fromPeg
+                INVOKE $addItem WITH 2 ARGUMENTS
+                PUSH ARGUMENT $toPeg
+                INVOKE $addItem WITH 2 ARGUMENTS
+                SEND $moveDisk TO COMPONENT WITH ARGUMENTS
+                STORE VARIABLE $result-1
+                
+                1.1.3.EvaluateStatement:
+                PUSH ARGUMENT $target
+                INVOKE $list
+                PUSH ARGUMENT $height
+                PUSH LITERAL `1`
+                INVOKE $difference WITH 2 ARGUMENTS
+                INVOKE $addItem WITH 2 ARGUMENTS
+                PUSH ARGUMENT $withPeg
+                INVOKE $addItem WITH 2 ARGUMENTS
+                PUSH ARGUMENT $toPeg
+                INVOKE $addItem WITH 2 ARGUMENTS
+                PUSH ARGUMENT $fromPeg
+                INVOKE $addItem WITH 2 ARGUMENTS
+                SEND $moveTower TO COMPONENT WITH ARGUMENTS
+                STORE VARIABLE $result-1
+                
+                1.IfStatementDone:
+                LOAD VARIABLE $result-1
+                HANDLE RESULT
+            "($mediaType: "application/basm")
+            $addresses: [
+                "1.IfStatement": 1
+                "1.1.ConditionClause": 2
+                "1.1.1.EvaluateStatement": 4
+                "1.1.2.EvaluateStatement": 18
+                "1.1.3.EvaluateStatement": 26
+                "1.IfStatementDone": 40
+            ]
+            $bytecode: '
+                0000380218283801A04F38022803B025B0013803B0013805B0013804B001
+                C80280013801A04F3803B0013804B001C80180013801A04F38022803B025
+                B0013805B0013804B0013803B001C80280016001E000
+            '(
+                $encoding: $base16
+                $mediaType: "application/bcod"
+            )
+            $arguments: [
+                $target
+                $height
+                $fromPeg
+                $toPeg
+                $withPeg
+            ]
+            $variables: [
+                $result-1
+            ]($type: /bali/collections/Set/v1)
+            $messages: [
+                $moveDisk
+                $moveTower
+            ]($type: /bali/collections/Set/v1)
         ]($access: $private)
         $moveDisk: [
             $description: "This procedure causes the game to move the top disk from one peg to another."
@@ -123,8 +357,84 @@
                 target[$pegs, toPeg].addItem(disk)
                 target[$steps].append("Move disk {disk} from {fromPeg} to {toPeg}.")
             }
+            $instructions: "
+                1.EvaluateStatement:
+                PUSH ARGUMENT $target
+                PUSH LITERAL `$pegs`
+                INVOKE $subcomponent WITH 2 ARGUMENTS
+                PUSH ARGUMENT $fromPeg
+                INVOKE $subcomponent WITH 2 ARGUMENTS
+                SEND $removeItem TO COMPONENT
+                STORE VARIABLE $disk
+                
+                2.EvaluateStatement:
+                PUSH ARGUMENT $target
+                PUSH LITERAL `$pegs`
+                INVOKE $subcomponent WITH 2 ARGUMENTS
+                PUSH ARGUMENT $toPeg
+                INVOKE $subcomponent WITH 2 ARGUMENTS
+                INVOKE $list
+                LOAD VARIABLE $disk
+                INVOKE $addItem WITH 2 ARGUMENTS
+                SEND $addItem TO COMPONENT WITH ARGUMENTS
+                STORE VARIABLE $result-1
+                
+                3.EvaluateStatement:
+                PUSH ARGUMENT $target
+                PUSH LITERAL `$steps`
+                INVOKE $subcomponent WITH 2 ARGUMENTS
+                INVOKE $list
+                PUSH LITERAL `"Move disk {disk} from {fromPeg} to {toPeg}."`
+                INVOKE $addItem WITH 2 ARGUMENTS
+                SEND $append TO COMPONENT WITH ARGUMENTS
+                STORE VARIABLE $result-1
+                LOAD VARIABLE $result-1
+                HANDLE RESULT
+            "($mediaType: "application/basm")
+            $addresses: [
+                "1.EvaluateStatement": 1
+                "2.EvaluateStatement": 8
+                "3.EvaluateStatement": 18
+            ]
+            $bytecode: '
+                38012807B0883802B088C003800138012807B0883803B088A04F6001B001
+                C801800238012809B088A04F280BB001C80280026002E000
+            '(
+                $encoding: $base16
+                $mediaType: "application/bcod"
+            )
+            $arguments: [
+                $target
+                $fromPeg
+                $toPeg
+            ]
+            $variables: [
+                $disk
+                $result-1
+            ]($type: /bali/collections/Set/v1)
+            $messages: [
+                $addItem
+                $append
+                $removeItem
+            ]($type: /bali/collections/Set/v1)
         ]($access: $private)
     ]
+    $literals: [
+        /bali/collections/Stack/v1
+        /bali/elements/Number/v1
+        1
+        none
+        1..
+        $itemType
+        $pegs
+        $range
+        $steps
+        $type
+        "Move disk {disk} from {fromPeg} to {toPeg}."
+        "peg A"
+        "peg B"
+        "peg C"
+    ]($type: /bali/collections/Set/v1)
 ](
     $type: /bali/types/Class/v1
     $name: /bali/examples/TowerOfHanoi/v1

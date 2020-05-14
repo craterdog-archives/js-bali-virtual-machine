@@ -616,14 +616,14 @@ const Processor = function(notary, repository, debug) {
         async function(operand) {
             while (context) {
                 if (context.hasHandlers()) {
-                    context.jumpToHandler();
+                    context.jumpToHandler();  // try this handler
                     break;
                 } else {
                     if (task.hasContexts()) {
-                        popContext();
+                        popContext();  // check calling context for a handler
                     } else {
                         const exception = task.popComponent();
-                        task.abandonTask(exception);
+                        task.abandonTask(exception);  // unhandled exception
                         break;
                     }
                 }
