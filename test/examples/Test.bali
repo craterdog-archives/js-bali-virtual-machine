@@ -25,8 +25,8 @@
                     return good
                 } matching "bad" with {
                     target.test2()
-                    return "bad"
                 }
+                return "bad"
             }($argument: "ugly")
         ]
         $test2: [

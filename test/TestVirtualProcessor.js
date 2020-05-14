@@ -302,7 +302,17 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('STORE VARIABLE');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          1.2.2.ReturnStatement:
+//          1.2.HandleBlockDone:
+//          JUMP TO 1.EvaluateStatementSucceeded
+            expect(getInstruction(processor)).to.equal('JUMP TO');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          1.EvaluateStatementSucceeded:
+//          SKIP INSTRUCTION
+            expect(getInstruction(processor)).to.equal('SKIP INSTRUCTION');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          2.ReturnStatement:
 //          PUSH LITERAL `"bad"`
             expect(getInstruction(processor)).to.equal('PUSH LITERAL');
             expect(await processor.stepClock()).to.equal(true);
@@ -325,62 +335,6 @@ describe('Bali Virtual Machine™', function() {
             const processor = vm.processor();
             expect(processor).to.exist;
             await processor.newTask(account, tokens, target, message, args);
-
-//              1.EvaluateStatement:
-//              PUSH HANDLER 1.EvaluateStatementHandler
-//              PUSH ARGUMENT $target
-//              INVOKE $list
-//              PUSH ARGUMENT $argument
-//              INVOKE $addItem WITH 2 ARGUMENTS
-//              SEND $test3 TO COMPONENT WITH ARGUMENTS
-//                  1.ThrowStatement:
-//                  PUSH ARGUMENT $text
-//                  HANDLE EXCEPTION
-//              STORE VARIABLE $x
-
-//              1.EvaluateStatementDone:
-//              POP HANDLER
-//              JUMP TO 1.EvaluateStatementSucceeded
-
-//              1.EvaluateStatementHandler:
-//              STORE VARIABLE $exception
-
-//              1.1.HandleBlock:
-//              LOAD VARIABLE $exception
-//              PUSH LITERAL `"good"`
-//              INVOKE $doesMatch WITH 2 ARGUMENTS
-//              JUMP TO 1.2.HandleBlock ON FALSE
-
-//              1.1.1.ReturnStatement:
-//              PUSH CONSTANT $good
-//              HANDLE RESULT
-
-//              1.1.HandleBlockDone:
-//              JUMP TO 1.EvaluateStatementSucceeded
-
-//              1.2.HandleBlock:
-//              LOAD VARIABLE $exception
-//              PUSH LITERAL `"bad"`
-//              INVOKE $doesMatch WITH 2 ARGUMENTS
-//              JUMP TO 1.EvaluateStatementFailed ON FALSE
-
-//              1.2.1.EvaluateStatement:
-//              PUSH ARGUMENT $target
-//              SEND $test2 TO COMPONENT
-//              STORE VARIABLE $result-1
-
-//              1.2.2.ReturnStatement:
-//              PUSH LITERAL `"bad"`
-//              HANDLE RESULT
-
-//              1.2.HandleBlockDone:
-//              JUMP TO 1.EvaluateStatementSucceeded
-
-//              1.EvaluateStatementFailed:
-//              LOAD VARIABLE $exception
-//              HANDLE EXCEPTION
-
-            await processor.stepClock();
         });
 
     });
