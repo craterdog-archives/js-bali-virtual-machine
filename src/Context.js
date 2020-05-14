@@ -84,8 +84,8 @@ const Context = function(catalog, debug) {
         return argumentz.getItem(index);
     };
 
-    this.getVariables = function() {
-        return variables;
+    this.getVariable = function(index) {
+        return variables.getItem(index);
     };
 
     this.getConstant = function(index) {

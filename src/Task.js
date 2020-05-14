@@ -168,6 +168,7 @@ const Task = function(catalog, debug) {
     };
 
     this.popComponent = function() {
+        console.log('components: ' + components);
         return components.removeItem();
     };
 
