@@ -624,6 +624,7 @@ const Processor = function(notary, repository, debug) {
                     } else {
                         const exception = task.popComponent();
                         task.abandonTask(exception);
+                        break;
                     }
                 }
             }
