@@ -606,7 +606,6 @@ const Processor = function(notary, repository, debug) {
         async function(operand) {
             if (task.hasContexts()) {
                 popContext();
-                context.incrementAddress();
             } else {
                 const result = task.popComponent();
                 task.completeTask(result);

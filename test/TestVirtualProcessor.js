@@ -99,7 +99,6 @@ describe('Bali Virtual Machine™', function() {
             const processor = vm.processor();
             expect(processor).to.exist;
             await processor.newTask(account, tokens, target, message, args);
-
 //          1.EvaluateStatement:
 //          PUSH HANDLER 1.EvaluateStatementHandler
             expect(getInstruction(processor)).to.equal('PUSH HANDLER');
@@ -134,13 +133,11 @@ describe('Bali Virtual Machine™', function() {
                 expect(getInstruction(processor)).to.equal('HANDLE EXCEPTION');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
-
 //          1.EvaluateStatementHandler:
 //          STORE VARIABLE $exception
             expect(getInstruction(processor)).to.equal('STORE VARIABLE');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-
 //          1.1.HandleBlock:
 //          LOAD VARIABLE $exception
             expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
@@ -158,7 +155,6 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('JUMP TO');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-
 //          1.1.1.ReturnStatement:
 //          PUSH CONSTANT $good
             expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
@@ -170,7 +166,6 @@ describe('Bali Virtual Machine™', function() {
             expect(processor.getTask().hasComponents()).to.equal(false);
             expect(processor.getTask().getState().toString()).to.equal('$completed');
             expect(await processor.stepClock()).to.equal(false);
-
         });
 
         it('should cause the VM to step through the test type "bad" route successfully', async function() {
@@ -184,7 +179,6 @@ describe('Bali Virtual Machine™', function() {
             const processor = vm.processor();
             expect(processor).to.exist;
             await processor.newTask(account, tokens, target, message, args);
-
 //          1.EvaluateStatement:
 //          PUSH HANDLER 1.EvaluateStatementHandler
             expect(getInstruction(processor)).to.equal('PUSH HANDLER');
@@ -216,9 +210,9 @@ describe('Bali Virtual Machine™', function() {
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
 //              HANDLE EXCEPTION
-            expect(getInstruction(processor)).to.equal('HANDLE EXCEPTION');
-            expect(await processor.stepClock()).to.equal(true);
-            expect(processor.getTask().hasComponents()).to.equal(true);
+                expect(getInstruction(processor)).to.equal('HANDLE EXCEPTION');
+                expect(await processor.stepClock()).to.equal(true);
+                expect(processor.getTask().hasComponents()).to.equal(true);
 //          1.EvaluateStatementHandler:
 //          STORE VARIABLE $exception
             expect(getInstruction(processor)).to.equal('STORE VARIABLE');
@@ -268,6 +262,10 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //              1.ReturnStatement:
+//              PUSH LITERAL `none`
+                expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+                expect(await processor.stepClock()).to.equal(true);
+                expect(processor.getTask().hasComponents()).to.equal(true);
 //              INVOKE $catalog
                 expect(getInstruction(processor)).to.equal('INVOKE $catalog');
                 expect(await processor.stepClock()).to.equal(true);
@@ -284,7 +282,7 @@ describe('Bali Virtual Machine™', function() {
                 expect(getInstruction(processor)).to.equal('INVOKE $setValue');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
-//              INVOKE $set WITH 1 ARGUMENT
+//              INVOKE $set WITH 2 ARGUMENTS
                 expect(getInstruction(processor)).to.equal('INVOKE $set');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
@@ -297,11 +295,23 @@ describe('Bali Virtual Machine™', function() {
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
 //              HANDLE RESULT
+                expect(getInstruction(processor)).to.equal('HANDLE RESULT');
+                expect(await processor.stepClock()).to.equal(true);
+                expect(processor.getTask().hasComponents()).to.equal(true);
 //          STORE VARIABLE $result-1
+            expect(getInstruction(processor)).to.equal('STORE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
 //          1.2.2.ReturnStatement:
 //          PUSH LITERAL `"bad"`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
 //          HANDLE RESULT
-
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+            expect(processor.getTask().getState().toString()).to.equal('$completed');
+            expect(await processor.stepClock()).to.equal(false);
         });
 
         it('should cause the VM to step through the test type "ugly" route successfully', async function() {
