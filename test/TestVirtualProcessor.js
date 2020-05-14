@@ -132,6 +132,7 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('SEND 2');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
+            expect(processor.getTask().hasContexts()).to.equal(true);
 //              1.ThrowStatement:
 //              PUSH ARGUMENT $text
                 expect(getInstruction(processor)).to.equal('PUSH ARGUMENT');
@@ -141,6 +142,7 @@ describe('Bali Virtual Machine™', function() {
                 expect(getInstruction(processor)).to.equal('HANDLE EXCEPTION');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
+                expect(processor.getTask().hasContexts()).to.equal(false);
 //          1.EvaluateStatementHandler:
 //          STORE VARIABLE $exception
             expect(getInstruction(processor)).to.equal('STORE VARIABLE');
@@ -212,6 +214,7 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('SEND 2');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
+            expect(processor.getTask().hasContexts()).to.equal(true);
 //              1.ThrowStatement:
 //              PUSH ARGUMENT $text
                 expect(getInstruction(processor)).to.equal('PUSH ARGUMENT');
@@ -221,6 +224,7 @@ describe('Bali Virtual Machine™', function() {
                 expect(getInstruction(processor)).to.equal('HANDLE EXCEPTION');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
+                expect(processor.getTask().hasContexts()).to.equal(false);
 //          1.EvaluateStatementHandler:
 //          STORE VARIABLE $exception
             expect(getInstruction(processor)).to.equal('STORE VARIABLE');
@@ -269,6 +273,7 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('SEND 1');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
+            expect(processor.getTask().hasContexts()).to.equal(true);
 //              1.ReturnStatement:
 //              PUSH LITERAL `none`
                 expect(getInstruction(processor)).to.equal('PUSH LITERAL');
@@ -306,6 +311,7 @@ describe('Bali Virtual Machine™', function() {
                 expect(getInstruction(processor)).to.equal('HANDLE RESULT');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
+                expect(processor.getTask().hasContexts()).to.equal(false);
 //          STORE VARIABLE $result-1
             expect(getInstruction(processor)).to.equal('STORE VARIABLE');
             expect(await processor.stepClock()).to.equal(true);
@@ -373,6 +379,7 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('SEND 2');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
+            expect(processor.getTask().hasContexts()).to.equal(true);
 //              1.ThrowStatement:
 //              PUSH ARGUMENT $text
                 expect(getInstruction(processor)).to.equal('PUSH ARGUMENT');
@@ -382,6 +389,7 @@ describe('Bali Virtual Machine™', function() {
                 expect(getInstruction(processor)).to.equal('HANDLE EXCEPTION');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
+                expect(processor.getTask().hasContexts()).to.equal(false);
 //          1.EvaluateStatementHandler:
 //          STORE VARIABLE $exception
             expect(getInstruction(processor)).to.equal('STORE VARIABLE');
