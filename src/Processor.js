@@ -544,7 +544,6 @@ const Processor = function(notary, repository, debug) {
 
         // INVOKE symbol WITH 2 ARGUMENTS
         async function(operand) {
-            console.log('task: ' + task.toCatalog());
             const argument2 = task.popComponent();
             const argument1 = task.popComponent();
             const result = compiler.invoke(operand, argument1, argument2);
