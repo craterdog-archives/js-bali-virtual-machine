@@ -124,8 +124,8 @@ const Context = function(catalog, debug) {
         address++;
     };
 
-    this.jumpToAddress = function(address) {
-        this.address = address;
+    this.jumpToAddress = function(newAddress) {
+        address = newAddress;
     };
 
     this.jumpToHandler = function() {
