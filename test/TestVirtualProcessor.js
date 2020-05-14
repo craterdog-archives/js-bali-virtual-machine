@@ -127,33 +127,48 @@ describe('Bali Virtual Machine™', function() {
             expect(processor.getTask().hasComponents()).to.equal(false);
 //                  1.ThrowStatement:
 //                  PUSH ARGUMENT $text
-            console.log('processor: ' + processor);
             expect(getInstruction(processor)).to.equal('PUSH ARGUMENT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //                  HANDLE EXCEPTION
-            console.log('processor: ' + processor);
+            expect(getInstruction(processor)).to.equal('HANDLE EXCEPTION');
             expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
 
 //              1.EvaluateStatementHandler:
 //              STORE VARIABLE $exception
+            expect(getInstruction(processor)).to.equal('STORE VARIABLE');
             expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
 
 //              1.1.HandleBlock:
 //              LOAD VARIABLE $exception
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
             expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
 //              PUSH LITERAL `"good"`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
             expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
 //              INVOKE $doesMatch WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('INVOKE $doesMatch');
             expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
 //              JUMP TO 1.2.HandleBlock ON FALSE
+            expect(getInstruction(processor)).to.equal('JUMP TO');
             expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
 
 //              1.1.1.ReturnStatement:
 //              PUSH CONSTANT $good
+            expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
             expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
 //              HANDLE RESULT
+            expect(getInstruction(processor)).to.equal('HANDLE RESULT');
             expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+            expect(processor.getTask().getState().toString()).to.equal('$completed');
             expect(await processor.stepClock()).to.equal(false);
 
         });
