@@ -321,8 +321,12 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          2.ReturnStatement:
-//          PUSH LITERAL `"bad"`
-            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+//          PUSH CONSTANT $good
+            expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          INVOKE $not WITH 1 ARGUMENT
+            expect(getInstruction(processor)).to.equal('INVOKE $not');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          HANDLE RESULT

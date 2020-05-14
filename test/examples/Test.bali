@@ -4,14 +4,14 @@
     "($mediaType: "application/bsmd")
     $parent: none
     $constants: [
-        $good: "good"
+        $good: true
     ]
     $methods: [
         $test1: [
             $description: "
                 This method tests each type of instruction at least once.
             "($mediaType: "application/bsmd")
-            $type: /bali/elements/Text/v1
+            $type: /bali/elements/Probability/v1
             $parameters: [
                 $argument: [
                     $description: "
@@ -26,7 +26,7 @@
                 } matching "bad" with {
                     target.test2()
                 }
-                return "bad"
+                return NOT good
             }($argument: "ugly")
             $instructions: "
                 1.EvaluateStatement:
@@ -80,7 +80,8 @@
                 SKIP INSTRUCTION
                 
                 2.ReturnStatement:
-                PUSH LITERAL `"bad"`
+                PUSH CONSTANT $good
+                INVOKE $not WITH 1 ARGUMENT
                 HANDLE RESULT
             "($mediaType: "application/basm")
             $addresses: [
@@ -99,7 +100,8 @@
             ]
             $bytecode: '
                 200A3801A04F3802B001C80280034000001C800160012806B02718123001
-                E000001C60012805B027181A3801C0018002001C6001E80000002805E000
+                E000001C60012805B027181A3801C0018002001C6001E80000003001A85A
+                E000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
