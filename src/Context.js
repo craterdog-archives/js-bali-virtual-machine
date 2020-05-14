@@ -68,7 +68,7 @@ const Context = function(catalog, debug) {
             $handlers: handlers.duplicate(),  // capture the current state
             $bytecode: bali.binary(bytes, {$encoding: '$base16', $mediaType: '"application/bcod"'}),
             $address: address,
-            $instruction: compiler.string(operation, modifier, operand)
+            $instruction: compiler.string(instruction)
         });
     };
 

@@ -23,6 +23,10 @@ const EOL = '\n';  // POSIX end of line character
 const TASK_BAG = '/bali/vm/tasks/v1';
 const EVENT_BAG = '/bali/vm/events/v1';
 
+const getInstruction = function(processor) {
+    const instruction = processor.getContext().getInstruction();
+    return compiler.string(instruction).split(' ').slice(0, 2).join(' ');
+};
 
 describe('Bali Virtual Machine™', function() {
 
@@ -95,9 +99,201 @@ describe('Bali Virtual Machine™', function() {
             const processor = vm.processor();
             expect(processor).to.exist;
             await processor.newTask(account, tokens, target, message, args);
-            while (await processor.stepClock()) {
-                console.log('processor: ' + processor);
-            }
+
+//              1.EvaluateStatement:
+//              PUSH HANDLER 1.EvaluateStatementHandler
+            expect(getInstruction(processor)).to.equal('PUSH HANDLER');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getContext().hasHandlers()).to.equal(true);
+//              PUSH ARGUMENT $target
+            expect(getInstruction(processor)).to.equal('PUSH ARGUMENT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//              INVOKE $list
+            expect(getInstruction(processor)).to.equal('INVOKE $list');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//              PUSH ARGUMENT $argument
+            expect(getInstruction(processor)).to.equal('PUSH ARGUMENT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//              INVOKE $addItem WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('INVOKE $addItem');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//              SEND $test3 TO COMPONENT WITH ARGUMENTS
+            expect(getInstruction(processor)).to.equal('SEND 2');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//                  1.ThrowStatement:
+//                  PUSH ARGUMENT $text
+            console.log('processor: ' + processor);
+            expect(getInstruction(processor)).to.equal('PUSH ARGUMENT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//                  HANDLE EXCEPTION
+            console.log('processor: ' + processor);
+            expect(await processor.stepClock()).to.equal(true);
+
+//              1.EvaluateStatementHandler:
+//              STORE VARIABLE $exception
+            expect(await processor.stepClock()).to.equal(true);
+
+//              1.1.HandleBlock:
+//              LOAD VARIABLE $exception
+            expect(await processor.stepClock()).to.equal(true);
+//              PUSH LITERAL `"good"`
+            expect(await processor.stepClock()).to.equal(true);
+//              INVOKE $doesMatch WITH 2 ARGUMENTS
+            expect(await processor.stepClock()).to.equal(true);
+//              JUMP TO 1.2.HandleBlock ON FALSE
+            expect(await processor.stepClock()).to.equal(true);
+
+//              1.1.1.ReturnStatement:
+//              PUSH CONSTANT $good
+            expect(await processor.stepClock()).to.equal(true);
+//              HANDLE RESULT
+            expect(await processor.stepClock()).to.equal(true);
+            expect(await processor.stepClock()).to.equal(false);
+
+        });
+
+        it('should cause the VM to step through the test type successfully', async function() {
+            const tokens = bali.number(100);
+            const target = bali.catalog({
+            }, {
+                $type: '/bali/tests/Test/v1'
+            });
+            const message = bali.symbol('test1');
+            const args = bali.list(['"bad"']);
+            const processor = vm.processor();
+            expect(processor).to.exist;
+            await processor.newTask(account, tokens, target, message, args);
+
+//              1.EvaluateStatement:
+//              PUSH HANDLER 1.EvaluateStatementHandler
+//              PUSH ARGUMENT $target
+//              INVOKE $list
+//              PUSH ARGUMENT $argument
+//              INVOKE $addItem WITH 2 ARGUMENTS
+//              SEND $test3 TO COMPONENT WITH ARGUMENTS
+//                  1.ThrowStatement:
+//                  PUSH ARGUMENT $text
+//                  HANDLE EXCEPTION
+//              STORE VARIABLE $x
+
+//              1.EvaluateStatementDone:
+//              POP HANDLER
+//              JUMP TO 1.EvaluateStatementSucceeded
+
+//              1.EvaluateStatementHandler:
+//              STORE VARIABLE $exception
+
+//              1.1.HandleBlock:
+//              LOAD VARIABLE $exception
+//              PUSH LITERAL `"good"`
+//              INVOKE $doesMatch WITH 2 ARGUMENTS
+//              JUMP TO 1.2.HandleBlock ON FALSE
+
+//              1.1.1.ReturnStatement:
+//              PUSH CONSTANT $good
+//              HANDLE RESULT
+
+//              1.1.HandleBlockDone:
+//              JUMP TO 1.EvaluateStatementSucceeded
+
+//              1.2.HandleBlock:
+//              LOAD VARIABLE $exception
+//              PUSH LITERAL `"bad"`
+//              INVOKE $doesMatch WITH 2 ARGUMENTS
+//              JUMP TO 1.EvaluateStatementFailed ON FALSE
+
+//              1.2.1.EvaluateStatement:
+//              PUSH ARGUMENT $target
+//              SEND $test2 TO COMPONENT
+//              STORE VARIABLE $result-1
+
+//              1.2.2.ReturnStatement:
+//              PUSH LITERAL `"bad"`
+//              HANDLE RESULT
+
+//              1.2.HandleBlockDone:
+//              JUMP TO 1.EvaluateStatementSucceeded
+
+//              1.EvaluateStatementFailed:
+//              LOAD VARIABLE $exception
+//              HANDLE EXCEPTION
+
+            await processor.stepClock();
+        });
+
+        it('should cause the VM to step through the test type successfully', async function() {
+            const tokens = bali.number(100);
+            const target = bali.catalog({
+            }, {
+                $type: '/bali/tests/Test/v1'
+            });
+            const message = bali.symbol('test1');
+            const args = bali.list([]);
+            const processor = vm.processor();
+            expect(processor).to.exist;
+            await processor.newTask(account, tokens, target, message, args);
+
+//              1.EvaluateStatement:
+//              PUSH HANDLER 1.EvaluateStatementHandler
+//              PUSH ARGUMENT $target
+//              INVOKE $list
+//              PUSH ARGUMENT $argument
+//              INVOKE $addItem WITH 2 ARGUMENTS
+//              SEND $test3 TO COMPONENT WITH ARGUMENTS
+//                  1.ThrowStatement:
+//                  PUSH ARGUMENT $text
+//                  HANDLE EXCEPTION
+//              STORE VARIABLE $x
+
+//              1.EvaluateStatementDone:
+//              POP HANDLER
+//              JUMP TO 1.EvaluateStatementSucceeded
+
+//              1.EvaluateStatementHandler:
+//              STORE VARIABLE $exception
+
+//              1.1.HandleBlock:
+//              LOAD VARIABLE $exception
+//              PUSH LITERAL `"good"`
+//              INVOKE $doesMatch WITH 2 ARGUMENTS
+//              JUMP TO 1.2.HandleBlock ON FALSE
+
+//              1.1.1.ReturnStatement:
+//              PUSH CONSTANT $good
+//              HANDLE RESULT
+
+//              1.1.HandleBlockDone:
+//              JUMP TO 1.EvaluateStatementSucceeded
+
+//              1.2.HandleBlock:
+//              LOAD VARIABLE $exception
+//              PUSH LITERAL `"bad"`
+//              INVOKE $doesMatch WITH 2 ARGUMENTS
+//              JUMP TO 1.EvaluateStatementFailed ON FALSE
+
+//              1.2.1.EvaluateStatement:
+//              PUSH ARGUMENT $target
+//              SEND $test2 TO COMPONENT
+//              STORE VARIABLE $result-1
+
+//              1.2.2.ReturnStatement:
+//              PUSH LITERAL `"bad"`
+//              HANDLE RESULT
+
+//              1.2.HandleBlockDone:
+//              JUMP TO 1.EvaluateStatementSucceeded
+
+//              1.EvaluateStatementFailed:
+//              LOAD VARIABLE $exception
+//              HANDLE EXCEPTION
+
+            await processor.stepClock();
         });
 
     });

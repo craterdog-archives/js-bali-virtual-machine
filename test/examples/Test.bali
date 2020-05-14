@@ -21,10 +21,10 @@
                 ]
             ]
             $procedure: {
-                target.test2()
                 $x := target.test3(argument) handle $exception matching "good" with {
                     return good
                 } matching "bad" with {
+                    target.test2()
                     return "bad"
                 }
             }($argument: "ugly")

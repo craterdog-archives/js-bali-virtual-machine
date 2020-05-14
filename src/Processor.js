@@ -46,6 +46,11 @@ const Processor = function(notary, repository, debug) {
 
     // PUBLIC METHODS
 
+    if (debug) {
+        this.getTask = function() { return task; };
+        this.getContext = function() { return context; };
+    }
+
     /**
      * This method returns a string representation of the current processor state using
      * Bali Document Notation™.
@@ -241,7 +246,7 @@ const Processor = function(notary, repository, debug) {
             $messages: messages,
             $handlers: handlers,
             $bytecode: bytecode,
-            $address: 0
+            $address: 1
         });
     };
 
@@ -566,8 +571,8 @@ const Processor = function(notary, repository, debug) {
             const message = context.getMessage(operand);
             const argumentz = bali.list();
             const target = task.popComponent();
-            await pushContext(target, message, argumentz);
             context.incrementAddress();
+            await pushContext(target, message, argumentz);
         },
 
         // SEND symbol TO COMPONENT WITH ARGUMENTS
@@ -575,8 +580,8 @@ const Processor = function(notary, repository, debug) {
             const message = context.getMessage(operand);
             const argumentz = task.popComponent();
             const target = task.popComponent();
-            await pushContext(target, message, argumentz);
             context.incrementAddress();
+            await pushContext(target, message, argumentz);
         },
 
         // SEND symbol TO DOCUMENT
@@ -584,8 +589,8 @@ const Processor = function(notary, repository, debug) {
             const message = context.getMessage(operand);
             const argumentz = bali.list();
             const name = task.popComponent();
-            await spawnTask(name, message, argumentz);
             context.incrementAddress();
+            await spawnTask(name, message, argumentz);
         },
 
         // SEND symbol TO DOCUMENT WITH ARGUMENTS
@@ -593,8 +598,8 @@ const Processor = function(notary, repository, debug) {
             const message = context.getMessage(operand);
             const argumentz = task.popComponent();
             const name = task.popComponent();
-            await spawnTask(name, message, argumentz);
             context.incrementAddress();
+            await spawnTask(name, message, argumentz);
         },
 
         // HANDLE RESULT
