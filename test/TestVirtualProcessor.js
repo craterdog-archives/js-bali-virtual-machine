@@ -85,7 +85,7 @@ describe('Bali Virtual Machine™', function() {
 
                 // check for differences
                 source = type.toString() + '\n';  // POSIX compliant <EOL>
-                await pfs.writeFile(typeFile, source, 'utf8');
+                //await pfs.writeFile(typeFile, source, 'utf8');
                 const expected = await pfs.readFile(typeFile, 'utf8');
                 expect(expected).to.exist;
                 expect(source).to.equal(expected);
@@ -351,7 +351,34 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('SKIP INSTRUCTION');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          2.ReturnStatement:
+
+//          2.EvaluateStatement:
+//          PUSH CONSTANT $document
+            expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          INVOKE $list
+            expect(getInstruction(processor)).to.equal('INVOKE $list');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PUSH ARGUMENT $argument
+            expect(getInstruction(processor)).to.equal('PUSH ARGUMENT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          INVOKE $addItem WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('INVOKE $addItem');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SEND $test3 TO DOCUMENT WITH ARGUMENTS
+            expect(getInstruction(processor)).to.equal('SEND 2');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          STORE VARIABLE $result-1
+            expect(getInstruction(processor)).to.equal('STORE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+
+//          3.ReturnStatement:
 //          PUSH CONSTANT $good
             expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
             expect(await processor.stepClock()).to.equal(true);

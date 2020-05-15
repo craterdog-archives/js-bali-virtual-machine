@@ -28,6 +28,7 @@
                 } matching "bad" with {
                     target.test2()
                 }
+                document<-test3(argument)
                 return NOT good
             }($argument: "ugly")
             $instructions: "
@@ -86,7 +87,15 @@
                 1.EvaluateStatementSucceeded:
                 SKIP INSTRUCTION
                 
-                2.ReturnStatement:
+                2.EvaluateStatement:
+                PUSH CONSTANT $document
+                INVOKE $list
+                PUSH ARGUMENT $argument
+                INVOKE $addItem WITH 2 ARGUMENTS
+                SEND $test3 TO DOCUMENT WITH ARGUMENTS
+                STORE VARIABLE $result-1
+                
+                3.ReturnStatement:
                 PUSH CONSTANT $good
                 INVOKE $not WITH 1 ARGUMENT
                 HANDLE RESULT
@@ -104,12 +113,13 @@
                 "1.2.HandleBlockDone": 28
                 "1.EvaluateStatementFailed": 29
                 "1.EvaluateStatementSucceeded": 31
-                "2.ReturnStatement": 32
+                "2.EvaluateStatement": 32
+                "3.ReturnStatement": 38
             ]
             $bytecode: '
                 200A3801A04F3802B001C80280034000001F800160012806B02718153002
                 D00180023001E000001F60012805B027181D3801C0018002001F6001E800
-                00003001A85AE000
+                00003002A04F3802B001D80280023001A85AE000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
