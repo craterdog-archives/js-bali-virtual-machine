@@ -5,6 +5,7 @@
     $parent: none
     $constants: [
         $good: true
+        $document: /bali/instances/Test/v1
     ]
     $methods: [
         $test1: [
@@ -22,6 +23,7 @@
             ]
             $procedure: {
                 $x := target.test3(argument) handle $exception matching "good" with {
+                    document<-test2()
                     return good
                 } matching "bad" with {
                     target.test2()
@@ -51,7 +53,12 @@
                 INVOKE $doesMatch WITH 2 ARGUMENTS
                 JUMP TO 1.2.HandleBlock ON FALSE
                 
-                1.1.1.ReturnStatement:
+                1.1.1.EvaluateStatement:
+                PUSH CONSTANT $document
+                SEND $test2 TO DOCUMENT
+                STORE VARIABLE $result-1
+                
+                1.1.2.ReturnStatement:
                 PUSH CONSTANT $good
                 HANDLE RESULT
                 
@@ -89,19 +96,20 @@
                 "1.EvaluateStatementDone": 8
                 "1.EvaluateStatementHandler": 10
                 "1.1.HandleBlock": 11
-                "1.1.1.ReturnStatement": 15
-                "1.1.HandleBlockDone": 17
-                "1.2.HandleBlock": 18
-                "1.2.1.EvaluateStatement": 22
-                "1.2.HandleBlockDone": 25
-                "1.EvaluateStatementFailed": 26
-                "1.EvaluateStatementSucceeded": 28
-                "2.ReturnStatement": 29
+                "1.1.1.EvaluateStatement": 15
+                "1.1.2.ReturnStatement": 18
+                "1.1.HandleBlockDone": 20
+                "1.2.HandleBlock": 21
+                "1.2.1.EvaluateStatement": 25
+                "1.2.HandleBlockDone": 28
+                "1.EvaluateStatementFailed": 29
+                "1.EvaluateStatementSucceeded": 31
+                "2.ReturnStatement": 32
             ]
             $bytecode: '
-                200A3801A04F3802B001C80280034000001C800160012806B02718123001
-                E000001C60012805B027181A3801C0018002001C6001E80000003001A85A
-                E000
+                200A3801A04F3802B001C80280034000001F800160012806B02718153002
+                D00180023001E000001F60012805B027181D3801C0018002001F6001E800
+                00003001A85AE000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -199,7 +207,6 @@
         "good"
     ]($type: /bali/collections/Set/v1)
 ](
-    $name: /bali/tests/PUSH/v1
     $type: /bali/types/Primitive/v1
     $tag: #JXPSTDZSDHW4J1N5YF98D45QC8ZAQPXV
     $version: v1

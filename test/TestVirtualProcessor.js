@@ -73,6 +73,8 @@ describe('Bali Virtual Machine™', function() {
             for (var i = 0; i < files.length; i++) {
                 var file = files[i];
                 if (!file.endsWith('.bali')) continue;
+
+                // compile the type
                 console.log('      ' + file);
                 const prefix = file.split('.').slice(0, 1);
                 const typeFile = testFolder + prefix + '.bali';
@@ -83,25 +85,38 @@ describe('Bali Virtual Machine™', function() {
 
                 // check for differences
                 source = type.toString() + '\n';  // POSIX compliant <EOL>
-                //await pfs.writeFile(typeFile, source, 'utf8');
+                await pfs.writeFile(typeFile, source, 'utf8');
                 const expected = await pfs.readFile(typeFile, 'utf8');
                 expect(expected).to.exist;
                 expect(source).to.equal(expected);
 
-                const document = await notary.notarizeDocument(type);
-                const citation = await repository.writeDocument(document);
+                // publish the type in the repository
+                var document = await notary.notarizeDocument(type);
+                var citation = await repository.writeDocument(document);
                 expect(citation).to.exist;
-                const name = '/bali/tests/' + prefix + '/v1';
+                var name = '/bali/types/' + prefix + '/v1';
+                await repository.writeName(name, citation);
+
+                // publish an instance of the type in the repository
+                const instance = bali.catalog({
+                }, {
+                    $type: name,
+                    $tag: bali.tag(),
+                    $version: bali.version(),
+                    $permissions: '/bali/permissions/public/v1',
+                    $previous: bali.pattern.NONE
+                });
+                document = await notary.notarizeDocument(instance);
+                citation = await repository.writeDocument(document);
+                expect(citation).to.exist;
+                name = '/bali/instances/' + prefix + '/v1';
                 await repository.writeName(name, citation);
             }
         });
 
         it('should cause the VM to step through the test type "good" route successfully', async function() {
             const tokens = bali.number(100);
-            const target = bali.catalog({
-            }, {
-                $type: '/bali/tests/Test/v1'
-            });
+            const target = (await repository.readName('/bali/instances/Test/v1')).getValue('$content');
             const message = bali.symbol('test1');
             const args = bali.list(['"good"']);
             const processor = vm.processor();
@@ -165,7 +180,20 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('JUMP TO');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          1.1.1.ReturnStatement:
+//          1.1.1.EvaluateStatement:
+//          PUSH CONSTANT $document
+            expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SEND $test2 TO DOCUMENT
+            expect(getInstruction(processor)).to.equal('SEND 1');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          STORE VARIABLE $result-1
+            expect(getInstruction(processor)).to.equal('STORE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          1.1.2.ReturnStatement:
 //          PUSH CONSTANT $good
             expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
             expect(await processor.stepClock()).to.equal(true);
@@ -180,10 +208,7 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the test type "bad" route successfully', async function() {
             const tokens = bali.number(100);
-            const target = bali.catalog({
-            }, {
-                $type: '/bali/tests/Test/v1'
-            });
+            const target = (await repository.readName('/bali/instances/Test/v1')).getValue('$content');
             const message = bali.symbol('test1');
             const args = bali.list(['"bad"']);
             const processor = vm.processor();
@@ -345,10 +370,7 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the test type "ugly" route successfully', async function() {
             const tokens = bali.number(100);
-            const target = bali.catalog({
-            }, {
-                $type: '/bali/tests/Test/v1'
-            });
+            const target = (await repository.readName('/bali/instances/Test/v1')).getValue('$content');
             const message = bali.symbol('test1');
             const args = bali.list([]);
             const processor = vm.processor();

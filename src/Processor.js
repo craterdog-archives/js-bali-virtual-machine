@@ -153,8 +153,8 @@ const Processor = function(notary, repository, debug) {
     };
 
     const loadBags = async function() {
-        taskBag = notary.citeDocument(await repository.readName(TASK_BAG));
-        eventBag = notary.citeDocument(await repository.readName(EVENT_BAG));
+        taskBag = await notary.citeDocument(await repository.readName(TASK_BAG));
+        eventBag = await notary.citeDocument(await repository.readName(EVENT_BAG));
     };
 
     const createTask = function(account, tokens) {
@@ -165,6 +165,12 @@ const Processor = function(notary, repository, debug) {
             $clock: 0,
             $components: bali.stack(),
             $contexts: bali.stack()
+        }, {
+            $type: '/bali/vm/Task/v1',
+            $tag: bali.tag(),
+            $version: bali.version(),
+            $permissions: '/bali/permissions/public/v1',
+            $previous: bali.pattern.NONE
         });
     };
 
@@ -335,12 +341,13 @@ const Processor = function(notary, repository, debug) {
 
     const spawnTask = async function(name, message, args) {
         if (!taskBag) await loadBags();
-        const target = await repository.readName(name);
+        const target = (await repository.readName(name)).getValue('$content');
         const childTask = createTask(task.getAccount(), task.splitTokens());
         const childContext = await createContext(target, message, args);
-        childTask.pushContext(childContext);
+        childTask.getValue('$contexts').addItem(childContext);
         const document = await notary.notarizeDocument(childTask);
-        await repository.addMessage(taskBag, document);
+        const tag = await repository.addMessage(taskBag, document);
+        task.pushComponent(tag);
     };
 
 
@@ -463,7 +470,7 @@ const Processor = function(notary, repository, debug) {
         // LOAD MESSAGE symbol
         async function(operand) {
             const name = context.getVariable(operand).getValue();
-            const messageBag = notary.citeDocument(repository.readName(name));
+            const messageBag = await notary.citeDocument(repository.readName(name));
             const message = await repository.borrowMessage(messageBag);
             if (message) {
                 const component = message.getValue('$content');
@@ -508,7 +515,7 @@ const Processor = function(notary, repository, debug) {
         async function(operand) {
             var component = task.popComponent();
             const name = context.getVariable(operand).getValue();
-            const messageBag = notary.citeDocument(repository.readName(name));
+            const messageBag = await notary.citeDocument(repository.readName(name));
             const document = await notary.notarizeDocument(component);
             await repository.addMessage(messageBag, document);
             context.incrementAddress();
