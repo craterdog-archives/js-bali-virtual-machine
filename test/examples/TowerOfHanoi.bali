@@ -63,80 +63,106 @@
             }
             $instructions: "
                 1.EvaluateStatement:
-                INVOKE $catalog
+                ---- Place the recipient and the index of its subcomponent on the stack.
+                PUSH ARGUMENT $target
+                PUSH LITERAL `$pegs`
+                CALL $catalog
+                ---- Add an item to the catalog.
                 PUSH LITERAL `"peg A"`
+                ---- Place an empty parameterized stack on the stack.
                 PUSH LITERAL `none`
-                INVOKE $catalog
+                ---- Place a catalog of the parameters on the stack.
+                CALL $catalog
                 PUSH LITERAL `$type`
                 PUSH LITERAL `/bali/collections/Stack/v1`
-                INVOKE $catalog
+                ---- Place a catalog of the parameters on the stack.
+                CALL $catalog
                 PUSH LITERAL `$itemType`
                 PUSH LITERAL `/bali/elements/Number/v1`
-                INVOKE $catalog
+                ---- Place a catalog of the parameters on the stack.
+                CALL $catalog
                 PUSH LITERAL `$range`
-                INVOKE $list
+                CALL $list
+                ---- Add an item to the list.
                 PUSH LITERAL `1..`
-                INVOKE $addItem WITH 2 ARGUMENTS
-                INVOKE $setValue WITH 3 ARGUMENTS
-                INVOKE $setValue WITH 3 ARGUMENTS
-                INVOKE $setValue WITH 3 ARGUMENTS
-                INVOKE $stack WITH 2 ARGUMENTS
-                INVOKE $association WITH 2 ARGUMENTS
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                CALL $setValue WITH 3 ARGUMENTS
+                CALL $setValue WITH 3 ARGUMENTS
+                CALL $setValue WITH 3 ARGUMENTS
+                CALL $stack WITH 2 ARGUMENTS
+                CALL $association WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                ---- Add another item to the catalog.
                 PUSH LITERAL `"peg B"`
+                ---- Place an empty parameterized stack on the stack.
                 PUSH LITERAL `none`
-                INVOKE $catalog
+                ---- Place a catalog of the parameters on the stack.
+                CALL $catalog
                 PUSH LITERAL `$type`
                 PUSH LITERAL `/bali/collections/Stack/v1`
-                INVOKE $catalog
+                ---- Place a catalog of the parameters on the stack.
+                CALL $catalog
                 PUSH LITERAL `$itemType`
                 PUSH LITERAL `/bali/elements/Number/v1`
-                INVOKE $catalog
+                ---- Place a catalog of the parameters on the stack.
+                CALL $catalog
                 PUSH LITERAL `$range`
-                INVOKE $list
+                CALL $list
+                ---- Add an item to the list.
                 PUSH LITERAL `1..`
-                INVOKE $addItem WITH 2 ARGUMENTS
-                INVOKE $setValue WITH 3 ARGUMENTS
-                INVOKE $setValue WITH 3 ARGUMENTS
-                INVOKE $setValue WITH 3 ARGUMENTS
-                INVOKE $stack WITH 2 ARGUMENTS
-                INVOKE $association WITH 2 ARGUMENTS
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                CALL $setValue WITH 3 ARGUMENTS
+                CALL $setValue WITH 3 ARGUMENTS
+                CALL $setValue WITH 3 ARGUMENTS
+                CALL $stack WITH 2 ARGUMENTS
+                CALL $association WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                ---- Add another item to the catalog.
                 PUSH LITERAL `"peg C"`
+                ---- Place an empty parameterized stack on the stack.
                 PUSH LITERAL `none`
-                INVOKE $catalog
+                ---- Place a catalog of the parameters on the stack.
+                CALL $catalog
                 PUSH LITERAL `$type`
                 PUSH LITERAL `/bali/collections/Stack/v1`
-                INVOKE $catalog
+                ---- Place a catalog of the parameters on the stack.
+                CALL $catalog
                 PUSH LITERAL `$itemType`
                 PUSH LITERAL `/bali/elements/Number/v1`
-                INVOKE $catalog
+                ---- Place a catalog of the parameters on the stack.
+                CALL $catalog
                 PUSH LITERAL `$range`
-                INVOKE $list
+                CALL $list
+                ---- Add an item to the list.
                 PUSH LITERAL `1..`
-                INVOKE $addItem WITH 2 ARGUMENTS
-                INVOKE $setValue WITH 3 ARGUMENTS
-                INVOKE $setValue WITH 3 ARGUMENTS
-                INVOKE $setValue WITH 3 ARGUMENTS
-                INVOKE $stack WITH 2 ARGUMENTS
-                INVOKE $association WITH 2 ARGUMENTS
-                INVOKE $addItem WITH 2 ARGUMENTS
-                INVOKE $setSubcomponent WITH 3 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                CALL $setValue WITH 3 ARGUMENTS
+                CALL $setValue WITH 3 ARGUMENTS
+                CALL $setValue WITH 3 ARGUMENTS
+                CALL $stack WITH 2 ARGUMENTS
+                CALL $association WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                ---- Assign the result as the value of the subcomponent.
+                CALL $setSubcomponent WITH 3 ARGUMENTS
                 
                 2.EvaluateStatement:
-                INVOKE $list
-                INVOKE $setSubcomponent WITH 3 ARGUMENTS
+                ---- Place the recipient and the index of its subcomponent on the stack.
+                PUSH ARGUMENT $target
+                PUSH LITERAL `$steps`
+                CALL $list
+                ---- Assign the result as the value of the subcomponent.
+                CALL $setSubcomponent WITH 3 ARGUMENTS
                 
                 3.EvaluateStatement:
                 PUSH ARGUMENT $numberOfDisks
                 PUSH LITERAL `1`
-                INVOKE $range WITH 2 ARGUMENTS
-                STORE VARIABLE $disks
+                CALL $range WITH 2 ARGUMENTS
+                SAVE VARIABLE $disks
                 
                 4.WithStatement:
                 LOAD VARIABLE $disks
                 SEND $iterator TO COMPONENT
-                STORE VARIABLE $iterator-2
+                SAVE VARIABLE $iterator-2
                 
                 4.1.ConditionClause:
                 LOAD VARIABLE $iterator-2
@@ -144,19 +170,21 @@
                 JUMP TO 4.WithStatementDone ON FALSE
                 LOAD VARIABLE $iterator-2
                 SEND $next TO COMPONENT
-                STORE VARIABLE $n
+                SAVE VARIABLE $n
                 
                 4.1.1.EvaluateStatement:
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$pegs`
-                INVOKE $subcomponent WITH 2 ARGUMENTS
+                CALL $subcomponent WITH 2 ARGUMENTS
                 PUSH LITERAL `"peg A"`
-                INVOKE $subcomponent WITH 2 ARGUMENTS
-                INVOKE $list
+                CALL $subcomponent WITH 2 ARGUMENTS
+                ---- Place a list of the message arguments on the stack.
+                CALL $list
                 LOAD VARIABLE $n
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                ---- Send the message with its arguments to the recipient.
                 SEND $addItem TO COMPONENT WITH ARGUMENTS
-                STORE VARIABLE $result-1
+                SAVE VARIABLE $result-1
                 
                 4.ConditionRepeat:
                 JUMP TO 4.1.ConditionClause
@@ -166,45 +194,48 @@
                 
                 5.EvaluateStatement:
                 PUSH ARGUMENT $target
-                INVOKE $list
+                ---- Place a list of the message arguments on the stack.
+                CALL $list
                 PUSH ARGUMENT $numberOfDisks
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
                 PUSH LITERAL `"peg A"`
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
                 PUSH LITERAL `"peg C"`
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
                 PUSH LITERAL `"peg B"`
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                ---- Send the message with its arguments to the recipient.
                 SEND $moveTower TO COMPONENT WITH ARGUMENTS
-                STORE VARIABLE $result-1
+                SAVE VARIABLE $result-1
                 
                 6.ReturnStatement:
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$steps`
-                INVOKE $subcomponent WITH 2 ARGUMENTS
+                CALL $subcomponent WITH 2 ARGUMENTS
                 SEND $asCatalog TO COMPONENT
-                HANDLE RESULT
+                PULL RESULT
             "($mediaType: "application/basm")
             $addresses: [
                 "1.EvaluateStatement": 1
-                "2.EvaluateStatement": 60
-                "3.EvaluateStatement": 62
-                "4.WithStatement": 66
-                "4.1.ConditionClause": 69
-                "4.1.1.EvaluateStatement": 75
-                "4.ConditionRepeat": 85
-                "4.WithStatementDone": 86
-                "5.EvaluateStatement": 87
-                "6.ReturnStatement": 99
+                "2.EvaluateStatement": 62
+                "3.EvaluateStatement": 66
+                "4.WithStatement": 70
+                "4.1.ConditionClause": 73
+                "4.1.1.EvaluateStatement": 79
+                "4.ConditionRepeat": 89
+                "4.WithStatementDone": 90
+                "5.EvaluateStatement": 91
+                "6.ReturnStatement": 103
             ]
             $bytecode: '
-                A014280C2804A014280A2801A01428062802A0142808A04F2805B001B881
-                B881B881B086B00BB001280D2804A014280A2801A01428062802A0142808
-                A04F2805B001B881B881B881B086B00BB001280E2804A014280A2801A014
-                28062802A0142808A04F2805B001B881B881B881B086B00BB001B880A04F
-                B88038022803B06B80016001C00480026002C00318566002C00680033801
-                2807B088280CB088A04F6003B001C8018004004500003801A04F3802B001
-                280CB001280EB001280DB001C805800438012809B088C002E000
+                38012807C014280C2804C014280A2801C01428062802C0142808C0512805
+                D001D884D884D884D089D00BD001280D2804C014280A2801C01428062802
+                C0142808C0512805D001D884D884D884D089D00BD001280E2804C014280A
+                2801C01428062802C0142808C0512805D001D884D884D884D089D00BD001
+                D88338012809C051D88338022803D06D80016001E00480026002E003185A
+                6002E006800338012807D08B280CD08BC0516003D001E801800400490000
+                3801C0513802D001280CD001280ED001280DD001E805800438012809D08B
+                E0025000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -265,49 +296,55 @@
                 
                 1.1.1.EvaluateStatement:
                 PUSH ARGUMENT $target
-                INVOKE $list
+                ---- Place a list of the message arguments on the stack.
+                CALL $list
                 PUSH ARGUMENT $height
                 PUSH LITERAL `1`
-                INVOKE $difference WITH 2 ARGUMENTS
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $difference WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
                 PUSH ARGUMENT $fromPeg
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
                 PUSH ARGUMENT $withPeg
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
                 PUSH ARGUMENT $toPeg
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                ---- Send the message with its arguments to the recipient.
                 SEND $moveTower TO COMPONENT WITH ARGUMENTS
-                STORE VARIABLE $result-1
+                SAVE VARIABLE $result-1
                 
                 1.1.2.EvaluateStatement:
                 PUSH ARGUMENT $target
-                INVOKE $list
+                ---- Place a list of the message arguments on the stack.
+                CALL $list
                 PUSH ARGUMENT $fromPeg
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
                 PUSH ARGUMENT $toPeg
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                ---- Send the message with its arguments to the recipient.
                 SEND $moveDisk TO COMPONENT WITH ARGUMENTS
-                STORE VARIABLE $result-1
+                SAVE VARIABLE $result-1
                 
                 1.1.3.EvaluateStatement:
                 PUSH ARGUMENT $target
-                INVOKE $list
+                ---- Place a list of the message arguments on the stack.
+                CALL $list
                 PUSH ARGUMENT $height
                 PUSH LITERAL `1`
-                INVOKE $difference WITH 2 ARGUMENTS
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $difference WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
                 PUSH ARGUMENT $withPeg
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
                 PUSH ARGUMENT $toPeg
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
                 PUSH ARGUMENT $fromPeg
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                ---- Send the message with its arguments to the recipient.
                 SEND $moveTower TO COMPONENT WITH ARGUMENTS
-                STORE VARIABLE $result-1
+                SAVE VARIABLE $result-1
                 
                 1.IfStatementDone:
                 LOAD VARIABLE $result-1
-                HANDLE RESULT
+                PULL RESULT
             "($mediaType: "application/basm")
             $addresses: [
                 "1.IfStatement": 1
@@ -318,9 +355,9 @@
                 "1.IfStatementDone": 40
             ]
             $bytecode: '
-                0000380218283801A04F38022803B025B0013803B0013805B0013804B001
-                C80280013801A04F3803B0013804B001C80180013801A04F38022803B025
-                B0013805B0013804B0013803B001C80280016001E000
+                0000380218283801C05138022803D026D0013803D0013805D0013804D001
+                E80280013801C0513803D0013804D001E80180013801C05138022803D026
+                D0013805D0013804D0013803D001E802800160015000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -361,35 +398,39 @@
                 1.EvaluateStatement:
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$pegs`
-                INVOKE $subcomponent WITH 2 ARGUMENTS
+                CALL $subcomponent WITH 2 ARGUMENTS
                 PUSH ARGUMENT $fromPeg
-                INVOKE $subcomponent WITH 2 ARGUMENTS
+                CALL $subcomponent WITH 2 ARGUMENTS
                 SEND $removeItem TO COMPONENT
-                STORE VARIABLE $disk
+                SAVE VARIABLE $disk
                 
                 2.EvaluateStatement:
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$pegs`
-                INVOKE $subcomponent WITH 2 ARGUMENTS
+                CALL $subcomponent WITH 2 ARGUMENTS
                 PUSH ARGUMENT $toPeg
-                INVOKE $subcomponent WITH 2 ARGUMENTS
-                INVOKE $list
+                CALL $subcomponent WITH 2 ARGUMENTS
+                ---- Place a list of the message arguments on the stack.
+                CALL $list
                 LOAD VARIABLE $disk
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                ---- Send the message with its arguments to the recipient.
                 SEND $addItem TO COMPONENT WITH ARGUMENTS
-                STORE VARIABLE $result-1
+                SAVE VARIABLE $result-1
                 
                 3.EvaluateStatement:
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$steps`
-                INVOKE $subcomponent WITH 2 ARGUMENTS
-                INVOKE $list
+                CALL $subcomponent WITH 2 ARGUMENTS
+                ---- Place a list of the message arguments on the stack.
+                CALL $list
                 PUSH LITERAL `"Move disk {disk} from {fromPeg} to {toPeg}."`
-                INVOKE $addItem WITH 2 ARGUMENTS
+                CALL $addItem WITH 2 ARGUMENTS
+                ---- Send the message with its arguments to the recipient.
                 SEND $append TO COMPONENT WITH ARGUMENTS
-                STORE VARIABLE $result-1
+                SAVE VARIABLE $result-1
                 LOAD VARIABLE $result-1
-                HANDLE RESULT
+                PULL RESULT
             "($mediaType: "application/basm")
             $addresses: [
                 "1.EvaluateStatement": 1
@@ -397,8 +438,8 @@
                 "3.EvaluateStatement": 18
             ]
             $bytecode: '
-                38012807B0883802B088C003800138012807B0883803B088A04F6001B001
-                C801800238012809B088A04F280BB001C80280026002E000
+                38012807D08B3802D08BE003800138012807D08B3803D08BC0516001D001
+                E801800238012809D08BC051280BD001E802800260025000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"

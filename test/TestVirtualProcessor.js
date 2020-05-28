@@ -22,6 +22,7 @@ const vm = require('../index').api(notary, repository, debug);
 const EOL = '\n';  // POSIX end of line character
 const TASK_BAG = '/bali/vm/tasks/v1';
 const EVENT_BAG = '/bali/vm/events/v1';
+const MESSAGE_BAG = '/bali/vm/messages/v1';
 
 const getInstruction = function(processor) {
     const instruction = processor.getContext().getInstruction();
@@ -65,6 +66,20 @@ describe('Bali Virtual Machine™', function() {
             }));
             const bagCitation = await repository.writeDocument(eventBag);
             await repository.writeName(EVENT_BAG, bagCitation);
+        });
+
+        it('should create the message bag in the repository', async function() {
+            const messageBag = await notary.notarizeDocument(bali.catalog({
+                $description: '"This is the message bag for the VM."'
+            }, {
+                $type: '/bali/collections/Bag/v1',
+                $tag: bali.tag(),
+                $version: bali.version(),
+                $permissions: '/bali/permissions/public/v1',
+                $previous: bali.pattern.NONE
+            }));
+            const bagCitation = await repository.writeDocument(messageBag);
+            await repository.writeName(MESSAGE_BAG, bagCitation);
         });
 
         it('should compile example type documents into compiled type documents', async function() {

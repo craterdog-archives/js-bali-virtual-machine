@@ -15,15 +15,12 @@
 const Task = require('./Task').Task;
 const Context = require('./Context').Context;
 const EOL = '\n';  // This private constant sets the POSIX end of line character
-const TASK_BAG = '/bali/vm/tasks/v1';
-const EVENT_BAG = '/bali/vm/events/v1';
 
 
 /**
  * This function creates a new processor.  The processor has not been initialized with any task.
  *
  * @constructor
- * @param {Object} notary An object that implements the Bali Digital Notary™ interface.
  * @param {Object} repository An object that implements the Bali Document Repository™ interface.
  * @param {Boolean|Number} debug An optional number in the range [0..3] that controls the level of
  * debugging that occurs:
@@ -35,12 +32,11 @@ const EVENT_BAG = '/bali/vm/events/v1';
  * </pre>
  * @returns {Processor} A new processor.
  */
-const Processor = function(notary, repository, debug) {
+const Processor = function(repository, debug) {
     if (debug === null || debug === undefined) debug = 0;  // default is off
     const bali = require('bali-component-framework').api(debug);
     const compiler = require('bali-type-compiler').api(debug);
     const decoder = bali.decoder();
-    var taskBag, eventBag;  // these require asynchronous calls to initialize
     var task, context;  // these are optimized versions of their corresponding catalogs
 
 
@@ -152,11 +148,6 @@ const Processor = function(notary, repository, debug) {
         return catalog;
     };
 
-    const loadBags = async function() {
-        taskBag = await notary.citeDocument(await repository.readName(TASK_BAG));
-        eventBag = await notary.citeDocument(await repository.readName(EVENT_BAG));
-    };
-
     const createTask = function(account, tokens) {
         return bali.catalog({
             $account: account,
@@ -180,8 +171,7 @@ const Processor = function(notary, repository, debug) {
         var type, method;
         var typeName = target.getParameter('$type') || bali.component(target.getType() + '/v1');  // YUCK!
         while (typeName.toString() !== 'none') {
-            const document = await repository.readName(typeName);
-            type = document.getValue('$content');
+            type = await repository.retrieveDocument(typeName);
             const methods = type.getValue('$methods');
             method = methods.getValue(message);
             if (method) break;
@@ -315,19 +305,12 @@ const Processor = function(notary, repository, debug) {
     };
 
     const publishNotification = async function() {
-        const event = bali.catalog({
+        const event = bali.instance('/bali/aspects/Event/v1', {
             $tag: task.getTag(),
             $type: '/bali/vm/' + task.getState().slice(1) + '/v1',  // remove leading '$'
             $task: task.toCatalog()
-        }, bali.parameters({
-            $tag: bali.tag(),
-            $version: bali.version(),
-            $permissions: '/bali/permissions/public/v1',
-            $previous: bali.pattern.NONE
-        }));
-        if (!eventBag) loadBags();
-        const document = await notary.notarizeDocument(event);
-        await repository.addMessage(eventBag, document);
+        });
+        await repository.addMessage('/bali/vm/events/v1', event);
     };
 
     const pushContext = async function(target, message, args) {
@@ -340,14 +323,13 @@ const Processor = function(notary, repository, debug) {
     };
 
     const spawnTask = async function(name, message, args) {
-        if (!taskBag) await loadBags();
-        const target = (await repository.readName(name)).getValue('$content');
+        const target = await repository.retrieveDocument(name);
         const childTask = createTask(task.getAccount(), task.splitTokens());
         const childContext = await createContext(target, message, args);
         childTask.getValue('$contexts').addItem(childContext);
-        const document = await notary.notarizeDocument(childTask);
-        const tag = await repository.addMessage(taskBag, document);
-        task.pushComponent(tag);
+        const tag = childTask.getParameter('$tag');
+        await repository.addMessage('/bali/vm/tasks/v1', childTask);
+        return tag;
     };
 
 
@@ -420,196 +402,19 @@ const Processor = function(notary, repository, debug) {
             context.incrementAddress();
         },
 
-        // POP HANDLER
+        // PULL HANDLER
         async function(operand) {
             context.popHandler();
             context.incrementAddress();
         },
 
-        // POP COMPONENT
+        // PULL COMPONENT
         async function(operand) {
             task.popComponent();
             context.incrementAddress();
         },
 
-        // UNIMPLEMENTED POP OPERATION
-        async function(operand) {
-            const exception = bali.exception({
-                $module: '/bali/vm/Processor',
-                $procedure: '$pop3',
-                $exception: '$notImplemented',
-                $operand: operand,
-                $processor: toCatalog(),
-                $message: 'An unimplemented POP operation was attempted.'
-            });
-            if (debug) console.error(exception.toString());
-            throw exception;
-        },
-
-        // UNIMPLEMENTED POP OPERATION
-        async function(operand) {
-            const exception = bali.exception({
-                $module: '/bali/vm/Processor',
-                $procedure: '$pop4',
-                $exception: '$notImplemented',
-                $operand: operand,
-                $processor: toCatalog(),
-                $message: 'An unimplemented POP operation was attempted.'
-            });
-            if (debug) console.error(exception.toString());
-            throw exception;
-        },
-
-        // LOAD VARIABLE symbol
-        async function(operand) {
-            const variable = context.getVariable(operand).getValue();
-            task.pushComponent(variable);
-            context.incrementAddress();
-        },
-
-        // LOAD MESSAGE symbol
-        async function(operand) {
-            const name = context.getVariable(operand).getValue();
-            const messageBag = await notary.citeDocument(repository.readName(name));
-            const message = await repository.borrowMessage(messageBag);
-            if (message) {
-                const component = message.getValue('$content');
-                task.pushComponent(component);
-                context.incrementAddress();
-            } else {
-                if (!taskBag) await loadBags();
-                const document = await notary.notarizeDocument(toCatalog());
-                await repository.addMessage(taskBag, document);
-                task.pauseTask();  // will retry again on a different processor
-            }
-        },
-
-        // LOAD DRAFT symbol
-        async function(operand) {
-            const citation = context.getVariable(operand).getValue();
-            const draft = await repository.readDraft(citation);
-            await notary.citationMatches(citation, draft);
-            const component = draft.getValue('$content');
-            task.pushComponent(component);
-            context.incrementAddress();
-        },
-
-        // LOAD DOCUMENT symbol
-        async function(operand) {
-            const citation = context.getVariable(operand).getValue();
-            const document = await repository.readDocument(citation);
-            await notary.citationMatches(citation, document);
-            const component = document.getValue('$content');
-            task.pushComponent(component);
-            context.incrementAddress();
-        },
-
-        // STORE VARIABLE symbol
-        async function(operand) {
-            const component = task.popComponent();
-            context.getVariable(operand).setValue(component);
-            context.incrementAddress();
-        },
-
-        // STORE MESSAGE symbol
-        async function(operand) {
-            var component = task.popComponent();
-            const name = context.getVariable(operand).getValue();
-            const messageBag = await notary.citeDocument(repository.readName(name));
-            const document = await notary.notarizeDocument(component);
-            await repository.addMessage(messageBag, document);
-            context.incrementAddress();
-        },
-
-        // STORE DRAFT symbol
-        async function(operand) {
-            var component = task.popComponent();
-            const draft = await notary.notarizeDocument(component);
-            const citation = await repository.writeDraft(draft);
-            context.getVariable(operand).setValue(citation);
-            context.incrementAddress();
-        },
-
-        // STORE DOCUMENT symbol
-        async function(operand) {
-            const component = task.popComponent();
-            const document = await notary.notarizeDocument(component);
-            const citation = await repository.writeDocument(document);
-            context.getVariable(operand).setValue(citation);
-            context.incrementAddress();
-        },
-
-        // INVOKE symbol
-        async function(operand) {
-            const result = compiler.invoke(operand);
-            task.pushComponent(result);
-            context.incrementAddress();
-        },
-
-        // INVOKE symbol WITH 1 ARGUMENT
-        async function(operand) {
-            const argument = task.popComponent();
-            const result = compiler.invoke(operand, argument);
-            task.pushComponent(result);
-            context.incrementAddress();
-        },
-
-        // INVOKE symbol WITH 2 ARGUMENTS
-        async function(operand) {
-            const argument2 = task.popComponent();
-            const argument1 = task.popComponent();
-            const result = compiler.invoke(operand, argument1, argument2);
-            task.pushComponent(result);
-            context.incrementAddress();
-        },
-
-        // INVOKE symbol WITH 3 ARGUMENTS
-        async function(operand) {
-            const argument3 = task.popComponent();
-            const argument2 = task.popComponent();
-            const argument1 = task.popComponent();
-            const result = compiler.invoke(operand, argument1, argument2, argument3);
-            task.pushComponent(result);
-            context.incrementAddress();
-        },
-
-        // SEND symbol TO COMPONENT
-        async function(operand) {
-            const message = context.getMessage(operand);
-            const argumentz = bali.list();
-            const target = task.popComponent();
-            context.incrementAddress();
-            await pushContext(target, message, argumentz);
-        },
-
-        // SEND symbol TO COMPONENT WITH ARGUMENTS
-        async function(operand) {
-            const message = context.getMessage(operand);
-            const argumentz = task.popComponent();
-            const target = task.popComponent();
-            context.incrementAddress();
-            await pushContext(target, message, argumentz);
-        },
-
-        // SEND symbol TO DOCUMENT
-        async function(operand) {
-            const message = context.getMessage(operand);
-            const argumentz = bali.list();
-            const name = task.popComponent();
-            context.incrementAddress();
-            await spawnTask(name, message, argumentz);
-        },
-
-        // SEND symbol TO DOCUMENT WITH ARGUMENTS
-        async function(operand) {
-            const message = context.getMessage(operand);
-            const argumentz = task.popComponent();
-            const name = task.popComponent();
-            context.incrementAddress();
-            await spawnTask(name, message, argumentz);
-        },
-
-        // HANDLE RESULT
+        // PULL RESULT
         async function(operand) {
             if (task.hasContexts()) {
                 popContext();
@@ -619,7 +424,7 @@ const Processor = function(notary, repository, debug) {
             }
         },
 
-        // HANDLE EXCEPTION
+        // PULL EXCEPTION
         async function(operand) {
             while (context) {
                 if (context.hasHandlers()) {
@@ -637,32 +442,172 @@ const Processor = function(notary, repository, debug) {
             }
         },
 
-        // UNIMPLEMENTED HANDLE OPERATION
+        // LOAD VARIABLE symbol
         async function(operand) {
-            const exception = bali.exception({
-                $module: '/bali/vm/Processor',
-                $procedure: '$handle3',
-                $exception: '$notImplemented',
-                $operand: operand,
-                $processor: toCatalog(),
-                $message: 'An unimplemented HANDLE operation was attempted.'
-            });
-            if (debug) console.error(exception.toString());
-            throw exception;
+            const variable = context.getVariable(operand).getValue();
+            task.pushComponent(variable);
+            context.incrementAddress();
         },
 
-        // UNIMPLEMENTED HANDLE OPERATION
+        // LOAD MESSAGE symbol
         async function(operand) {
-            const exception = bali.exception({
-                $module: '/bali/vm/Processor',
-                $procedure: '$handle4',
-                $exception: '$notImplemented',
-                $operand: operand,
-                $processor: toCatalog(),
-                $message: 'An unimplemented HANDLE operation was attempted.'
-            });
-            if (debug) console.error(exception.toString());
-            throw exception;
+            const bag = context.getVariable(operand).getValue();
+            const message = await repository.borrowMessage(bag);
+            if (message) {
+                task.pushComponent(message);
+                context.incrementAddress();
+            } else {
+                const currentTask = toCatalog();
+                await repository.addMessage('/bali/vm/tasks/v1', currentTask);
+                task.pauseTask();  // will retry again on a different processor
+            }
+        },
+
+        // LOAD DRAFT symbol
+        async function(operand) {
+            const citation = context.getVariable(operand).getValue();
+            const draft = await repository.retrieveDraft(citation);
+            task.pushComponent(draft);
+            context.incrementAddress();
+        },
+
+        // LOAD DOCUMENT symbol
+        async function(operand) {
+            const citation = context.getVariable(operand).getValue();
+            const document = await repository.retrieveDocument(citation);
+            task.pushComponent(document);
+            context.incrementAddress();
+        },
+
+        // SAVE VARIABLE symbol
+        async function(operand) {
+            const component = task.popComponent();
+            context.getVariable(operand).setValue(component);
+            context.incrementAddress();
+        },
+
+        // SAVE MESSAGE symbol
+        async function(operand) {
+            var message = task.popComponent();
+            const bag = context.getVariable(operand).getValue();
+            await repository.addMessage(bag, message);
+            context.incrementAddress();
+        },
+
+        // SAVE DRAFT symbol
+        async function(operand) {
+            var draft = task.popComponent();
+            await repository.saveDraft(draft);
+            context.incrementAddress();
+        },
+
+        // SAVE DOCUMENT symbol
+        async function(operand) {
+            const name = context.getVariable(operand).getValue();
+            const document = task.popComponent();
+            await repository.commitDocument(name, document);
+            context.incrementAddress();
+        },
+
+        // DROP VARIABLE symbol
+        async function(operand) {
+            const none = bali.pattern.NONE;
+            context.getVariable(operand).setValue(none);
+            context.incrementAddress();
+        },
+
+        // DROP MESSAGE symbol
+        async function(operand) {
+            var message = task.popComponent();
+            const bag = context.getVariable(operand).getValue();
+            await repository.discardMessage(bag, message);
+            context.incrementAddress();
+        },
+
+        // DROP DRAFT symbol
+        async function(operand) {
+            var citation = task.popComponent();
+            await repository.discardDocument(citation);
+            context.incrementAddress();
+        },
+
+        // DROP DOCUMENT symbol
+        async function(operand) {
+            const name = context.getVariable(operand).getValue();
+            await repository.deleteDocument(name);
+            context.incrementAddress();
+        },
+
+        // CALL symbol
+        async function(operand) {
+            const result = compiler.invoke(operand);
+            task.pushComponent(result);
+            context.incrementAddress();
+        },
+
+        // CALL symbol WITH 1 ARGUMENT
+        async function(operand) {
+            const argument = task.popComponent();
+            const result = compiler.invoke(operand, argument);
+            task.pushComponent(result);
+            context.incrementAddress();
+        },
+
+        // CALL symbol WITH 2 ARGUMENTS
+        async function(operand) {
+            const argument2 = task.popComponent();
+            const argument1 = task.popComponent();
+            const result = compiler.invoke(operand, argument1, argument2);
+            task.pushComponent(result);
+            context.incrementAddress();
+        },
+
+        // CALL symbol WITH 3 ARGUMENTS
+        async function(operand) {
+            const argument3 = task.popComponent();
+            const argument2 = task.popComponent();
+            const argument1 = task.popComponent();
+            const result = compiler.invoke(operand, argument1, argument2, argument3);
+            task.pushComponent(result);
+            context.incrementAddress();
+        },
+
+        // SEND symbol TO COMPONENT
+        async function(operand) {
+            const message = context.getMessage(operand);
+            const argumentz = bali.list();
+            const target = task.popComponent();
+            context.incrementAddress();  // MUST do before pushing context
+            await pushContext(target, message, argumentz);
+        },
+
+        // SEND symbol TO COMPONENT WITH ARGUMENTS
+        async function(operand) {
+            const message = context.getMessage(operand);
+            const argumentz = task.popComponent();
+            const target = task.popComponent();
+            context.incrementAddress();  // MUST do before pushing context
+            await pushContext(target, message, argumentz);
+        },
+
+        // SEND symbol TO DOCUMENT
+        async function(operand) {
+            const message = context.getMessage(operand);
+            const argumentz = bali.list();
+            const name = task.popComponent().getValue();
+            const tag = await spawnTask(name, message, argumentz);
+            task.pushComponent(tag);
+            context.incrementAddress();
+        },
+
+        // SEND symbol TO DOCUMENT WITH ARGUMENTS
+        async function(operand) {
+            const message = context.getMessage(operand);
+            const argumentz = task.popComponent();
+            const name = task.popComponent().getValue();
+            const tag = await spawnTask(name, message, argumentz);
+            task.pushComponent(tag);
+            context.incrementAddress();
         }
 
     ];
