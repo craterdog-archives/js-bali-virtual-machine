@@ -449,20 +449,6 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // LOAD MESSAGE symbol
-        async function(operand) {
-            const bag = context.getVariable(operand).getValue();
-            const message = await repository.borrowMessage(bag);
-            if (message) {
-                task.pushComponent(message);
-                context.incrementAddress();
-            } else {
-                const currentTask = toCatalog();
-                await repository.addMessage('/bali/vm/tasks/v1', currentTask);
-                task.pauseTask();  // will retry again on a different processor
-            }
-        },
-
         // LOAD DRAFT symbol
         async function(operand) {
             const citation = context.getVariable(operand).getValue();
@@ -479,18 +465,24 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
+        // LOAD MESSAGE symbol
+        async function(operand) {
+            const bag = context.getVariable(operand).getValue();
+            const message = await repository.borrowMessage(bag);
+            if (message) {
+                task.pushComponent(message);
+                context.incrementAddress();
+            } else {
+                const currentTask = toCatalog();
+                await repository.addMessage('/bali/vm/tasks/v1', currentTask);
+                task.pauseTask();  // will retry again on a different processor
+            }
+        },
+
         // SAVE VARIABLE symbol
         async function(operand) {
             const component = task.popComponent();
             context.getVariable(operand).setValue(component);
-            context.incrementAddress();
-        },
-
-        // SAVE MESSAGE symbol
-        async function(operand) {
-            var message = task.popComponent();
-            const bag = context.getVariable(operand).getValue();
-            await repository.addMessage(bag, message);
             context.incrementAddress();
         },
 
@@ -503,9 +495,17 @@ const Processor = function(repository, debug) {
 
         // SAVE DOCUMENT symbol
         async function(operand) {
-            const name = context.getVariable(operand).getValue();
             const document = task.popComponent();
+            const name = context.getVariable(operand).getValue();
             await repository.commitDocument(name, document);
+            context.incrementAddress();
+        },
+
+        // SAVE MESSAGE symbol
+        async function(operand) {
+            var message = task.popComponent();
+            const bag = context.getVariable(operand).getValue();
+            await repository.addMessage(bag, message);
             context.incrementAddress();
         },
 
@@ -513,14 +513,6 @@ const Processor = function(repository, debug) {
         async function(operand) {
             const none = bali.pattern.NONE;
             context.getVariable(operand).setValue(none);
-            context.incrementAddress();
-        },
-
-        // DROP MESSAGE symbol
-        async function(operand) {
-            var message = task.popComponent();
-            const bag = context.getVariable(operand).getValue();
-            await repository.discardMessage(bag, message);
             context.incrementAddress();
         },
 
@@ -535,6 +527,14 @@ const Processor = function(repository, debug) {
         async function(operand) {
             const name = context.getVariable(operand).getValue();
             await repository.deleteDocument(name);
+            context.incrementAddress();
+        },
+
+        // DROP MESSAGE symbol
+        async function(operand) {
+            var message = task.popComponent();
+            const bag = context.getVariable(operand).getValue();
+            await repository.discardMessage(bag, message);
             context.incrementAddress();
         },
 
