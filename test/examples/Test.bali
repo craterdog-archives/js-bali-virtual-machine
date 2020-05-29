@@ -296,39 +296,33 @@
                 SAVE VARIABLE $draft
                 
                 4.SaveStatement:
-                ---- Save the draft document.
+                ---- Place the draft document on the stack.
                 LOAD VARIABLE $draft
-                SAVE VARIABLE $draft-9
-                ---- Save a citation to the draft document.
-                LOAD VARIABLE $draft-9
-                CALL $citation WITH 1 ARGUMENT
-                SAVE VARIABLE $citation-10
-                ---- Save the cited draft document to the repository.
-                LOAD VARIABLE $draft-9
-                SAVE DRAFT $citation-10
-                LOAD VARIABLE $citation-10
+                ---- Save the draft document to the repository and a citation to it.
+                SAVE DRAFT $citation-9
+                LOAD VARIABLE $citation-9
                 SAVE VARIABLE $citation
                 
                 5.DiscardStatement:
                 ---- Save a citation to the draft document.
                 LOAD VARIABLE $draft
                 CALL $citation WITH 1 ARGUMENT
-                SAVE VARIABLE $citation-11
+                SAVE VARIABLE $citation-10
                 ---- Drop the cited draft document from the repository.
-                DROP DRAFT $citation-11
+                DROP DRAFT $citation-10
                 
                 6.PublishStatement:
                 ---- Save the name of the global event bag.
                 PUSH LITERAL `/bali/vm/events/v1`
-                SAVE VARIABLE $bag-12
+                SAVE VARIABLE $bag-11
                 ---- Publish an event to the global event bag.
                 PUSH CONSTANT $event
-                SAVE MESSAGE $bag-12
+                SAVE MESSAGE $bag-11
                 
                 7.PostStatement:
                 ---- Save the name of the message bag.
                 PUSH CONSTANT $bag
-                SAVE VARIABLE $bag-13
+                SAVE VARIABLE $bag-12
                 ---- Post a message to the named message bag.
                 CALL $catalog
                 ---- Add an item to the catalog.
@@ -336,7 +330,7 @@
                 PUSH LITERAL `"This is a message..."`
                 CALL $association WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
-                SAVE MESSAGE $bag-13
+                SAVE MESSAGE $bag-12
                 LOAD VARIABLE $result-1
                 PULL RESULT
             "($mediaType: "application/basm")
@@ -345,16 +339,16 @@
                 "2.CommitStatement": 19
                 "3.CheckoutStatement": 23
                 "4.SaveStatement": 41
-                "5.DiscardStatement": 50
-                "6.PublishStatement": 54
-                "7.PostStatement": 58
+                "5.DiscardStatement": 45
+                "6.PublishStatement": 49
+                "7.PostStatement": 53
             ]
             $bytecode: '
-                3003800A700AC82980076007280CD0602805D05B800E6007280C600ED882
-                4800600780063004800B6006900B3004800C700CC82980086008280CD060
-                2806D05B800F6008280C600FD882480060088006600680096009C8158004
-                60098804600480036006C8158005A805280480013007980130068002C014
-                280A2810D00BD0019802600D5000
+                300380097009C82980076007280CD0602805D05B800D6007280C600DD882
+                4800600780063004800A6006900A3004800B700BC82980086008280CD060
+                2806D05B800E6008280C600ED88248006008800660068805600580036006
+                C8158004A804280480013007980130068002C014280A2810D00BD0019802
+                600C5000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -363,15 +357,14 @@
                 $target
             ]
             $variables: [
+                $bag-11
                 $bag-12
-                $bag-13
                 $citation
                 $citation-10
-                $citation-11
+                $citation-9
                 $draft
                 $draft-3
                 $draft-7
-                $draft-9
                 $name-2
                 $name-5
                 $name-6

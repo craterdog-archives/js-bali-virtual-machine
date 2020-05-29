@@ -442,14 +442,14 @@ const Processor = function(repository, debug) {
             }
         },
 
-        // LOAD VARIABLE symbol
+        // LOAD VARIABLE variable
         async function(operand) {
             const variable = context.getVariable(operand).getValue();
             task.pushComponent(variable);
             context.incrementAddress();
         },
 
-        // LOAD DRAFT symbol
+        // LOAD DRAFT citation
         async function(operand) {
             const citation = context.getVariable(operand).getValue();
             const draft = await repository.retrieveDraft(citation);
@@ -457,15 +457,15 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // LOAD DOCUMENT symbol
+        // LOAD DOCUMENT name
         async function(operand) {
-            const citation = context.getVariable(operand).getValue();
-            const document = await repository.retrieveDocument(citation);
+            const name = context.getVariable(operand).getValue();
+            const document = await repository.retrieveDocument(name);
             task.pushComponent(document);
             context.incrementAddress();
         },
 
-        // LOAD MESSAGE symbol
+        // LOAD MESSAGE bag
         async function(operand) {
             const bag = context.getVariable(operand).getValue();
             const message = await repository.borrowMessage(bag);
@@ -479,21 +479,22 @@ const Processor = function(repository, debug) {
             }
         },
 
-        // SAVE VARIABLE symbol
+        // SAVE VARIABLE variable
         async function(operand) {
             const component = task.popComponent();
             context.getVariable(operand).setValue(component);
             context.incrementAddress();
         },
 
-        // SAVE DRAFT symbol
+        // SAVE DRAFT citation
         async function(operand) {
             var draft = task.popComponent();
-            await repository.saveDraft(draft);
+            const citation = await repository.saveDraft(draft);
+            context.getVariable(operand).setValue(citation);
             context.incrementAddress();
         },
 
-        // SAVE DOCUMENT symbol
+        // SAVE DOCUMENT name
         async function(operand) {
             const document = task.popComponent();
             const name = context.getVariable(operand).getValue();
@@ -501,7 +502,7 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // SAVE MESSAGE symbol
+        // SAVE MESSAGE bag
         async function(operand) {
             var message = task.popComponent();
             const bag = context.getVariable(operand).getValue();
@@ -509,28 +510,28 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // DROP VARIABLE symbol
+        // DROP VARIABLE variable
         async function(operand) {
             const none = bali.pattern.NONE;
             context.getVariable(operand).setValue(none);
             context.incrementAddress();
         },
 
-        // DROP DRAFT symbol
+        // DROP DRAFT citation
         async function(operand) {
             const citation = context.getVariable(operand);
             await repository.discardDocument(citation);
             context.incrementAddress();
         },
 
-        // DROP DOCUMENT symbol
+        // DROP DOCUMENT name
         async function(operand) {
             const name = context.getVariable(operand).getValue();
             await repository.deleteDocument(name);
             context.incrementAddress();
         },
 
-        // DROP MESSAGE symbol
+        // DROP MESSAGE citation
         async function(operand) {
             var message = task.popComponent();
             const bag = context.getVariable(operand).getValue();
@@ -538,14 +539,14 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // CALL symbol
+        // CALL function
         async function(operand) {
             const result = compiler.invoke(operand);
             task.pushComponent(result);
             context.incrementAddress();
         },
 
-        // CALL symbol WITH 1 ARGUMENT
+        // CALL function WITH 1 ARGUMENT
         async function(operand) {
             const argument = task.popComponent();
             const result = compiler.invoke(operand, argument);
@@ -553,7 +554,7 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // CALL symbol WITH 2 ARGUMENTS
+        // CALL function WITH 2 ARGUMENTS
         async function(operand) {
             const argument2 = task.popComponent();
             const argument1 = task.popComponent();
@@ -562,7 +563,7 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // CALL symbol WITH 3 ARGUMENTS
+        // CALL function WITH 3 ARGUMENTS
         async function(operand) {
             const argument3 = task.popComponent();
             const argument2 = task.popComponent();
@@ -572,7 +573,7 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // SEND symbol TO COMPONENT
+        // SEND message TO COMPONENT
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = bali.list();
@@ -581,7 +582,7 @@ const Processor = function(repository, debug) {
             await pushContext(target, message, argumentz);
         },
 
-        // SEND symbol TO COMPONENT WITH ARGUMENTS
+        // SEND message TO COMPONENT WITH ARGUMENTS
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = task.popComponent();
@@ -590,7 +591,7 @@ const Processor = function(repository, debug) {
             await pushContext(target, message, argumentz);
         },
 
-        // SEND symbol TO DOCUMENT
+        // SEND message TO DOCUMENT
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = bali.list();
@@ -600,7 +601,7 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // SEND symbol TO DOCUMENT WITH ARGUMENTS
+        // SEND message TO DOCUMENT WITH ARGUMENTS
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = task.popComponent();
