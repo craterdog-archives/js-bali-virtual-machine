@@ -144,6 +144,7 @@
                 CALL $addItem WITH 2 ARGUMENTS
                 ---- Assign the result as the value of the subcomponent.
                 CALL $setSubcomponent WITH 3 ARGUMENTS
+                PULL COMPONENT
                 
                 2.EvaluateStatement:
                 ---- Place the recipient and the index of its subcomponent on the stack.
@@ -152,6 +153,7 @@
                 CALL $list
                 ---- Assign the result as the value of the subcomponent.
                 CALL $setSubcomponent WITH 3 ARGUMENTS
+                PULL COMPONENT
                 
                 3.EvaluateStatement:
                 PUSH ARGUMENT $numberOfDisks
@@ -217,25 +219,25 @@
             "($mediaType: "application/basm")
             $addresses: [
                 "1.EvaluateStatement": 1
-                "2.EvaluateStatement": 62
-                "3.EvaluateStatement": 66
-                "4.WithStatement": 70
-                "4.1.ConditionClause": 73
-                "4.1.1.EvaluateStatement": 79
-                "4.ConditionRepeat": 89
-                "4.WithStatementDone": 90
-                "5.EvaluateStatement": 91
-                "6.ReturnStatement": 103
+                "2.EvaluateStatement": 63
+                "3.EvaluateStatement": 68
+                "4.WithStatement": 72
+                "4.1.ConditionClause": 75
+                "4.1.1.EvaluateStatement": 81
+                "4.ConditionRepeat": 91
+                "4.WithStatementDone": 92
+                "5.EvaluateStatement": 93
+                "6.ReturnStatement": 105
             ]
             $bytecode: '
                 38012807C014280C2804C014280A2801C01428062802C0142808C0512805
                 D001D884D884D884D089D00BD001280D2804C014280A2801C01428062802
                 C0142808C0512805D001D884D884D884D089D00BD001280E2804C014280A
                 2801C01428062802C0142808C0512805D001D884D884D884D089D00BD001
-                D88338012809C051D88338022803D06D80016001E00480026002E003185A
-                6002E006800338012807D08B280CD08BC0516003D001E801800400490000
-                3801C0513802D001280CD001280ED001280DD001E805800438012809D08B
-                E0025000
+                D883480038012809C051D883480038022803D06D80016001E00480026002
+                E003185C6002E006800338012807D08B280CD08BC0516003D001E8018004
+                004B00003801C0513802D001280CD001280ED001280DD001E80580043801
+                2809D08BE0025000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"

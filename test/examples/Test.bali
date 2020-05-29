@@ -229,7 +229,7 @@
                 checkout $draft from firstVersion
                 commit draft to secondVersion
                 checkout level 2 of $draft from secondVersion
-                save draft
+                save draft as $citation
                 discard draft
                 publish event
                 post [
@@ -306,6 +306,8 @@
                 ---- Save the cited draft document to the repository.
                 LOAD VARIABLE $draft-9
                 SAVE DRAFT $citation-10
+                LOAD VARIABLE $citation-10
+                SAVE VARIABLE $citation
                 
                 5.DiscardStatement:
                 ---- Save a citation to the draft document.
@@ -343,16 +345,16 @@
                 "2.CommitStatement": 19
                 "3.CheckoutStatement": 23
                 "4.SaveStatement": 41
-                "5.DiscardStatement": 48
-                "6.PublishStatement": 52
-                "7.PostStatement": 56
+                "5.DiscardStatement": 50
+                "6.PublishStatement": 54
+                "7.PostStatement": 58
             ]
             $bytecode: '
-                300380097809C82980066006280CD0602805D05B800D6006280C600DD882
-                4800600680053004800A6005980A3004800B780BC82980076007280CD060
-                2806D05B800E6007280C600ED882480060078005600580086008C8158003
-                600890036005C8158004B004280480013007880130068002C014280A2810
-                D00BD0018802600C5000
+                3003800A780AC82980076007280CD0602805D05B800E6007280C600ED882
+                4800600780063004800B6006980B3004800C780CC82980086008280CD060
+                2806D05B800F6008280C600FD882480060088006600680096009C8158004
+                60099004600480036006C8158005B005280480013007880130068002C014
+                280A2810D00BD0018802600D5000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -363,6 +365,7 @@
             $variables: [
                 $bag-12
                 $bag-13
+                $citation
                 $citation-10
                 $citation-11
                 $draft

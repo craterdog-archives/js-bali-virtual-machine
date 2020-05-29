@@ -106,7 +106,7 @@ describe('Bali Virtual Machine™', function() {
 
                 // check for differences
                 source = type.toString() + '\n';  // POSIX compliant <EOL>
-                await pfs.writeFile(typeFile, source, 'utf8');
+                //await pfs.writeFile(typeFile, source, 'utf8');
                 const expected = await pfs.readFile(typeFile, 'utf8');
                 expect(expected).to.exist;
                 expect(source).to.equal(expected);
@@ -715,6 +715,14 @@ describe('Bali Virtual Machine™', function() {
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SAVE DRAFT $citation-10
             expect(getInstruction(processor)).to.equal('SAVE DRAFT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          LOAD VARIABLE $citation-10
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $citation
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //
