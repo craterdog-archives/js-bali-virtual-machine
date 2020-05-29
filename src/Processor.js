@@ -594,7 +594,7 @@ const Processor = function(repository, debug) {
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = bali.list();
-            const name = task.popComponent().getValue();
+            const name = task.popComponent().toString();
             const tag = await spawnTask(name, message, argumentz);
             task.pushComponent(tag);
             context.incrementAddress();
@@ -604,7 +604,7 @@ const Processor = function(repository, debug) {
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = task.popComponent();
-            const name = task.popComponent().getValue();
+            const name = task.popComponent().toString();
             const tag = await spawnTask(name, message, argumentz);
             task.pushComponent(tag);
             context.incrementAddress();
