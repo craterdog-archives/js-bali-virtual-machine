@@ -106,7 +106,7 @@ describe('Bali Virtual Machine™', function() {
 
                 // check for differences
                 source = type.toString() + '\n';  // POSIX compliant <EOL>
-                //await pfs.writeFile(typeFile, source, 'utf8');
+                await pfs.writeFile(typeFile, source, 'utf8');
                 const expected = await pfs.readFile(typeFile, 'utf8');
                 expect(expected).to.exist;
                 expect(source).to.equal(expected);
@@ -122,7 +122,7 @@ describe('Bali Virtual Machine™', function() {
             }
         });
 
-        it('should cause the VM to step through the test type "good" route successfully', async function() {
+        it('should cause the VM to step through the control test "good" route successfully', async function() {
             const tokens = bali.number(100);
             const target = await repository.retrieveDocument('/bali/instances/Test/v1');
             const message = bali.symbol('test1');
@@ -214,7 +214,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(false);
         });
 
-        it('should cause the VM to step through the test type "bad" route successfully', async function() {
+        it('should cause the VM to step through the control test "bad" route successfully', async function() {
             const tokens = bali.number(100);
             const target = await repository.retrieveDocument('/bali/instances/Test/v1');
             const message = bali.symbol('test1');
@@ -403,7 +403,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(false);
         });
 
-        it('should cause the VM to step through the test type "ugly" route successfully', async function() {
+        it('should cause the VM to step through the control test "ugly" route successfully', async function() {
             const tokens = bali.number(100);
             const target = await repository.retrieveDocument('/bali/instances/Test/v1');
             const message = bali.symbol('test1');
@@ -496,6 +496,313 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
             expect(processor.getTask().getState().toString()).to.equal('$abandoned');
+            expect(await processor.stepClock()).to.equal(false);
+        });
+
+        it('should cause the VM to step through the document management test successfully', async function() {
+            const tokens = bali.number(100);
+            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
+            const message = bali.symbol('test4');
+            const args = bali.list([]);
+            const processor = vm.processor();
+            expect(processor).to.exist;
+            await processor.newTask(account, tokens, target, message, args);
+//          1.CheckoutStatement:
+//          ---- Save the name of the document.
+//          PUSH CONSTANT $firstVersion
+            expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $name-2
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Load a draft copy of the named document from the repository.
+//          LOAD DOCUMENT $name-2
+            expect(getInstruction(processor)).to.equal('LOAD DOCUMENT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $duplicate WITH 1 ARGUMENT
+            expect(getInstruction(processor)).to.equal('CALL $duplicate');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $draft-3
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Calculate the new version string for the draft and save it.
+//          LOAD VARIABLE $draft-3
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PUSH LITERAL `$version`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $parameter WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $parameter');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PUSH LITERAL `0`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $nextVersion WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $nextVersion');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $version-4
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Set the new version string parameter for the draft document.
+//          LOAD VARIABLE $draft-3
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PUSH LITERAL `$version`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          LOAD VARIABLE $version-4
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $setParameter WITH 3 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $setParameter');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PULL COMPONENT
+            expect(getInstruction(processor)).to.equal('PULL COMPONENT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Set the new draft document as the value of the recipient.
+//          LOAD VARIABLE $draft-3
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $draft
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//
+//          2.CommitStatement:
+//          ---- Save the name of the document.
+//          PUSH CONSTANT $secondVersion
+            expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $name-5
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Commit the named document to the repository.
+//          LOAD VARIABLE $draft
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE DOCUMENT $name-5
+            expect(getInstruction(processor)).to.equal('SAVE DOCUMENT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//
+//          3.CheckoutStatement:
+//          ---- Save the name of the document.
+//          PUSH CONSTANT $secondVersion
+            expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $name-6
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Load a draft copy of the named document from the repository.
+//          LOAD DOCUMENT $name-6
+            expect(getInstruction(processor)).to.equal('LOAD DOCUMENT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $duplicate WITH 1 ARGUMENT
+            expect(getInstruction(processor)).to.equal('CALL $duplicate');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $draft-7
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Calculate the new version string for the draft and save it.
+//          LOAD VARIABLE $draft-7
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PUSH LITERAL `$version`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $parameter WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $parameter');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PUSH LITERAL `2`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $nextVersion WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $nextVersion');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $version-8
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Set the new version string parameter for the draft document.
+//          LOAD VARIABLE $draft-7
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PUSH LITERAL `$version`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          LOAD VARIABLE $version-8
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $setParameter WITH 3 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $setParameter');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PULL COMPONENT
+            expect(getInstruction(processor)).to.equal('PULL COMPONENT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Set the new draft document as the value of the recipient.
+//          LOAD VARIABLE $draft-7
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $draft
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//
+//          4.SaveStatement:
+//          ---- Save the draft document.
+//          LOAD VARIABLE $draft
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $draft-9
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Save a citation to the draft document.
+//          LOAD VARIABLE $draft-9
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $citation WITH 1 ARGUMENT
+            expect(getInstruction(processor)).to.equal('CALL $citation');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $citation-10
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Save the cited draft document to the repository.
+//          LOAD VARIABLE $draft-9
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE DRAFT $citation-10
+            expect(getInstruction(processor)).to.equal('SAVE DRAFT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//
+//          5.DiscardStatement:
+//          ---- Save a citation to the draft document.
+//          LOAD VARIABLE $draft
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $citation WITH 1 ARGUMENT
+            expect(getInstruction(processor)).to.equal('CALL $citation');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $citation-11
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Drop the cited draft document from the repository.
+//          DROP DRAFT $citation-11
+            expect(getInstruction(processor)).to.equal('DROP DRAFT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//
+//          6.PublishStatement:
+//          ---- Save the name of the global event bag.
+//          PUSH LITERAL `/bali/vm/events/v1`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $bag-12
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Publish an event to the global event bag.
+//          PUSH CONSTANT $event
+            expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE MESSAGE $bag-12
+            expect(getInstruction(processor)).to.equal('SAVE MESSAGE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//
+//          7.PostStatement:
+//          ---- Save the name of the message bag.
+//          PUSH CONSTANT $bag
+            expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE VARIABLE $bag-13
+            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          ---- Post a message to the named message bag.
+//          CALL $catalog
+            expect(getInstruction(processor)).to.equal('CALL $catalog');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          ---- Add an item to the catalog.
+//          PUSH LITERAL `$text`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PUSH LITERAL `"This is a message..."`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $association WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $association');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $addItem WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $addItem');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          SAVE MESSAGE $bag-13
+            expect(getInstruction(processor)).to.equal('SAVE MESSAGE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+//          LOAD VARIABLE $result-1
+            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PULL RESULT
+            expect(getInstruction(processor)).to.equal('PULL RESULT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(false);
+            expect(processor.getTask().getState().toString()).to.equal('$completed');
             expect(await processor.stepClock()).to.equal(false);
         });
 

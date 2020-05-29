@@ -526,7 +526,7 @@ const Processor = function(repository, debug) {
 
         // DROP DRAFT symbol
         async function(operand) {
-            var citation = task.popComponent();
+            const citation = context.getVariable(operand);
             await repository.discardDocument(citation);
             context.incrementAddress();
         },
