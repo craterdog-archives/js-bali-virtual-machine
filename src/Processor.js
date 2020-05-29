@@ -533,9 +533,8 @@ const Processor = function(repository, debug) {
 
         // DROP MESSAGE citation
         async function(operand) {
-            var message = task.popComponent();
-            const bag = context.getVariable(operand).getValue();
-            await repository.discardMessage(bag, message);
+            const citation = context.getVariable(operand);
+            await repository.acceptMessage(citation);
             context.incrementAddress();
         },
 

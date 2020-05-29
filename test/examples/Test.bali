@@ -230,7 +230,7 @@
                 commit draft to secondVersion
                 checkout level 2 of $draft from secondVersion
                 save draft as $citation
-                discard draft
+                discard citation
                 publish event
                 post [
                     $text: "This is a message..."
@@ -304,9 +304,8 @@
                 SAVE VARIABLE $citation
                 
                 5.DiscardStatement:
-                ---- Save a citation to the draft document.
-                LOAD VARIABLE $draft
-                CALL $citation WITH 1 ARGUMENT
+                ---- Save the citation to the draft document.
+                LOAD VARIABLE $citation
                 SAVE VARIABLE $citation-10
                 ---- Drop the cited draft document from the repository.
                 DROP DRAFT $citation-10
@@ -340,15 +339,15 @@
                 "3.CheckoutStatement": 23
                 "4.SaveStatement": 41
                 "5.DiscardStatement": 45
-                "6.PublishStatement": 49
-                "7.PostStatement": 53
+                "6.PublishStatement": 48
+                "7.PostStatement": 52
             ]
             $bytecode: '
                 300380097009C82980076007280CD0602805D05B800D6007280C600DD882
                 4800600780063004800A6006900A3004800B700BC82980086008280CD060
-                2806D05B800E6008280C600ED88248006008800660068805600580036006
-                C8158004A804280480013007980130068002C014280A2810D00BD0019802
-                600C5000
+                2806D05B800E6008280C600ED88248006008800660068805600580036003
+                8004A804280480013007980130068002C014280A2810D00BD0019802600C
+                5000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"

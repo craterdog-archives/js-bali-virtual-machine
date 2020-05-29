@@ -705,13 +705,9 @@ describe('Bali Virtual Machine™', function() {
             expect(processor.getTask().hasComponents()).to.equal(false);
 //
 //          5.DiscardStatement:
-//          ---- Save a citation to the draft document.
-//          LOAD VARIABLE $draft
+//          ---- Save the citation to the draft document.
+//          LOAD VARIABLE $citation
             expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
-            expect(await processor.stepClock()).to.equal(true);
-            expect(processor.getTask().hasComponents()).to.equal(true);
-//          CALL $citation WITH 1 ARGUMENT
-            expect(getInstruction(processor)).to.equal('CALL $citation');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SAVE VARIABLE $citation-10
