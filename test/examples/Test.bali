@@ -386,10 +386,10 @@
                 ]
             ]
             $procedure: {
-                receive $message from bag
+                retrieve $message from bag
             }
             $instructions: "
-                1.ReceiveStatement:
+                1.RetrieveStatement:
                 ---- Save the name of the message bag.
                 PUSH CONSTANT $bag
                 SAVE VARIABLE $bag-2
@@ -401,7 +401,7 @@
                 PULL RESULT
             "($mediaType: "application/basm")
             $addresses: [
-                "1.ReceiveStatement": 1
+                "1.RetrieveStatement": 1
             ]
             $bytecode: '300680017801800260035000'(
                 $encoding: $base16

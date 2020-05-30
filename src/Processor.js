@@ -116,7 +116,7 @@ const Processor = function(repository, debug) {
      * following occurs:
      * <pre>
      *  * the number of tokens for the account has reached zero,  {$frozen}
-     *  * the task is waiting to receive a message from a bag,    {$active}
+     *  * the task is waiting to retrieve a message from a bag,    {$active}
      *  * the end of the instructions has been reached,           {$completed}
      *  * or an unhandled exception has been thrown.              {$failed}
      * </pre>
