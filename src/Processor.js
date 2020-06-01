@@ -442,14 +442,14 @@ const Processor = function(repository, debug) {
             }
         },
 
-        // LOAD VARIABLE variable
+        // LOAD REGISTER variable
         async function(operand) {
             const variable = context.getVariable(operand).getValue();
             task.pushComponent(variable);
             context.incrementAddress();
         },
 
-        // LOAD DRAFT citation
+        // LOAD DOCUMENT citation
         async function(operand) {
             const citation = context.getVariable(operand).getValue();
             const document = await repository.retrieveDocument(citation);
@@ -457,7 +457,7 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // LOAD DOCUMENT name
+        // LOAD CONTRACT name
         async function(operand) {
             const name = context.getVariable(operand).getValue();
             const contract = await repository.retrieveContract(name);
@@ -479,14 +479,14 @@ const Processor = function(repository, debug) {
             }
         },
 
-        // SAVE VARIABLE variable
+        // SAVE REGISTER variable
         async function(operand) {
             const component = task.popComponent();
             context.getVariable(operand).setValue(component);
             context.incrementAddress();
         },
 
-        // SAVE DRAFT citation
+        // SAVE DOCUMENT citation
         async function(operand) {
             var document = task.popComponent();
             const citation = await repository.saveDocument(document);
@@ -494,7 +494,7 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // SAVE DOCUMENT name
+        // SAVE CONTRACT name
         async function(operand) {
             const document = task.popComponent();
             const name = context.getVariable(operand).getValue();
@@ -510,21 +510,21 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // DROP VARIABLE variable
+        // DROP REGISTER variable
         async function(operand) {
             const none = bali.pattern.NONE;
             context.getVariable(operand).setValue(none);
             context.incrementAddress();
         },
 
-        // DROP DRAFT citation
+        // DROP DOCUMENT citation
         async function(operand) {
             const citation = context.getVariable(operand);
             await repository.discardDocument(citation);
             context.incrementAddress();
         },
 
-        // DROP DOCUMENT name
+        // DROP CONTRACT name
         async function(operand) {
             const name = context.getVariable(operand).getValue();
             await repository.deleteContract(name);
@@ -590,7 +590,7 @@ const Processor = function(repository, debug) {
             await pushContext(target, message, argumentz);
         },
 
-        // SEND message TO DOCUMENT
+        // SEND message TO CONTRACT
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = bali.list();
@@ -600,7 +600,7 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // SEND message TO DOCUMENT WITH ARGUMENTS
+        // SEND message TO CONTRACT WITH ARGUMENTS
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = task.popComponent();

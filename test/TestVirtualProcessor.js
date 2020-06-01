@@ -167,13 +167,13 @@ describe('Bali Virtual Machine™', function() {
                 expect(processor.getTask().hasComponents()).to.equal(true);
                 expect(processor.getTask().hasContexts()).to.equal(false);
 //          1.EvaluateStatementHandler:
-//          SAVE VARIABLE $exception
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $exception
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          1.1.HandleBlock:
-//          LOAD VARIABLE $exception
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $exception
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `"good"`
@@ -193,12 +193,12 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SEND $test2 TO DOCUMENT
+//          SEND $test2 TO CONTRACT
             expect(getInstruction(processor)).to.equal('SEND 1');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $result-1
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $result-1
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          1.1.2.ReturnStatement:
@@ -259,13 +259,13 @@ describe('Bali Virtual Machine™', function() {
                 expect(processor.getTask().hasComponents()).to.equal(true);
                 expect(processor.getTask().hasContexts()).to.equal(false);
 //          1.EvaluateStatementHandler:
-//          SAVE VARIABLE $exception
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $exception
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          1.1.HandleBlock:
-//          LOAD VARIABLE $exception
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $exception
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `"good"`
@@ -281,8 +281,8 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          1.2.HandleBlock:
-//          LOAD VARIABLE $exception
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $exception
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `"bad"`
@@ -345,8 +345,8 @@ describe('Bali Virtual Machine™', function() {
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
                 expect(processor.getTask().hasContexts()).to.equal(false);
-//          SAVE VARIABLE $result-1
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $result-1
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          1.2.HandleBlockDone:
@@ -377,12 +377,12 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('CALL $addItem');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SEND $test3 TO DOCUMENT WITH ARGUMENTS
+//          SEND $test3 TO CONTRACT WITH ARGUMENTS
             expect(getInstruction(processor)).to.equal('SEND 2');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $result-1
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $result-1
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 
@@ -448,13 +448,13 @@ describe('Bali Virtual Machine™', function() {
                 expect(processor.getTask().hasComponents()).to.equal(true);
                 expect(processor.getTask().hasContexts()).to.equal(false);
 //          1.EvaluateStatementHandler:
-//          SAVE VARIABLE $exception
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $exception
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          1.1.HandleBlock:
-//          LOAD VARIABLE $exception
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $exception
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `"good"`
@@ -470,8 +470,8 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          1.2.HandleBlock:
-//          LOAD VARIABLE $exception
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $exception
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `"bad"`
@@ -487,8 +487,8 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          1.EvaluateStatementFailed:
-//          LOAD VARIABLE $exception
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $exception
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PULL EXCEPTION
@@ -513,26 +513,26 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $name-2
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $name-2
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Load a draft copy of the named document from the repository.
-//          LOAD DOCUMENT $name-2
-            expect(getInstruction(processor)).to.equal('LOAD DOCUMENT');
+//          LOAD CONTRACT $name-2
+            expect(getInstruction(processor)).to.equal('LOAD CONTRACT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $duplicate WITH 1 ARGUMENT
             expect(getInstruction(processor)).to.equal('CALL $duplicate');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $draft-3
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $draft-3
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Calculate the new version string for the draft and save it.
-//          LOAD VARIABLE $draft-3
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $draft-3
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `$version`
@@ -551,21 +551,21 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('CALL $nextVersion');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $version-4
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $version-4
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Set the new version string parameter for the draft document.
-//          LOAD VARIABLE $draft-3
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $draft-3
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `$version`
             expect(getInstruction(processor)).to.equal('PUSH LITERAL');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          LOAD VARIABLE $version-4
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $version-4
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $setParameter WITH 3 ARGUMENTS
@@ -577,12 +577,12 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Set the new draft document as the value of the recipient.
-//          LOAD VARIABLE $draft-3
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $draft-3
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $draft
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $draft
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //
@@ -592,17 +592,17 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $name-5
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $name-5
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Commit the named document to the repository.
-//          LOAD VARIABLE $draft
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $draft
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE DOCUMENT $name-5
-            expect(getInstruction(processor)).to.equal('SAVE DOCUMENT');
+//          SAVE CONTRACT $name-5
+            expect(getInstruction(processor)).to.equal('SAVE CONTRACT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //
@@ -612,26 +612,26 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $name-6
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $name-6
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Load a draft copy of the named document from the repository.
-//          LOAD DOCUMENT $name-6
-            expect(getInstruction(processor)).to.equal('LOAD DOCUMENT');
+//          LOAD CONTRACT $name-6
+            expect(getInstruction(processor)).to.equal('LOAD CONTRACT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $duplicate WITH 1 ARGUMENT
             expect(getInstruction(processor)).to.equal('CALL $duplicate');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $draft-7
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $draft-7
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Calculate the new version string for the draft and save it.
-//          LOAD VARIABLE $draft-7
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $draft-7
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `$version`
@@ -650,21 +650,21 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('CALL $nextVersion');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $version-8
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $version-8
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Set the new version string parameter for the draft document.
-//          LOAD VARIABLE $draft-7
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $draft-7
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `$version`
             expect(getInstruction(processor)).to.equal('PUSH LITERAL');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          LOAD VARIABLE $version-8
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $version-8
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $setParameter WITH 3 ARGUMENTS
@@ -676,47 +676,47 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Set the new draft document as the value of the recipient.
-//          LOAD VARIABLE $draft-7
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $draft-7
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $draft
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $draft
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //
 //          4.SaveStatement:
 //          ---- Save the draft document.
-//          LOAD VARIABLE $draft
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $draft
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE DRAFT $citation-9
-            expect(getInstruction(processor)).to.equal('SAVE DRAFT');
+//          SAVE DOCUMENT $citation-9
+            expect(getInstruction(processor)).to.equal('SAVE DOCUMENT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          LOAD VARIABLE $citation-9
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $citation-9
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $citation
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $citation
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //
 //          5.DiscardStatement:
 //          ---- Save the citation to the draft document.
-//          LOAD VARIABLE $citation
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $citation
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $citation-10
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $citation-10
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Drop the cited draft document from the repository.
-//          DROP DRAFT $citation-10
-            expect(getInstruction(processor)).to.equal('DROP DRAFT');
+//          DROP DOCUMENT $citation-10
+            expect(getInstruction(processor)).to.equal('DROP DOCUMENT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //
@@ -726,8 +726,8 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('PUSH LITERAL');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $bag-11
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $bag-11
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Publish an event to the global event bag.
@@ -746,8 +746,8 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE VARIABLE $bag-12
-            expect(getInstruction(processor)).to.equal('SAVE VARIABLE');
+//          SAVE REGISTER $bag-12
+            expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Post a message to the named message bag.
@@ -776,8 +776,8 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('SAVE MESSAGE');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          LOAD VARIABLE $result-1
-            expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
+//          LOAD REGISTER $result-1
+            expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PULL RESULT
