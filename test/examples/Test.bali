@@ -5,7 +5,7 @@
     $parent: none
     $constants: [
         $good: true
-        $document: /bali/instances/Test/v1
+        $contract: /bali/instances/Test/v1
         $firstVersion: /bali/instances/Test/v1
         $secondVersion: /bali/instances/Test/v2
         $thirdVersion: /bali/instances/Test/v2.1
@@ -30,12 +30,12 @@
             ]
             $procedure: {
                 $x := target.test3(argument) handle $exception matching "good" with {
-                    document<-test2()
+                    contract<-test2()
                     return good
                 } matching "bad" with {
                     target.test2()
                 }
-                document<-test3(argument)
+                contract<-test3(argument)
                 return NOT good
             }($argument: "ugly")
             $instructions: "
@@ -64,7 +64,7 @@
                 JUMP TO 1.2.HandleBlock ON FALSE
                 
                 1.1.1.EvaluateStatement:
-                PUSH CONSTANT $document
+                PUSH CONSTANT $contract
                 SEND $test2 TO CONTRACT
                 SAVE REGISTER $result-1
                 
@@ -97,7 +97,7 @@
                 SKIP INSTRUCTION
                 
                 2.EvaluateStatement:
-                PUSH CONSTANT $document
+                PUSH CONSTANT $contract
                 ---- Place a list of the message arguments on the stack.
                 CALL $list
                 PUSH ARGUMENT $argument
@@ -128,8 +128,8 @@
                 "3.ReturnStatement": 38
             ]
             $bytecode: '
-                200A3801C0513802D001E80280034000001F80016001280FD02818153002
-                F001800230015000001F6001280ED028181D3801E0018002001F60015800
+                200A3801C0513802D001E80280034000001F80016001280BD02818153002
+                F001800230015000001F6001280AD028181D3801E0018002001F60015800
                 00003002C0513802D001F80280023001C85C5000
             '(
                 $encoding: $base16
@@ -177,7 +177,7 @@
             $addresses: [
                 "1.ReturnStatement": 1
             ]
-            $bytecode: '2807C014280B2801D884D080280DD0015000'(
+            $bytecode: '2805C01428072801D884D0802809D0015000'(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
@@ -226,10 +226,10 @@
                 This method helps test each type of instruction at least once.
             "($mediaType: "application/bsmd")
             $procedure: {
-                checkout $draft from firstVersion
-                commit draft to secondVersion
-                checkout level 2 of $draft from secondVersion
-                save draft as $citation
+                checkout $document from firstVersion
+                commit document to secondVersion
+                checkout level 2 of $document from secondVersion
+                save document as $citation
                 discard citation
                 publish event
                 post [
@@ -238,76 +238,76 @@
             }
             $instructions: "
                 1.CheckoutStatement:
-                ---- Save the name of the document.
+                ---- Save the name of the contract.
                 PUSH CONSTANT $firstVersion
                 SAVE REGISTER $name-2
-                ---- Load a draft copy of the named document from the repository.
+                ---- Load a copy of the named contract from the repository.
                 LOAD CONTRACT $name-2
                 CALL $duplicate WITH 1 ARGUMENT
-                SAVE REGISTER $draft-3
-                ---- Calculate the new version string for the draft and save it.
-                LOAD REGISTER $draft-3
+                SAVE REGISTER $document-3
+                ---- Calculate the new version string for the new document and save it.
+                LOAD REGISTER $document-3
                 PUSH LITERAL `$version`
                 CALL $parameter WITH 2 ARGUMENTS
                 PUSH LITERAL `0`
                 CALL $nextVersion WITH 2 ARGUMENTS
                 SAVE REGISTER $version-4
-                ---- Set the new version string parameter for the draft document.
-                LOAD REGISTER $draft-3
+                ---- Set the new version string parameter for the new document.
+                LOAD REGISTER $document-3
                 PUSH LITERAL `$version`
                 LOAD REGISTER $version-4
                 CALL $setParameter WITH 3 ARGUMENTS
                 PULL COMPONENT
-                ---- Set the new draft document as the value of the recipient.
-                LOAD REGISTER $draft-3
-                SAVE REGISTER $draft
+                ---- Set the new document as the value of the recipient.
+                LOAD REGISTER $document-3
+                SAVE REGISTER $document
                 
                 2.CommitStatement:
-                ---- Save the name of the document.
+                ---- Save the name of the new contract.
                 PUSH CONSTANT $secondVersion
                 SAVE REGISTER $name-5
-                ---- Commit the named document to the repository.
-                LOAD REGISTER $draft
+                ---- Commit the named contract to the repository.
+                LOAD REGISTER $document
                 SAVE CONTRACT $name-5
                 
                 3.CheckoutStatement:
-                ---- Save the name of the document.
+                ---- Save the name of the contract.
                 PUSH CONSTANT $secondVersion
                 SAVE REGISTER $name-6
-                ---- Load a draft copy of the named document from the repository.
+                ---- Load a copy of the named contract from the repository.
                 LOAD CONTRACT $name-6
                 CALL $duplicate WITH 1 ARGUMENT
-                SAVE REGISTER $draft-7
-                ---- Calculate the new version string for the draft and save it.
-                LOAD REGISTER $draft-7
+                SAVE REGISTER $document-7
+                ---- Calculate the new version string for the new document and save it.
+                LOAD REGISTER $document-7
                 PUSH LITERAL `$version`
                 CALL $parameter WITH 2 ARGUMENTS
                 PUSH LITERAL `2`
                 CALL $nextVersion WITH 2 ARGUMENTS
                 SAVE REGISTER $version-8
-                ---- Set the new version string parameter for the draft document.
-                LOAD REGISTER $draft-7
+                ---- Set the new version string parameter for the new document.
+                LOAD REGISTER $document-7
                 PUSH LITERAL `$version`
                 LOAD REGISTER $version-8
                 CALL $setParameter WITH 3 ARGUMENTS
                 PULL COMPONENT
-                ---- Set the new draft document as the value of the recipient.
-                LOAD REGISTER $draft-7
-                SAVE REGISTER $draft
+                ---- Set the new document as the value of the recipient.
+                LOAD REGISTER $document-7
+                SAVE REGISTER $document
                 
                 4.SaveStatement:
-                ---- Place the draft document on the stack.
-                LOAD REGISTER $draft
-                ---- Save the draft document to the repository and a citation to it.
+                ---- Place the document on the stack.
+                LOAD REGISTER $document
+                ---- Save the document to the repository and a citation to it.
                 SAVE DOCUMENT $citation-9
                 LOAD REGISTER $citation-9
                 SAVE REGISTER $citation
                 
                 5.DiscardStatement:
-                ---- Save the citation to the draft document.
+                ---- Save the citation to the document.
                 LOAD REGISTER $citation
                 SAVE REGISTER $citation-10
-                ---- Drop the cited draft document from the repository.
+                ---- Drop the cited document from the repository.
                 DROP DOCUMENT $citation-10
                 
                 6.PublishStatement:
@@ -343,10 +343,10 @@
                 "7.PostStatement": 52
             ]
             $bytecode: '
-                300380097009C82980076007280CD0602805D05B800D6007280C600DD882
-                4800600780063004800A6006900A3004800B700BC82980086008280CD060
-                2806D05B800E6008280C600ED88248006008800660068805600580036003
-                8004A804280480013007980130068002C014280A2810D00BD0019802600C
+                300380097009C829800760072808D0602803D05B800D60072808600DD882
+                4800600780063004800A6006900A3004800B700BC829800860082808D060
+                2804D05B800E60082808600ED88248006008800660068805600580036003
+                8004A804280280013007980130068002C0142806280CD00BD0019802600C
                 5000
             '(
                 $encoding: $base16
@@ -361,9 +361,9 @@
                 $citation
                 $citation-10
                 $citation-9
-                $draft
-                $draft-3
-                $draft-7
+                $document
+                $document-3
+                $document-7
                 $name-2
                 $name-5
                 $name-6
@@ -380,7 +380,7 @@
             $parameters: [
                 $abort: [
                     $description: "
-                        This parameter specifies whether or not committing the draft should be aborted.
+                        This parameter specifies whether or not committing the document should be aborted.
                     "($mediaType: "application/bsmd")
                     $type: /bali/elements/Text/v1
                 ]
@@ -421,14 +421,10 @@
     ]
     $literals: [
         /bali/collections/Set/v1
-        /bali/events/bag
-        /bali/events/queue
         /bali/vm/events/v1
         0
         2
         none
-        $draft
-        $message
         $text
         $type
         $version

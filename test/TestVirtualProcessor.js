@@ -88,7 +88,7 @@ describe('Bali Virtual Machine™', function() {
 
     describe('Test all VM instructions', function() {
 
-        it('should compile example type documents into compiled type documents', async function() {
+        it('should compile example type documents into compiled type contracts', async function() {
             const testFolder = 'test/examples/';
             const files = await pfs.readdir(testFolder);
             for (var i = 0; i < files.length; i++) {
@@ -189,7 +189,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          1.1.1.EvaluateStatement:
-//          PUSH CONSTANT $document
+//          PUSH CONSTANT $contract
             expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
@@ -361,7 +361,7 @@ describe('Bali Virtual Machine™', function() {
             expect(processor.getTask().hasComponents()).to.equal(false);
 
 //          2.EvaluateStatement:
-//          PUSH CONSTANT $document
+//          PUSH CONSTANT $contract
             expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
@@ -508,7 +508,7 @@ describe('Bali Virtual Machine™', function() {
             expect(processor).to.exist;
             await processor.newTask(account, tokens, target, message, args);
 //          1.CheckoutStatement:
-//          ---- Save the name of the document.
+//          ---- Save the name of the contract.
 //          PUSH CONSTANT $firstVersion
             expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
             expect(await processor.stepClock()).to.equal(true);
@@ -517,7 +517,7 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          ---- Load a draft copy of the named document from the repository.
+//          ---- Load a copy of the named contract from the repository.
 //          LOAD CONTRACT $name-2
             expect(getInstruction(processor)).to.equal('LOAD CONTRACT');
             expect(await processor.stepClock()).to.equal(true);
@@ -526,12 +526,12 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('CALL $duplicate');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE REGISTER $draft-3
+//          SAVE REGISTER $document-3
             expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          ---- Calculate the new version string for the draft and save it.
-//          LOAD REGISTER $draft-3
+//          ---- Calculate the new version string for the document and save it.
+//          LOAD REGISTER $document-3
             expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
@@ -555,8 +555,8 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          ---- Set the new version string parameter for the draft document.
-//          LOAD REGISTER $draft-3
+//          ---- Set the new version string parameter for the document.
+//          LOAD REGISTER $document-3
             expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
@@ -576,12 +576,12 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('PULL COMPONENT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          ---- Set the new draft document as the value of the recipient.
-//          LOAD REGISTER $draft-3
+//          ---- Set the new document as the value of the recipient.
+//          LOAD REGISTER $document-3
             expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE REGISTER $draft
+//          SAVE REGISTER $document
             expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
@@ -597,7 +597,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Commit the named document to the repository.
-//          LOAD REGISTER $draft
+//          LOAD REGISTER $document
             expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
@@ -616,7 +616,7 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          ---- Load a draft copy of the named document from the repository.
+//          ---- Load a copy of the named document from the repository.
 //          LOAD CONTRACT $name-6
             expect(getInstruction(processor)).to.equal('LOAD CONTRACT');
             expect(await processor.stepClock()).to.equal(true);
@@ -625,12 +625,12 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('CALL $duplicate');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE REGISTER $draft-7
+//          SAVE REGISTER $document-7
             expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          ---- Calculate the new version string for the draft and save it.
-//          LOAD REGISTER $draft-7
+//          ---- Calculate the new version string for the document and save it.
+//          LOAD REGISTER $document-7
             expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
@@ -654,8 +654,8 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          ---- Set the new version string parameter for the draft document.
-//          LOAD REGISTER $draft-7
+//          ---- Set the new version string parameter for the document.
+//          LOAD REGISTER $document-7
             expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
@@ -675,19 +675,19 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('PULL COMPONENT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          ---- Set the new draft document as the value of the recipient.
-//          LOAD REGISTER $draft-7
+//          ---- Set the new document as the value of the recipient.
+//          LOAD REGISTER $document-7
             expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SAVE REGISTER $draft
+//          SAVE REGISTER $document
             expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
 //
 //          4.SaveStatement:
-//          ---- Save the draft document.
-//          LOAD REGISTER $draft
+//          ---- Save the document.
+//          LOAD REGISTER $document
             expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
@@ -705,7 +705,7 @@ describe('Bali Virtual Machine™', function() {
             expect(processor.getTask().hasComponents()).to.equal(false);
 //
 //          5.DiscardStatement:
-//          ---- Save the citation to the draft document.
+//          ---- Save the citation to the document.
 //          LOAD REGISTER $citation
             expect(getInstruction(processor)).to.equal('LOAD REGISTER');
             expect(await processor.stepClock()).to.equal(true);
@@ -714,7 +714,7 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('SAVE REGISTER');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(false);
-//          ---- Drop the cited draft document from the repository.
+//          ---- Drop the cited document from the repository.
 //          DROP DOCUMENT $citation-10
             expect(getInstruction(processor)).to.equal('DROP DOCUMENT');
             expect(await processor.stepClock()).to.equal(true);
