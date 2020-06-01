@@ -39,7 +39,7 @@ describe('Bali Virtual Machine™', function() {
             const publicKey = await notary.generateKey();
             const certificate = await notary.notarizeDocument(publicKey);
             const citation = await notary.activateKey(certificate);
-            expect(citation.isEqualTo(await storage.writeDocument(certificate))).is.true;
+            expect(citation.isEqualTo(await storage.writeContract(certificate))).is.true;
         });
 
         it('should create the task bag in the repository', async function() {
@@ -52,7 +52,7 @@ describe('Bali Virtual Machine™', function() {
                 $permissions: '/bali/permissions/public/v1',
                 $previous: bali.pattern.NONE
             }));
-            const bagCitation = await storage.writeDocument(taskBag);
+            const bagCitation = await storage.writeContract(taskBag);
             await storage.writeName(TASK_BAG, bagCitation);
         });
 
@@ -66,7 +66,7 @@ describe('Bali Virtual Machine™', function() {
                 $permissions: '/bali/permissions/public/v1',
                 $previous: bali.pattern.NONE
             }));
-            const bagCitation = await storage.writeDocument(eventBag);
+            const bagCitation = await storage.writeContract(eventBag);
             await storage.writeName(EVENT_BAG, bagCitation);
         });
 
@@ -80,7 +80,7 @@ describe('Bali Virtual Machine™', function() {
                 $permissions: '/bali/permissions/public/v1',
                 $previous: bali.pattern.NONE
             }));
-            const bagCitation = await storage.writeDocument(messageBag);
+            const bagCitation = await storage.writeContract(messageBag);
             await storage.writeName(MESSAGE_BAG, bagCitation);
         });
 
@@ -116,15 +116,15 @@ describe('Bali Virtual Machine™', function() {
                 await repository.commitDocument(name, type);
 
                 // publish an instance of the type in the repository
-                const instance = bali.instance(name, {});
                 name = '/bali/instances/' + prefix + '/v1';
+                const instance = bali.instance(name, {});
                 await repository.commitDocument(name, instance);
             }
         });
 
         it('should cause the VM to step through the control test "good" route successfully', async function() {
             const tokens = bali.number(100);
-            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
+            const target = await repository.retrieveContract('/bali/instances/Test/v1');
             const message = bali.symbol('test1');
             const args = bali.list(['"good"']);
             const processor = vm.processor();
@@ -216,7 +216,7 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the control test "bad" route successfully', async function() {
             const tokens = bali.number(100);
-            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
+            const target = await repository.retrieveContract('/bali/instances/Test/v1');
             const message = bali.symbol('test1');
             const args = bali.list(['"bad"']);
             const processor = vm.processor();
@@ -405,7 +405,7 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the control test "ugly" route successfully', async function() {
             const tokens = bali.number(100);
-            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
+            const target = await repository.retrieveContract('/bali/instances/Test/v1');
             const message = bali.symbol('test1');
             const args = bali.list([]);
             const processor = vm.processor();
@@ -501,7 +501,7 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the document management test successfully', async function() {
             const tokens = bali.number(100);
-            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
+            const target = await repository.retrieveContract('/bali/instances/Test/v1');
             const message = bali.symbol('test4');
             const args = bali.list([]);
             const processor = vm.processor();

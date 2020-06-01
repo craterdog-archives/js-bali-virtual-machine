@@ -169,9 +169,9 @@ const Processor = function(repository, debug) {
         // retrieve the type of the target and method matching the message
         const ancestry = target.getAncestry();
         var type, method;
-        var typeName = target.getParameter('$type') || bali.component(target.getType() + '/v1');  // YUCK!
+        var typeName = target.getType() + '/v1';  // YUCK!
         while (typeName.toString() !== 'none') {
-            type = await repository.retrieveDocument(typeName);
+            type = await repository.retrieveContract(typeName);
             const methods = type.getValue('$methods');
             method = methods.getValue(message);
             if (method) break;
@@ -310,7 +310,7 @@ const Processor = function(repository, debug) {
             $type: '/bali/vm/' + task.getState().slice(1) + '/v1',  // remove leading '$'
             $task: task.toCatalog()
         });
-        await repository.addMessage('/bali/vm/events/v1', event);
+        await repository.postMessage('/bali/vm/events/v1', event);
     };
 
     const pushContext = async function(target, message, args) {
@@ -323,12 +323,12 @@ const Processor = function(repository, debug) {
     };
 
     const spawnTask = async function(name, message, args) {
-        const target = await repository.retrieveDocument(name);
+        const target = await repository.retrieveContract(name);
         const childTask = createTask(task.getAccount(), task.splitTokens());
         const childContext = await createContext(target, message, args);
         childTask.getValue('$contexts').addItem(childContext);
         const tag = childTask.getParameter('$tag');
-        await repository.addMessage('/bali/vm/tasks/v1', childTask);
+        await repository.postMessage('/bali/vm/tasks/v1', childTask);
         return tag;
     };
 
@@ -452,29 +452,29 @@ const Processor = function(repository, debug) {
         // LOAD DRAFT citation
         async function(operand) {
             const citation = context.getVariable(operand).getValue();
-            const draft = await repository.retrieveDraft(citation);
-            task.pushComponent(draft);
+            const document = await repository.retrieveDocument(citation);
+            task.pushComponent(document);
             context.incrementAddress();
         },
 
         // LOAD DOCUMENT name
         async function(operand) {
             const name = context.getVariable(operand).getValue();
-            const document = await repository.retrieveDocument(name);
-            task.pushComponent(document);
+            const contract = await repository.retrieveContract(name);
+            task.pushComponent(contract);
             context.incrementAddress();
         },
 
         // LOAD MESSAGE bag
         async function(operand) {
             const bag = context.getVariable(operand).getValue();
-            const message = await repository.borrowMessage(bag);
+            const message = await repository.retrieveMessage(bag);
             if (message) {
                 task.pushComponent(message);
                 context.incrementAddress();
             } else {
                 const currentTask = toCatalog();
-                await repository.addMessage('/bali/vm/tasks/v1', currentTask);
+                await repository.postMessage('/bali/vm/tasks/v1', currentTask);
                 task.pauseTask();  // will retry again on a different processor
             }
         },
@@ -488,8 +488,8 @@ const Processor = function(repository, debug) {
 
         // SAVE DRAFT citation
         async function(operand) {
-            var draft = task.popComponent();
-            const citation = await repository.saveDraft(draft);
+            var document = task.popComponent();
+            const citation = await repository.saveDocument(document);
             context.getVariable(operand).setValue(citation);
             context.incrementAddress();
         },
@@ -506,7 +506,7 @@ const Processor = function(repository, debug) {
         async function(operand) {
             var message = task.popComponent();
             const bag = context.getVariable(operand).getValue();
-            await repository.addMessage(bag, message);
+            await repository.postMessage(bag, message);
             context.incrementAddress();
         },
 
@@ -527,7 +527,7 @@ const Processor = function(repository, debug) {
         // DROP DOCUMENT name
         async function(operand) {
             const name = context.getVariable(operand).getValue();
-            await repository.deleteDocument(name);
+            await repository.deleteContract(name);
             context.incrementAddress();
         },
 

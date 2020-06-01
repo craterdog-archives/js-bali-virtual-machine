@@ -31,11 +31,11 @@
     "mocha": "^7.2.0",
     "express": "^4.17.1",
     "webpack": "^4.43.0",
-    "bali-digital-notary": "^2.10.15",
-    "bali-document-repository": "^2.25.1",
+    "bali-digital-notary": "^2.12.2",
+    "bali-document-repository": "^2.26.2",
     "bali-type-compiler": "file:../js-bali-type-compiler"
   },
   "dependencies": {
-    "bali-component-framework": "^2.22.0"
+    "bali-component-framework": "^2.22.2"
   }
 }
