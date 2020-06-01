@@ -116,8 +116,8 @@ describe('Bali Virtual Machine™', function() {
                 await repository.commitDocument(name, type);
 
                 // publish an instance of the type in the repository
-                name = '/bali/instances/' + prefix + '/v1';
                 const instance = bali.instance(name, {});
+                name = '/bali/instances/' + prefix + '/v1';
                 await repository.commitDocument(name, instance);
             }
         });
