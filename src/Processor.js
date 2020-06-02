@@ -531,10 +531,10 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // DROP MESSAGE citation
+        // DROP MESSAGE message
         async function(operand) {
-            const citation = context.getVariable(operand);
-            await repository.acceptMessage(citation);
+            const message = context.getVariable(operand);
+            await repository.acceptMessage(message);
             context.incrementAddress();
         },
 
