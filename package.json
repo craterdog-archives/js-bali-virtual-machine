@@ -32,7 +32,7 @@
     "express": "^4.17.1",
     "webpack": "^4.43.0",
     "bali-digital-notary": "^2.12.2",
-    "bali-document-repository": "^2.26.2",
+    "bali-document-repository": "^2.27.0",
     "bali-type-compiler": "file:../js-bali-type-compiler"
   },
   "dependencies": {

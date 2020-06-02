@@ -171,7 +171,7 @@ const Processor = function(repository, debug) {
         var type, method;
         var typeName = target.getType() + '/v1';  // YUCK!
         while (typeName.toString() !== 'none') {
-            type = await repository.retrieveContract(typeName);
+            type = await repository.retrieveDocument(typeName);
             const methods = type.getValue('$methods');
             method = methods.getValue(message);
             if (method) break;
@@ -323,7 +323,7 @@ const Processor = function(repository, debug) {
     };
 
     const spawnTask = async function(name, message, args) {
-        const target = await repository.retrieveContract(name);
+        const target = await repository.retrieveDocument(name);
         const childTask = createTask(task.getAccount(), task.splitTokens());
         const childContext = await createContext(target, message, args);
         childTask.getValue('$contexts').addItem(childContext);

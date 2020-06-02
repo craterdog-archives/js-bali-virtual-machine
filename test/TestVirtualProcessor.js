@@ -124,7 +124,7 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the control test "good" route successfully', async function() {
             const tokens = bali.number(100);
-            const target = await repository.retrieveContract('/bali/instances/Test/v1');
+            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
             const message = bali.symbol('test1');
             const args = bali.list(['"good"']);
             const processor = vm.processor();
@@ -216,7 +216,7 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the control test "bad" route successfully', async function() {
             const tokens = bali.number(100);
-            const target = await repository.retrieveContract('/bali/instances/Test/v1');
+            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
             const message = bali.symbol('test1');
             const args = bali.list(['"bad"']);
             const processor = vm.processor();
@@ -405,7 +405,7 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the control test "ugly" route successfully', async function() {
             const tokens = bali.number(100);
-            const target = await repository.retrieveContract('/bali/instances/Test/v1');
+            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
             const message = bali.symbol('test1');
             const args = bali.list([]);
             const processor = vm.processor();
@@ -501,7 +501,7 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the document management test successfully', async function() {
             const tokens = bali.number(100);
-            const target = await repository.retrieveContract('/bali/instances/Test/v1');
+            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
             const message = bali.symbol('test4');
             const args = bali.list([]);
             const processor = vm.processor();
@@ -520,6 +520,14 @@ describe('Bali Virtual Machine™', function() {
 //          ---- Load a copy of the named contract from the repository.
 //          LOAD CONTRACT $name-2
             expect(getInstruction(processor)).to.equal('LOAD CONTRACT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PUSH LITERAL `$document`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $keyValue WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $keyValue');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $duplicate WITH 1 ARGUMENT
@@ -619,6 +627,14 @@ describe('Bali Virtual Machine™', function() {
 //          ---- Load a copy of the named document from the repository.
 //          LOAD CONTRACT $name-6
             expect(getInstruction(processor)).to.equal('LOAD CONTRACT');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          PUSH LITERAL `$document`
+            expect(getInstruction(processor)).to.equal('PUSH LITERAL');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $keyValue WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $keyValue');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $duplicate WITH 1 ARGUMENT

@@ -128,8 +128,8 @@
                 "3.ReturnStatement": 38
             ]
             $bytecode: '
-                200A3801C0513802D001E80280034000001F80016001280BD02818153002
-                F001800230015000001F6001280AD028181D3801E0018002001F60015800
+                200A3801C0513802D001E80280034000001F80016001280CD02818153002
+                F001800230015000001F6001280BD028181D3801E0018002001F60015800
                 00003002C0513802D001F80280023001C85C5000
             '(
                 $encoding: $base16
@@ -177,7 +177,7 @@
             $addresses: [
                 "1.ReturnStatement": 1
             ]
-            $bytecode: '2805C01428072801D884D0802809D0015000'(
+            $bytecode: '2805C01428082801D884D080280AD0015000'(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
@@ -243,6 +243,8 @@
                 SAVE REGISTER $name-2
                 ---- Load a copy of the named contract from the repository.
                 LOAD CONTRACT $name-2
+                PUSH LITERAL `$document`
+                CALL $keyValue WITH 2 ARGUMENTS
                 CALL $duplicate WITH 1 ARGUMENT
                 SAVE REGISTER $document-3
                 ---- Calculate the new version string for the new document and save it.
@@ -276,6 +278,8 @@
                 SAVE REGISTER $name-6
                 ---- Load a copy of the named contract from the repository.
                 LOAD CONTRACT $name-6
+                PUSH LITERAL `$document`
+                CALL $keyValue WITH 2 ARGUMENTS
                 CALL $duplicate WITH 1 ARGUMENT
                 SAVE REGISTER $document-7
                 ---- Calculate the new version string for the new document and save it.
@@ -335,19 +339,19 @@
             "($mediaType: "application/basm")
             $addresses: [
                 "1.CheckoutStatement": 1
-                "2.CommitStatement": 19
-                "3.CheckoutStatement": 23
-                "4.SaveStatement": 41
-                "5.DiscardStatement": 45
-                "6.PublishStatement": 48
-                "7.PostStatement": 52
+                "2.CommitStatement": 21
+                "3.CheckoutStatement": 25
+                "4.SaveStatement": 45
+                "5.DiscardStatement": 49
+                "6.PublishStatement": 52
+                "7.PostStatement": 56
             ]
             $bytecode: '
-                300380097009C829800760072808D0602803D05B800D60072808600DD882
-                4800600780063004800A6006900A3004800B700BC829800860082808D060
-                2804D05B800E60082808600ED88248006008800660068805600580036003
-                8004A804280280013007980130068002C0142806280CD00BD0019802600C
-                5000
+                3003800970092806D04DC829800760072809D0602803D05B800D60072809
+                600DD8824800600780063004800A6006900A3004800B700B2806D04DC829
+                800860082809D0602804D05B800E60082809600ED8824800600880066006
+                88056005800360038004A804280280013007980130068002C0142807280D
+                D00BD0019802600C5000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -377,14 +381,6 @@
             $description: "
                 This method helps test each type of instruction at least once.
             "($mediaType: "application/bsmd")
-            $parameters: [
-                $abort: [
-                    $description: "
-                        This parameter specifies whether or not committing the document should be aborted.
-                    "($mediaType: "application/bsmd")
-                    $type: /bali/elements/Text/v1
-                ]
-            ]
             $procedure: {
                 retrieve $message from bag
             }
@@ -409,7 +405,6 @@
             )
             $arguments: [
                 $target
-                $abort
             ]
             $variables: [
                 $bag-2
@@ -425,6 +420,7 @@
         0
         2
         none
+        $document
         $text
         $type
         $version
