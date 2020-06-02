@@ -193,7 +193,7 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('PUSH CONSTANT');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SEND $test2 TO CONTRACT
+//          SEND $test2 TO DOCUMENT
             expect(getInstruction(processor)).to.equal('SEND 1');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
@@ -377,7 +377,7 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('CALL $addItem');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          SEND $test3 TO CONTRACT WITH ARGUMENTS
+//          SEND $test3 TO DOCUMENT WITH ARGUMENTS
             expect(getInstruction(processor)).to.equal('SEND 2');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);

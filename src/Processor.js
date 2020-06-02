@@ -322,8 +322,8 @@ const Processor = function(repository, debug) {
         context = new Context(task.popContext(), debug);
     };
 
-    const spawnTask = async function(name, message, args) {
-        const target = await repository.retrieveDocument(name);
+    const spawnTask = async function(nameOrCitation, message, args) {
+        const target = await repository.retrieveDocument(nameOrCitation);
         const childTask = createTask(task.getAccount(), task.splitTokens());
         const childContext = await createContext(target, message, args);
         childTask.getValue('$contexts').addItem(childContext);
@@ -590,22 +590,22 @@ const Processor = function(repository, debug) {
             await pushContext(target, message, argumentz);
         },
 
-        // SEND message TO CONTRACT
+        // SEND message TO DOCUMENT
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = bali.list();
-            const name = task.popComponent().toString();
-            const tag = await spawnTask(name, message, argumentz);
+            const nameOrCitation = task.popComponent().toString();
+            const tag = await spawnTask(nameOrCitation, message, argumentz);
             task.pushComponent(tag);
             context.incrementAddress();
         },
 
-        // SEND message TO CONTRACT WITH ARGUMENTS
+        // SEND message TO DOCUMENT WITH ARGUMENTS
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = task.popComponent();
-            const name = task.popComponent().toString();
-            const tag = await spawnTask(name, message, argumentz);
+            const nameOrCitation = task.popComponent().toString();
+            const tag = await spawnTask(nameOrCitation, message, argumentz);
             task.pushComponent(tag);
             context.incrementAddress();
         }

@@ -65,7 +65,7 @@
                 
                 1.1.1.EvaluateStatement:
                 PUSH CONSTANT $contract
-                SEND $test2 TO CONTRACT
+                SEND $test2 TO DOCUMENT
                 SAVE REGISTER $result-1
                 
                 1.1.2.ReturnStatement:
@@ -103,7 +103,7 @@
                 PUSH ARGUMENT $argument
                 CALL $addItem WITH 2 ARGUMENTS
                 ---- Send the message with its arguments to the recipient.
-                SEND $test3 TO CONTRACT WITH ARGUMENTS
+                SEND $test3 TO DOCUMENT WITH ARGUMENTS
                 SAVE REGISTER $result-1
                 
                 3.ReturnStatement:
