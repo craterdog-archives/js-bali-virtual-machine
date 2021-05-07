@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/craterdog-bali/js-bali-virtual-processor#readme",
   "devDependencies": {
-    "grunt": "^1.1.0",
+    "grunt": "^1.3.0",
     "grunt-contrib-clean": "^2.0.0",
     "grunt-eslint": "^23.0.0",
     "grunt-mocha-test": "^0.13.3",
