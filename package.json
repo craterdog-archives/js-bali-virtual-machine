@@ -1,6 +1,6 @@
 {
   "name": "bali-virtual-processor",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "This project defines the interface to, and an implementation of the Bali Nebula™ virtual processor.",
   "repository": {
     "type": "git",
@@ -33,7 +33,7 @@
     "webpack": "^5.41.0",
     "bali-digital-notary": "^2.13.0",
     "bali-document-repository": "^2.28.0",
-    "bali-type-compiler": "^2.1.0"
+    "bali-type-compiler": "^2.2.0"
   },
   "dependencies": {
     "bali-component-framework": "^2.23.0"

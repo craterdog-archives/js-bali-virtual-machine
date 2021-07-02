@@ -63,27 +63,27 @@
             }
             $instructions: "
                 1.EvaluateStatement:
-                ---- Place the recipient and the index of its subcomponent on the stack.
+                NOTE --Place the recipient and the index of its subcomponent on the stack.
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$pegs`
                 CALL $catalog
-                ---- Add an item to the catalog.
+                NOTE --Add an item to the catalog.
                 PUSH LITERAL `"peg A"`
-                ---- Place an empty parameterized stack on the stack.
+                NOTE --Place an empty parameterized stack on the stack.
                 PUSH LITERAL `none`
-                ---- Place a catalog of the parameters on the stack.
+                NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$type`
                 PUSH LITERAL `/bali/collections/Stack/v1`
-                ---- Place a catalog of the parameters on the stack.
+                NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$itemType`
                 PUSH LITERAL `/bali/elements/Number/v1`
-                ---- Place a catalog of the parameters on the stack.
+                NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$range`
                 CALL $list
-                ---- Add an item to the list.
+                NOTE --Add an item to the list.
                 PUSH LITERAL `1..`
                 CALL $addItem WITH 2 ARGUMENTS
                 CALL $setValue WITH 3 ARGUMENTS
@@ -92,23 +92,23 @@
                 CALL $stack WITH 2 ARGUMENTS
                 CALL $association WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
-                ---- Add another item to the catalog.
+                NOTE --Add another item to the catalog.
                 PUSH LITERAL `"peg B"`
-                ---- Place an empty parameterized stack on the stack.
+                NOTE --Place an empty parameterized stack on the stack.
                 PUSH LITERAL `none`
-                ---- Place a catalog of the parameters on the stack.
+                NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$type`
                 PUSH LITERAL `/bali/collections/Stack/v1`
-                ---- Place a catalog of the parameters on the stack.
+                NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$itemType`
                 PUSH LITERAL `/bali/elements/Number/v1`
-                ---- Place a catalog of the parameters on the stack.
+                NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$range`
                 CALL $list
-                ---- Add an item to the list.
+                NOTE --Add an item to the list.
                 PUSH LITERAL `1..`
                 CALL $addItem WITH 2 ARGUMENTS
                 CALL $setValue WITH 3 ARGUMENTS
@@ -117,23 +117,23 @@
                 CALL $stack WITH 2 ARGUMENTS
                 CALL $association WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
-                ---- Add another item to the catalog.
+                NOTE --Add another item to the catalog.
                 PUSH LITERAL `"peg C"`
-                ---- Place an empty parameterized stack on the stack.
+                NOTE --Place an empty parameterized stack on the stack.
                 PUSH LITERAL `none`
-                ---- Place a catalog of the parameters on the stack.
+                NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$type`
                 PUSH LITERAL `/bali/collections/Stack/v1`
-                ---- Place a catalog of the parameters on the stack.
+                NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$itemType`
                 PUSH LITERAL `/bali/elements/Number/v1`
-                ---- Place a catalog of the parameters on the stack.
+                NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$range`
                 CALL $list
-                ---- Add an item to the list.
+                NOTE --Add an item to the list.
                 PUSH LITERAL `1..`
                 CALL $addItem WITH 2 ARGUMENTS
                 CALL $setValue WITH 3 ARGUMENTS
@@ -142,16 +142,16 @@
                 CALL $stack WITH 2 ARGUMENTS
                 CALL $association WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
-                ---- Assign the result as the value of the subcomponent.
+                NOTE --Assign the result as the value of the subcomponent.
                 CALL $setSubcomponent WITH 3 ARGUMENTS
                 PULL COMPONENT
                 
                 2.EvaluateStatement:
-                ---- Place the recipient and the index of its subcomponent on the stack.
+                NOTE --Place the recipient and the index of its subcomponent on the stack.
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$steps`
                 CALL $list
-                ---- Assign the result as the value of the subcomponent.
+                NOTE --Assign the result as the value of the subcomponent.
                 CALL $setSubcomponent WITH 3 ARGUMENTS
                 PULL COMPONENT
                 
@@ -180,11 +180,11 @@
                 CALL $subcomponent WITH 2 ARGUMENTS
                 PUSH LITERAL `"peg A"`
                 CALL $subcomponent WITH 2 ARGUMENTS
-                ---- Place a list of the message arguments on the stack.
+                NOTE --Place a list of the message arguments on the stack.
                 CALL $list
                 LOAD REGISTER $n
                 CALL $addItem WITH 2 ARGUMENTS
-                ---- Send the message with its arguments to the recipient.
+                NOTE --Send the message with its arguments to the recipient.
                 SEND $addItem TO COMPONENT WITH ARGUMENTS
                 SAVE REGISTER $result-1
                 
@@ -196,7 +196,7 @@
                 
                 5.EvaluateStatement:
                 PUSH ARGUMENT $target
-                ---- Place a list of the message arguments on the stack.
+                NOTE --Place a list of the message arguments on the stack.
                 CALL $list
                 PUSH ARGUMENT $numberOfDisks
                 CALL $addItem WITH 2 ARGUMENTS
@@ -206,7 +206,7 @@
                 CALL $addItem WITH 2 ARGUMENTS
                 PUSH LITERAL `"peg B"`
                 CALL $addItem WITH 2 ARGUMENTS
-                ---- Send the message with its arguments to the recipient.
+                NOTE --Send the message with its arguments to the recipient.
                 SEND $moveTower TO COMPONENT WITH ARGUMENTS
                 SAVE REGISTER $result-1
                 
@@ -298,7 +298,7 @@
                 
                 1.1.1.EvaluateStatement:
                 PUSH ARGUMENT $target
-                ---- Place a list of the message arguments on the stack.
+                NOTE --Place a list of the message arguments on the stack.
                 CALL $list
                 PUSH ARGUMENT $height
                 PUSH LITERAL `1`
@@ -310,25 +310,25 @@
                 CALL $addItem WITH 2 ARGUMENTS
                 PUSH ARGUMENT $toPeg
                 CALL $addItem WITH 2 ARGUMENTS
-                ---- Send the message with its arguments to the recipient.
+                NOTE --Send the message with its arguments to the recipient.
                 SEND $moveTower TO COMPONENT WITH ARGUMENTS
                 SAVE REGISTER $result-1
                 
                 1.1.2.EvaluateStatement:
                 PUSH ARGUMENT $target
-                ---- Place a list of the message arguments on the stack.
+                NOTE --Place a list of the message arguments on the stack.
                 CALL $list
                 PUSH ARGUMENT $fromPeg
                 CALL $addItem WITH 2 ARGUMENTS
                 PUSH ARGUMENT $toPeg
                 CALL $addItem WITH 2 ARGUMENTS
-                ---- Send the message with its arguments to the recipient.
+                NOTE --Send the message with its arguments to the recipient.
                 SEND $moveDisk TO COMPONENT WITH ARGUMENTS
                 SAVE REGISTER $result-1
                 
                 1.1.3.EvaluateStatement:
                 PUSH ARGUMENT $target
-                ---- Place a list of the message arguments on the stack.
+                NOTE --Place a list of the message arguments on the stack.
                 CALL $list
                 PUSH ARGUMENT $height
                 PUSH LITERAL `1`
@@ -340,7 +340,7 @@
                 CALL $addItem WITH 2 ARGUMENTS
                 PUSH ARGUMENT $fromPeg
                 CALL $addItem WITH 2 ARGUMENTS
-                ---- Send the message with its arguments to the recipient.
+                NOTE --Send the message with its arguments to the recipient.
                 SEND $moveTower TO COMPONENT WITH ARGUMENTS
                 SAVE REGISTER $result-1
                 
@@ -412,11 +412,11 @@
                 CALL $subcomponent WITH 2 ARGUMENTS
                 PUSH ARGUMENT $toPeg
                 CALL $subcomponent WITH 2 ARGUMENTS
-                ---- Place a list of the message arguments on the stack.
+                NOTE --Place a list of the message arguments on the stack.
                 CALL $list
                 LOAD REGISTER $disk
                 CALL $addItem WITH 2 ARGUMENTS
-                ---- Send the message with its arguments to the recipient.
+                NOTE --Send the message with its arguments to the recipient.
                 SEND $addItem TO COMPONENT WITH ARGUMENTS
                 SAVE REGISTER $result-1
                 
@@ -424,11 +424,11 @@
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$steps`
                 CALL $subcomponent WITH 2 ARGUMENTS
-                ---- Place a list of the message arguments on the stack.
+                NOTE --Place a list of the message arguments on the stack.
                 CALL $list
                 PUSH LITERAL `"Move disk {disk} from {fromPeg} to {toPeg}."`
                 CALL $addItem WITH 2 ARGUMENTS
-                ---- Send the message with its arguments to the recipient.
+                NOTE --Send the message with its arguments to the recipient.
                 SEND $append TO COMPONENT WITH ARGUMENTS
                 SAVE REGISTER $result-1
                 LOAD REGISTER $result-1
