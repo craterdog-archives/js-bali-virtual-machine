@@ -19,7 +19,15 @@ npm install bali-virtual-machine
 Then add the following line to your NodeJS modules:
 ```
 const debug = 1;  // debugging level: [0..3]
-const machine = require('bali-virtual-machine').api(notary, repository, compiler, debug);
+const notary = require('bali-digital-notary').service(debug);
+const configuration = {
+    names: '<your bucket name>',
+    documents: '<your bucket name>',
+    contracts: '<your bucket name>',
+    messages: '<your bucket name>'
+};
+const repository = require('bali-document-repository').service(notary, configuration, debug);
+const machine = require('bali-virtual-machine').api(repository, debug);
 ```
 
 ### Contributing
