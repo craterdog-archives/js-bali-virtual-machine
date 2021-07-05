@@ -1,9 +1,6 @@
 ## The Bali Virtual Machine™ (v2)
 <img src="https://craterdog.com/images/CraterDogLogo.png" width="50%">
 
-**_WARNING_**
-_This project is currently being converted to version 2 of the base components. It is not yet ready for prime-time._
-
 ### Quick Links
 For more information on this project click on the following links:
  * [project documentation](https://github.com/craterdog-bali/js-bali-virtual-machine/wiki)
