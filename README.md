@@ -6,7 +6,6 @@ For more information on this project click on the following links:
  * [project documentation](https://github.com/craterdog-bali/js-bali-virtual-machine/wiki)
  * [node packages](https://www.npmjs.com/package/bali-virtual-machine)
  * [release notes](https://github.com/craterdog-bali/js-bali-virtual-machine/wiki/release-notes)
- * [code examples](https://github.com/craterdog-bali/js-bali-virtual-machine/wiki/code-examples)
 
 ### Getting Started
 To install this NodeJS package, execute the following command:
