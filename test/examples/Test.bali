@@ -48,17 +48,17 @@
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $test3 TO COMPONENT WITH ARGUMENTS
-                SAVE REGISTER $x
+                SAVE VARIABLE $x
                 
                 1.EvaluateStatementDone:
                 PULL HANDLER
                 JUMP TO 1.EvaluateStatementSucceeded
                 
                 1.EvaluateStatementHandler:
-                SAVE REGISTER $exception
+                SAVE VARIABLE $exception
                 
                 1.1.HandleBlock:
-                LOAD REGISTER $exception
+                LOAD VARIABLE $exception
                 PUSH LITERAL `"good"`
                 CALL $doesMatch WITH 2 ARGUMENTS
                 JUMP TO 1.2.HandleBlock ON FALSE
@@ -66,7 +66,7 @@
                 1.1.1.EvaluateStatement:
                 PUSH CONSTANT $contract
                 SEND $test2 TO DOCUMENT
-                SAVE REGISTER $result-1
+                SAVE VARIABLE $result-1
                 
                 1.1.2.ReturnStatement:
                 PUSH CONSTANT $good
@@ -76,7 +76,7 @@
                 JUMP TO 1.EvaluateStatementSucceeded
                 
                 1.2.HandleBlock:
-                LOAD REGISTER $exception
+                LOAD VARIABLE $exception
                 PUSH LITERAL `"bad"`
                 CALL $doesMatch WITH 2 ARGUMENTS
                 JUMP TO 1.EvaluateStatementFailed ON FALSE
@@ -84,17 +84,17 @@
                 1.2.1.EvaluateStatement:
                 PUSH ARGUMENT $target
                 SEND $test2 TO COMPONENT
-                SAVE REGISTER $result-1
+                SAVE VARIABLE $result-1
                 
                 1.2.HandleBlockDone:
                 JUMP TO 1.EvaluateStatementSucceeded
                 
                 1.EvaluateStatementFailed:
-                LOAD REGISTER $exception
+                LOAD VARIABLE $exception
                 PULL EXCEPTION
                 
                 1.EvaluateStatementSucceeded:
-                SKIP INSTRUCTION
+                JUMP TO NEXT INSTRUCTION
                 
                 2.EvaluateStatement:
                 PUSH CONSTANT $contract
@@ -104,7 +104,7 @@
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $test3 TO DOCUMENT WITH ARGUMENTS
-                SAVE REGISTER $result-1
+                SAVE VARIABLE $result-1
                 
                 3.ReturnStatement:
                 PUSH CONSTANT $good
@@ -240,84 +240,84 @@
                 1.CheckoutStatement:
                 NOTE --Save the name of the contract.
                 PUSH CONSTANT $firstVersion
-                SAVE REGISTER $name-2
+                SAVE VARIABLE $name-2
                 NOTE --Load a copy of the named contract from the repository.
                 LOAD CONTRACT $name-2
                 PUSH LITERAL `$document`
                 CALL $keyValue WITH 2 ARGUMENTS
                 CALL $duplicate WITH 1 ARGUMENT
-                SAVE REGISTER $document-3
+                SAVE VARIABLE $document-3
                 NOTE --Calculate the new version string for the new document and save it.
-                LOAD REGISTER $document-3
+                LOAD VARIABLE $document-3
                 PUSH LITERAL `$version`
                 CALL $parameter WITH 2 ARGUMENTS
                 PUSH LITERAL `0`
                 CALL $nextVersion WITH 2 ARGUMENTS
-                SAVE REGISTER $version-4
+                SAVE VARIABLE $version-4
                 NOTE --Set the new version string parameter for the new document.
-                LOAD REGISTER $document-3
+                LOAD VARIABLE $document-3
                 PUSH LITERAL `$version`
-                LOAD REGISTER $version-4
+                LOAD VARIABLE $version-4
                 CALL $setParameter WITH 3 ARGUMENTS
                 PULL COMPONENT
                 NOTE --Set the new document as the value of the recipient.
-                LOAD REGISTER $document-3
-                SAVE REGISTER $document
+                LOAD VARIABLE $document-3
+                SAVE VARIABLE $document
                 
                 2.CommitStatement:
                 NOTE --Save the name of the new contract.
                 PUSH CONSTANT $secondVersion
-                SAVE REGISTER $name-5
+                SAVE VARIABLE $name-5
                 NOTE --Commit the named contract to the repository.
-                LOAD REGISTER $document
+                LOAD VARIABLE $document
                 SAVE CONTRACT $name-5
                 
                 3.CheckoutStatement:
                 NOTE --Save the name of the contract.
                 PUSH CONSTANT $secondVersion
-                SAVE REGISTER $name-6
+                SAVE VARIABLE $name-6
                 NOTE --Load a copy of the named contract from the repository.
                 LOAD CONTRACT $name-6
                 PUSH LITERAL `$document`
                 CALL $keyValue WITH 2 ARGUMENTS
                 CALL $duplicate WITH 1 ARGUMENT
-                SAVE REGISTER $document-7
+                SAVE VARIABLE $document-7
                 NOTE --Calculate the new version string for the new document and save it.
-                LOAD REGISTER $document-7
+                LOAD VARIABLE $document-7
                 PUSH LITERAL `$version`
                 CALL $parameter WITH 2 ARGUMENTS
                 PUSH LITERAL `2`
                 CALL $nextVersion WITH 2 ARGUMENTS
-                SAVE REGISTER $version-8
+                SAVE VARIABLE $version-8
                 NOTE --Set the new version string parameter for the new document.
-                LOAD REGISTER $document-7
+                LOAD VARIABLE $document-7
                 PUSH LITERAL `$version`
-                LOAD REGISTER $version-8
+                LOAD VARIABLE $version-8
                 CALL $setParameter WITH 3 ARGUMENTS
                 PULL COMPONENT
                 NOTE --Set the new document as the value of the recipient.
-                LOAD REGISTER $document-7
-                SAVE REGISTER $document
+                LOAD VARIABLE $document-7
+                SAVE VARIABLE $document
                 
                 4.SaveStatement:
                 NOTE --Place the document on the stack.
-                LOAD REGISTER $document
+                LOAD VARIABLE $document
                 NOTE --Save the document to the repository and a citation to it.
                 SAVE DOCUMENT $citation-9
-                LOAD REGISTER $citation-9
-                SAVE REGISTER $citation
+                LOAD VARIABLE $citation-9
+                SAVE VARIABLE $citation
                 
                 5.DiscardStatement:
                 NOTE --Save the citation to the document.
-                LOAD REGISTER $citation
-                SAVE REGISTER $citation-10
+                LOAD VARIABLE $citation
+                SAVE VARIABLE $citation-10
                 NOTE --Drop the cited document from the repository.
                 DROP DOCUMENT $citation-10
                 
                 6.PublishStatement:
                 NOTE --Save the name of the global event bag.
                 PUSH LITERAL `/bali/vm/events/v1`
-                SAVE REGISTER $bag-11
+                SAVE VARIABLE $bag-11
                 NOTE --Publish an event to the global event bag.
                 PUSH CONSTANT $event
                 SAVE MESSAGE $bag-11
@@ -325,7 +325,7 @@
                 7.PostStatement:
                 NOTE --Save the name of the message bag.
                 PUSH CONSTANT $bag
-                SAVE REGISTER $bag-12
+                SAVE VARIABLE $bag-12
                 NOTE --Post a message to the named message bag.
                 CALL $catalog
                 NOTE --Add an item to the catalog.
@@ -334,7 +334,7 @@
                 CALL $association WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
                 SAVE MESSAGE $bag-12
-                LOAD REGISTER $result-1
+                LOAD VARIABLE $result-1
                 PULL RESULT
             "($mediaType: "application/basm")
             $addresses: [
@@ -388,12 +388,12 @@
                 1.RetrieveStatement:
                 NOTE --Save the name of the message bag.
                 PUSH CONSTANT $bag
-                SAVE REGISTER $bag-2
+                SAVE VARIABLE $bag-2
                 NOTE --Place a message from the message bag on the stack.
                 NOTE --Note: this call blocks until a message is available from the bag.
                 LOAD MESSAGE $bag-2
-                SAVE REGISTER $message
-                LOAD REGISTER $result-1
+                SAVE VARIABLE $message
+                LOAD VARIABLE $result-1
                 PULL RESULT
             "($mediaType: "application/basm")
             $addresses: [

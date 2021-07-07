@@ -159,20 +159,20 @@
                 PUSH ARGUMENT $numberOfDisks
                 PUSH LITERAL `1`
                 CALL $range WITH 2 ARGUMENTS
-                SAVE REGISTER $disks
+                SAVE VARIABLE $disks
                 
                 4.WithStatement:
-                LOAD REGISTER $disks
+                LOAD VARIABLE $disks
                 SEND $iterator TO COMPONENT
-                SAVE REGISTER $iterator-2
+                SAVE VARIABLE $iterator-2
                 
                 4.1.ConditionClause:
-                LOAD REGISTER $iterator-2
+                LOAD VARIABLE $iterator-2
                 SEND $hasNext TO COMPONENT
                 JUMP TO 4.WithStatementDone ON FALSE
-                LOAD REGISTER $iterator-2
+                LOAD VARIABLE $iterator-2
                 SEND $next TO COMPONENT
-                SAVE REGISTER $n
+                SAVE VARIABLE $n
                 
                 4.1.1.EvaluateStatement:
                 PUSH ARGUMENT $target
@@ -182,17 +182,17 @@
                 CALL $subcomponent WITH 2 ARGUMENTS
                 NOTE --Place a list of the message arguments on the stack.
                 CALL $list
-                LOAD REGISTER $n
+                LOAD VARIABLE $n
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $addItem TO COMPONENT WITH ARGUMENTS
-                SAVE REGISTER $result-1
+                SAVE VARIABLE $result-1
                 
                 4.ConditionRepeat:
                 JUMP TO 4.1.ConditionClause
                 
                 4.WithStatementDone:
-                SKIP INSTRUCTION
+                JUMP TO NEXT INSTRUCTION
                 
                 5.EvaluateStatement:
                 PUSH ARGUMENT $target
@@ -208,7 +208,7 @@
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $moveTower TO COMPONENT WITH ARGUMENTS
-                SAVE REGISTER $result-1
+                SAVE VARIABLE $result-1
                 
                 6.ReturnStatement:
                 PUSH ARGUMENT $target
@@ -290,7 +290,7 @@
             }
             $instructions: "
                 1.IfStatement:
-                SKIP INSTRUCTION
+                JUMP TO NEXT INSTRUCTION
                 
                 1.1.ConditionClause:
                 PUSH ARGUMENT $height
@@ -312,7 +312,7 @@
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $moveTower TO COMPONENT WITH ARGUMENTS
-                SAVE REGISTER $result-1
+                SAVE VARIABLE $result-1
                 
                 1.1.2.EvaluateStatement:
                 PUSH ARGUMENT $target
@@ -324,7 +324,7 @@
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $moveDisk TO COMPONENT WITH ARGUMENTS
-                SAVE REGISTER $result-1
+                SAVE VARIABLE $result-1
                 
                 1.1.3.EvaluateStatement:
                 PUSH ARGUMENT $target
@@ -342,10 +342,10 @@
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $moveTower TO COMPONENT WITH ARGUMENTS
-                SAVE REGISTER $result-1
+                SAVE VARIABLE $result-1
                 
                 1.IfStatementDone:
-                LOAD REGISTER $result-1
+                LOAD VARIABLE $result-1
                 PULL RESULT
             "($mediaType: "application/basm")
             $addresses: [
@@ -404,7 +404,7 @@
                 PUSH ARGUMENT $fromPeg
                 CALL $subcomponent WITH 2 ARGUMENTS
                 SEND $removeItem TO COMPONENT
-                SAVE REGISTER $disk
+                SAVE VARIABLE $disk
                 
                 2.EvaluateStatement:
                 PUSH ARGUMENT $target
@@ -414,11 +414,11 @@
                 CALL $subcomponent WITH 2 ARGUMENTS
                 NOTE --Place a list of the message arguments on the stack.
                 CALL $list
-                LOAD REGISTER $disk
+                LOAD VARIABLE $disk
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $addItem TO COMPONENT WITH ARGUMENTS
-                SAVE REGISTER $result-1
+                SAVE VARIABLE $result-1
                 
                 3.EvaluateStatement:
                 PUSH ARGUMENT $target
@@ -430,8 +430,8 @@
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $append TO COMPONENT WITH ARGUMENTS
-                SAVE REGISTER $result-1
-                LOAD REGISTER $result-1
+                SAVE VARIABLE $result-1
+                LOAD VARIABLE $result-1
                 PULL RESULT
             "($mediaType: "application/basm")
             $addresses: [

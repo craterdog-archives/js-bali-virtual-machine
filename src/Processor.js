@@ -442,7 +442,7 @@ const Processor = function(repository, debug) {
             }
         },
 
-        // LOAD REGISTER variable
+        // LOAD VARIABLE variable
         async function(operand) {
             const variable = context.getVariable(operand).getValue();
             task.pushComponent(variable);
@@ -479,7 +479,7 @@ const Processor = function(repository, debug) {
             }
         },
 
-        // SAVE REGISTER variable
+        // SAVE VARIABLE variable
         async function(operand) {
             const component = task.popComponent();
             context.getVariable(operand).setValue(component);
@@ -510,7 +510,7 @@ const Processor = function(repository, debug) {
             context.incrementAddress();
         },
 
-        // DROP REGISTER variable
+        // DROP VARIABLE variable
         async function(operand) {
             const none = bali.pattern.NONE;
             context.getVariable(operand).setValue(none);
