@@ -324,8 +324,8 @@ describe('Bali Virtual Machine™', function() {
                 expect(getInstruction(processor)).to.equal('PUSH LITERAL');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
-//              CALL $setValue WITH 3 ARGUMENTS
-                expect(getInstruction(processor)).to.equal('CALL $setValue');
+//              CALL $setAttribute WITH 3 ARGUMENTS
+                expect(getInstruction(processor)).to.equal('CALL $setAttribute');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
 //              CALL $set WITH 2 ARGUMENTS
@@ -526,8 +526,8 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('PUSH LITERAL');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          CALL $keyValue WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL $keyValue');
+//          CALL $attribute WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $attribute');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $duplicate WITH 1 ARGUMENT
@@ -633,8 +633,8 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('PUSH LITERAL');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          CALL $keyValue WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL $keyValue');
+//          CALL $attribute WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $attribute');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $duplicate WITH 1 ARGUMENT

@@ -49,12 +49,12 @@ const Task = function(catalog, debug) {
     // PRIVATE ATTRIBUTES
 
     const tag = catalog.getParameter('$tag') || bali.tag();
-    const account = catalog.getValue('$account');
-    var tokens = catalog.getValue('$tokens').toNumber();  // optimization
-    const controller = bali.controller(REQUESTS, STATES, catalog.getValue('$state').toString(), debug);
-    var clock = catalog.getValue('$clock').toNumber();  // optimization
-    const components = catalog.getValue('$components') || bali.stack();
-    const contexts = catalog.getValue('$contexts') || bali.stack();
+    const account = catalog.getAttribute('$account');
+    var tokens = catalog.getAttribute('$tokens').toNumber();  // optimization
+    const controller = bali.controller(REQUESTS, STATES, catalog.getAttribute('$state').toString(), debug);
+    var clock = catalog.getAttribute('$clock').toNumber();  // optimization
+    const components = catalog.getAttribute('$components') || bali.stack();
+    const contexts = catalog.getAttribute('$contexts') || bali.stack();
     var response;
 
 

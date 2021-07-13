@@ -37,17 +37,17 @@ const Context = function(catalog, debug) {
 
     // PRIVATE ATTRIBUTES
 
-    const target = catalog.getValue('$target');
-    const message = catalog.getValue('$message');
-    const argumentz = catalog.getValue('$arguments');
-    const variables = catalog.getValue('$variables');
-    const constants = catalog.getValue('$constants');
-    const literals = catalog.getValue('$literals');
-    const messages = catalog.getValue('$messages');
-    const handlers = catalog.getValue('$handlers');
-    const bytes = catalog.getValue('$bytecode').getValue();
+    const target = catalog.getAttribute('$target');
+    const message = catalog.getAttribute('$message');
+    const argumentz = catalog.getAttribute('$arguments');
+    const variables = catalog.getAttribute('$variables');
+    const constants = catalog.getAttribute('$constants');
+    const literals = catalog.getAttribute('$literals');
+    const messages = catalog.getAttribute('$messages');
+    const handlers = catalog.getAttribute('$handlers');
+    const bytes = catalog.getAttribute('$bytecode').getValue();
     const bytecode = compiler.bytecode(bytes);  // optimization
-    var address = catalog.getValue('$address').toNumber();  // optimization
+    var address = catalog.getAttribute('$address').toNumber();  // optimization
 
 
     // PUBLIC METHODS

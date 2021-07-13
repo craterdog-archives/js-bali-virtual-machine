@@ -63,7 +63,7 @@
             }
             $instructions: "
                 1.EvaluateStatement:
-                NOTE --Place the recipient and the index of its subcomponent on the stack.
+                NOTE --Place the recipient and the index of its attribute on the stack.
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$pegs`
                 CALL $catalog
@@ -86,9 +86,9 @@
                 NOTE --Add an item to the list.
                 PUSH LITERAL `1..`
                 CALL $addItem WITH 2 ARGUMENTS
-                CALL $setValue WITH 3 ARGUMENTS
-                CALL $setValue WITH 3 ARGUMENTS
-                CALL $setValue WITH 3 ARGUMENTS
+                CALL $setAttribute WITH 3 ARGUMENTS
+                CALL $setAttribute WITH 3 ARGUMENTS
+                CALL $setAttribute WITH 3 ARGUMENTS
                 CALL $stack WITH 2 ARGUMENTS
                 CALL $association WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
@@ -111,9 +111,9 @@
                 NOTE --Add an item to the list.
                 PUSH LITERAL `1..`
                 CALL $addItem WITH 2 ARGUMENTS
-                CALL $setValue WITH 3 ARGUMENTS
-                CALL $setValue WITH 3 ARGUMENTS
-                CALL $setValue WITH 3 ARGUMENTS
+                CALL $setAttribute WITH 3 ARGUMENTS
+                CALL $setAttribute WITH 3 ARGUMENTS
+                CALL $setAttribute WITH 3 ARGUMENTS
                 CALL $stack WITH 2 ARGUMENTS
                 CALL $association WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
@@ -136,23 +136,23 @@
                 NOTE --Add an item to the list.
                 PUSH LITERAL `1..`
                 CALL $addItem WITH 2 ARGUMENTS
-                CALL $setValue WITH 3 ARGUMENTS
-                CALL $setValue WITH 3 ARGUMENTS
-                CALL $setValue WITH 3 ARGUMENTS
+                CALL $setAttribute WITH 3 ARGUMENTS
+                CALL $setAttribute WITH 3 ARGUMENTS
+                CALL $setAttribute WITH 3 ARGUMENTS
                 CALL $stack WITH 2 ARGUMENTS
                 CALL $association WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
-                NOTE --Assign the result as the value of the subcomponent.
-                CALL $setSubcomponent WITH 3 ARGUMENTS
+                NOTE --Assign the result as the value of the attribute.
+                CALL $setAttribute WITH 3 ARGUMENTS
                 PULL COMPONENT
                 
                 2.EvaluateStatement:
-                NOTE --Place the recipient and the index of its subcomponent on the stack.
+                NOTE --Place the recipient and the index of its attribute on the stack.
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$steps`
                 CALL $list
-                NOTE --Assign the result as the value of the subcomponent.
-                CALL $setSubcomponent WITH 3 ARGUMENTS
+                NOTE --Assign the result as the value of the attribute.
+                CALL $setAttribute WITH 3 ARGUMENTS
                 PULL COMPONENT
                 
                 3.EvaluateStatement:
@@ -177,9 +177,9 @@
                 4.1.1.EvaluateStatement:
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$pegs`
-                CALL $subcomponent WITH 2 ARGUMENTS
+                CALL $attribute WITH 2 ARGUMENTS
                 PUSH LITERAL `"peg A"`
-                CALL $subcomponent WITH 2 ARGUMENTS
+                CALL $attribute WITH 2 ARGUMENTS
                 NOTE --Place a list of the message arguments on the stack.
                 CALL $list
                 LOAD VARIABLE $n
@@ -213,7 +213,7 @@
                 6.ReturnStatement:
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$steps`
-                CALL $subcomponent WITH 2 ARGUMENTS
+                CALL $attribute WITH 2 ARGUMENTS
                 SEND $asCatalog TO COMPONENT
                 PULL RESULT
             "($mediaType: "application/basm")
@@ -230,14 +230,14 @@
                 "6.ReturnStatement": 105
             ]
             $bytecode: '
-                38012807C014280C2804C014280A2801C01428062802C0142808C0512805
-                D001D884D884D884D089D00BD001280D2804C014280A2801C01428062802
-                C0142808C0512805D001D884D884D884D089D00BD001280E2804C014280A
-                2801C01428062802C0142808C0512805D001D884D884D884D089D00BD001
-                D883480038012809C051D883480038022803D06D80016001E00480026002
-                E003185C6002E006800338012807D08B280CD08BC0516003D001E8018004
-                004B00003801C0513802D001280CD001280ED001280DD001E80580043801
-                2809D08BE0025000
+                38012807C016280C2804C016280A2801C01628062802C0162808C0522805
+                D001D882D882D882D089D00BD001280D2804C016280A2801C01628062802
+                C0162808C0522805D001D882D882D882D089D00BD001280E2804C016280A
+                2801C01628062802C0162808C0522805D001D882D882D882D089D00BD001
+                D882480038012809C052D882480038022803D06E80016001E00480026002
+                E003185C6002E006800338012807D00C280CD00CC0526003D001E8018004
+                004B00003801C0523802D001280CD001280ED001280DD001E80580043801
+                2809D00CE0025000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -357,8 +357,8 @@
                 "1.IfStatementDone": 40
             ]
             $bytecode: '
-                0000380218283801C05138022803D026D0013803D0013805D0013804D001
-                E80280013801C0513803D0013804D001E80180013801C05138022803D026
+                0000380218283801C05238022803D028D0013803D0013805D0013804D001
+                E80280013801C0523803D0013804D001E80180013801C05238022803D028
                 D0013805D0013804D0013803D001E802800160015000
             '(
                 $encoding: $base16
@@ -400,18 +400,18 @@
                 1.EvaluateStatement:
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$pegs`
-                CALL $subcomponent WITH 2 ARGUMENTS
+                CALL $attribute WITH 2 ARGUMENTS
                 PUSH ARGUMENT $fromPeg
-                CALL $subcomponent WITH 2 ARGUMENTS
+                CALL $attribute WITH 2 ARGUMENTS
                 SEND $removeItem TO COMPONENT
                 SAVE VARIABLE $disk
                 
                 2.EvaluateStatement:
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$pegs`
-                CALL $subcomponent WITH 2 ARGUMENTS
+                CALL $attribute WITH 2 ARGUMENTS
                 PUSH ARGUMENT $toPeg
-                CALL $subcomponent WITH 2 ARGUMENTS
+                CALL $attribute WITH 2 ARGUMENTS
                 NOTE --Place a list of the message arguments on the stack.
                 CALL $list
                 LOAD VARIABLE $disk
@@ -423,7 +423,7 @@
                 3.EvaluateStatement:
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$steps`
-                CALL $subcomponent WITH 2 ARGUMENTS
+                CALL $attribute WITH 2 ARGUMENTS
                 NOTE --Place a list of the message arguments on the stack.
                 CALL $list
                 PUSH LITERAL `"Move disk {disk} from {fromPeg} to {toPeg}."`
@@ -440,8 +440,8 @@
                 "3.EvaluateStatement": 18
             ]
             $bytecode: '
-                38012807D08B3802D08BE003800138012807D08B3803D08BC0516001D001
-                E801800238012809D08BC051280BD001E802800260025000
+                38012807D00C3802D00CE003800138012807D00C3803D00CC0526001D001
+                E801800238012809D00CC052280BD001E802800260025000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"

@@ -128,9 +128,9 @@
                 "3.ReturnStatement": 38
             ]
             $bytecode: '
-                200A3801C0513802D001E80280034000001F80016001280CD02818153002
-                F001800230015000001F6001280BD028181D3801E0018002001F60015800
-                00003002C0513802D001F80280023001C85C5000
+                200A3801C0523802D001E80280034000001F80016001280CD02A18153002
+                F001800230015000001F6001280BD02A181D3801E0018002001F60015800
+                00003002C0523802D001F80280023001C85D5000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -167,7 +167,7 @@
                 CALL $catalog
                 PUSH LITERAL `$type`
                 PUSH LITERAL `/bali/collections/Set/v1`
-                CALL $setValue WITH 3 ARGUMENTS
+                CALL $setAttribute WITH 3 ARGUMENTS
                 CALL $set WITH 2 ARGUMENTS
                 NOTE --Add an item to the set.
                 PUSH LITERAL `"alpha"`
@@ -177,7 +177,7 @@
             $addresses: [
                 "1.ReturnStatement": 1
             ]
-            $bytecode: '2805C01428082801D884D080280AD0015000'(
+            $bytecode: '2805C01628082801D882D081280AD0015000'(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
@@ -244,7 +244,7 @@
                 NOTE --Load a copy of the named contract from the repository.
                 LOAD CONTRACT $name-2
                 PUSH LITERAL `$document`
-                CALL $keyValue WITH 2 ARGUMENTS
+                CALL $attribute WITH 2 ARGUMENTS
                 CALL $duplicate WITH 1 ARGUMENT
                 SAVE VARIABLE $document-3
                 NOTE --Calculate the new version string for the new document and save it.
@@ -279,7 +279,7 @@
                 NOTE --Load a copy of the named contract from the repository.
                 LOAD CONTRACT $name-6
                 PUSH LITERAL `$document`
-                CALL $keyValue WITH 2 ARGUMENTS
+                CALL $attribute WITH 2 ARGUMENTS
                 CALL $duplicate WITH 1 ARGUMENT
                 SAVE VARIABLE $document-7
                 NOTE --Calculate the new version string for the new document and save it.
@@ -347,10 +347,10 @@
                 "7.PostStatement": 56
             ]
             $bytecode: '
-                3003800970092806D04DC829800760072809D0602803D05B800D60072809
-                600DD8824800600780063004800A6006900A3004800B700B2806D04DC829
-                800860082809D0602804D05B800E60082809600ED8824800600880066006
-                88056005800360038004A804280280013007980130068002C0142807280D
+                3003800970092806D00CC82B800760072809D0612803D05C800D60072809
+                600DD8844800600780063004800A6006900A3004800B700B2806D00CC82B
+                800860082809D0612804D05C800E60082809600ED8844800600880066006
+                88056005800360038004A804280280013007980130068002C0162807280D
                 D00BD0019802600C5000
             '(
                 $encoding: $base16

@@ -144,7 +144,7 @@ const Processor = function(repository, debug) {
 
     const toCatalog = function() {
         const catalog = task.toCatalog();
-        catalog.getValue('$contexts').addItem(context.toCatalog());
+        catalog.getAttribute('$contexts').addItem(context.toCatalog());
         return catalog;
     };
 
@@ -172,10 +172,10 @@ const Processor = function(repository, debug) {
         var typeName = target.getType() + '/v1';  // YUCK!
         while (typeName.toString() !== 'none') {
             type = await repository.retrieveDocument(typeName);
-            const methods = type.getValue('$methods');
-            method = methods.getValue(message);
+            const methods = type.getAttribute('$methods');
+            method = methods.getAttribute(message);
             if (method) break;
-            typeName = type.getValue('$parent');
+            typeName = type.getAttribute('$parent');
         };
         if (!method) {
             const exception = new Exception({
@@ -191,42 +191,42 @@ const Processor = function(repository, debug) {
         }
 
         // retrieve the literals and constants for the type
-        const literals = type.getValue('$literals') || bali.set();
-        const constants = type.getValue('$constants') || bali.catalog();
+        const literals = type.getAttribute('$literals') || bali.set();
+        const constants = type.getAttribute('$constants') || bali.catalog();
 
         // retrieve the bytecode for the method
-        const bytes = method.getValue('$bytecode').getValue();
+        const bytes = method.getAttribute('$bytecode').getValue();
         const bytecode = bali.binary(bytes, {$encoding: '$base16', $mediaType: '"application/bcod"'});
 
         // set the argument values for the passed arguments
-        var nameIterator = method.getValue('$arguments').getIterator();
+        var nameIterator = method.getAttribute('$arguments').getIterator();
         nameIterator.getNext();  // skip the $target name
         const argumentz = bali.catalog({$target: target});
         var valueIterator = args.getIterator();
         while (nameIterator.hasNext() && valueIterator.hasNext()) {
             const name = nameIterator.getNext();
             const value = valueIterator.getNext();
-            argumentz.setValue(name, value);
+            argumentz.setAttribute(name, value);
         }
 
         // set the rest of the argument values to their default values (or 'none')
-        const procedure = method.getValue('$procedure');
+        const procedure = method.getAttribute('$procedure');
         while (nameIterator.hasNext()) {
             const name = nameIterator.getNext();
             const value = procedure.getParameter(name) || bali.pattern.NONE;
-            argumentz.setValue(name, value);
+            argumentz.setAttribute(name, value);
         }
 
         // set the initial values of the variables to 'none'
         const variables = bali.catalog();
-        const iterator = method.getValue('$variables').getIterator();
+        const iterator = method.getAttribute('$variables').getIterator();
         while (iterator.hasNext()) {
             const name = iterator.getNext();
-            variables.setValue(name, bali.pattern.NONE);
+            variables.setAttribute(name, bali.pattern.NONE);
         }
 
         // retrieve the sent messages from the method
-        const messages = method.getValue('$messages');
+        const messages = method.getAttribute('$messages');
 
         // create an empty exception handler stack
         const handlers = bali.stack();
@@ -326,7 +326,7 @@ const Processor = function(repository, debug) {
         const target = await repository.retrieveDocument(nameOrCitation);
         const childTask = createTask(task.getAccount(), task.splitTokens());
         const childContext = await createContext(target, message, args);
-        childTask.getValue('$contexts').addItem(childContext);
+        childTask.getAttribute('$contexts').addItem(childContext);
         const tag = childTask.getParameter('$tag');
         await repository.postMessage('/bali/vm/tasks/v1', childTask);
         return tag;
@@ -519,7 +519,7 @@ const Processor = function(repository, debug) {
 
         // DROP DOCUMENT citation
         async function(operand) {
-            const citation = context.getVariable(operand);
+            const citation = context.getVariable(operand).getValue();
             await repository.discardDocument(citation);
             context.incrementAddress();
         },
@@ -533,7 +533,7 @@ const Processor = function(repository, debug) {
 
         // DROP MESSAGE message
         async function(operand) {
-            const message = context.getVariable(operand);
+            const message = context.getVariable(operand).getValue();
             await repository.acceptMessage(message);
             context.incrementAddress();
         },
