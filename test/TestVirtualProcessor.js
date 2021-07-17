@@ -8,7 +8,7 @@
  * Source Initiative. (See http://opensource.org/licenses/MIT)          *
  ************************************************************************/
 
-const debug = 1;  // set to true for error logging
+const debug = 1;  // must be set to at least 1 for unit testing
 const directory = 'test/config/';
 const pfs = require('fs').promises;
 const mocha = require('mocha');

@@ -301,7 +301,7 @@ const Processor = function(repository, debug) {
             if (debug) console.error('FOUND BUG IN PROCESSOR: ' + exception);
         }
         task.pushComponent(exception.attributes);
-        await instructionHandlers[29]();  // HANDLE EXCEPTION instruction
+        await instructionHandlers[11]();  // PULL EXCEPTION instruction
     };
 
     const publishNotification = async function() {
