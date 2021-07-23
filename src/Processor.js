@@ -345,20 +345,19 @@ const Processor = function(repository, debug) {
             }
         },
 
-        // JUMP TO label ON NONE
+        // JUMP TO label ON EMPTY
         async function(operand) {
-            const condition = task.popComponent();
-            if (condition.isEqualTo(bali.pattern.NONE)) {
+            if (!task.hasComponents()) {
                 context.jumpToAddress(operand);
             } else {
                 context.incrementAddress();
             }
         },
 
-        // JUMP TO label ON TRUE
+        // JUMP TO label ON NONE
         async function(operand) {
             const condition = task.popComponent();
-            if (condition.toBoolean()) {
+            if (condition.isEqualTo(bali.pattern.NONE)) {
                 context.jumpToAddress(operand);
             } else {
                 context.incrementAddress();
