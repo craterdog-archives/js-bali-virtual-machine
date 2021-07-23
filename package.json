@@ -1,6 +1,6 @@
 {
   "name": "bali-virtual-machine",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "This project defines the interface to, and an implementation of the Bali Nebula™ virtual machine.",
   "repository": {
     "type": "git",
@@ -33,7 +33,7 @@
     "webpack": "^5.41.0",
     "bali-digital-notary": "^2.15.0",
     "bali-document-repository": "^2.30.0",
-    "bali-type-compiler": "^2.5.0"
+    "bali-type-compiler": "^2.7.0"
   },
   "dependencies": {
     "bali-component-framework": "^2.26.0"
