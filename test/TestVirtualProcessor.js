@@ -151,10 +151,8 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SEND $test3 TO COMPONENT WITH ARGUMENTS
-            console.log('PROCESSOR BEFORE: ' + processor);
             expect(getInstruction(processor)).to.equal('SEND 2');
             expect(await processor.stepClock()).to.equal(true);
-            console.log('PROCESSOR AFTER: ' + processor);
             expect(processor.getTask().hasComponents()).to.equal(false);
             expect(processor.getTask().hasContexts()).to.equal(true);
 //              1.ThrowStatement:
