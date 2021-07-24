@@ -106,7 +106,7 @@ describe('Bali Virtual Machine™', function() {
 
                 // check for differences
                 source = type.toString() + '\n';  // POSIX compliant <EOL>
-                await pfs.writeFile(typeFile, source, 'utf8');
+                //await pfs.writeFile(typeFile, source, 'utf8');
                 const expected = await pfs.readFile(typeFile, 'utf8');
                 expect(expected).to.exist;
                 expect(source).to.equal(expected);
@@ -124,12 +124,11 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the control test "good" route successfully', async function() {
             const tokens = bali.number(100);
-            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
             const message = bali.symbol('test1');
             const args = bali.list(['"good"']);
             const processor = vm.processor();
             expect(processor).to.exist;
-            await processor.newTask(account, tokens, target, message, args);
+            await processor.newTask(account, tokens, '/bali/instances/Test/v1', message, args);
 //          1.EvaluateStatement:
 //          PUSH HANDLER 1.EvaluateStatementHandler
             expect(getInstruction(processor)).to.equal('PUSH HANDLER');
@@ -152,8 +151,10 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SEND $test3 TO COMPONENT WITH ARGUMENTS
+            console.log('PROCESSOR BEFORE: ' + processor);
             expect(getInstruction(processor)).to.equal('SEND 2');
             expect(await processor.stepClock()).to.equal(true);
+            console.log('PROCESSOR AFTER: ' + processor);
             expect(processor.getTask().hasComponents()).to.equal(false);
             expect(processor.getTask().hasContexts()).to.equal(true);
 //              1.ThrowStatement:
@@ -216,12 +217,11 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the control test "bad" route successfully', async function() {
             const tokens = bali.number(100);
-            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
             const message = bali.symbol('test1');
             const args = bali.list(['"bad"']);
             const processor = vm.processor();
             expect(processor).to.exist;
-            await processor.newTask(account, tokens, target, message, args);
+            await processor.newTask(account, tokens, '/bali/instances/Test/v1', message, args);
 //          1.EvaluateStatement:
 //          PUSH HANDLER 1.EvaluateStatementHandler
             expect(getInstruction(processor)).to.equal('PUSH HANDLER');
@@ -405,12 +405,11 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the control test "ugly" route successfully', async function() {
             const tokens = bali.number(100);
-            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
             const message = bali.symbol('test1');
             const args = bali.list([]);
             const processor = vm.processor();
             expect(processor).to.exist;
-            await processor.newTask(account, tokens, target, message, args);
+            await processor.newTask(account, tokens, '/bali/instances/Test/v1', message, args);
 //          1.EvaluateStatement:
 //          PUSH HANDLER 1.EvaluateStatementHandler
             expect(getInstruction(processor)).to.equal('PUSH HANDLER');
@@ -501,12 +500,11 @@ describe('Bali Virtual Machine™', function() {
 
         it('should cause the VM to step through the document management test successfully', async function() {
             const tokens = bali.number(100);
-            const target = await repository.retrieveDocument('/bali/instances/Test/v1');
             const message = bali.symbol('test4');
             const args = bali.list([]);
             const processor = vm.processor();
             expect(processor).to.exist;
-            await processor.newTask(account, tokens, target, message, args);
+            await processor.newTask(account, tokens, '/bali/instances/Test/v1', message, args);
 //          1.CheckoutStatement:
 //          ---- Save the name of the contract.
 //          PUSH CONSTANT $firstVersion

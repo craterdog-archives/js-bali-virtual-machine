@@ -42,6 +42,7 @@ const Processor = function(repository, debug) {
 
     // PUBLIC METHODS
 
+    // These functions introduce a security risk and should only be needed for debugging.
     if (debug) {
         this.getTask = function() { return task; };
         this.getContext = function() { return context; };
@@ -59,19 +60,20 @@ const Processor = function(repository, debug) {
 
     /**
      * This method creates a new task for this processor to execute based on the specified
-     * account information, target component, and message with any arguments that were passed
-     * with it.  Once created, the task is activated and ready to run.
+     * account information, target document name or citation, and message with any arguments
+     * that were passed with it.  Once created, the task is activated and ready to run.
      *
      * @param {Tag} account The tag for the account to which this task execution should be billed.
      * @param {Number} tokens The maximum number of tokens that should be used during execution.
-     * @param {Component} target The component that received the specified message.
+     * @param {String|Name|Catalog} target The name of or citation to the target document.
      * @param {Symbol} message The symbol for the message corresponding to the method to be
      * executed.
      * @param {List} args The list of argument values (if any) that were passed with the message.
      */
     this.newTask = async function(account, tokens, target, message, args) {
         task = new Task(createTask(account, tokens), debug);
-        context = new Context(await createContext(target, message, args), debug);
+        const document = await repository.retrieveDocument(target);
+        context = new Context(await createContext(document, message, args), debug);
     };
 
     /**
@@ -166,7 +168,7 @@ const Processor = function(repository, debug) {
     };
 
     const createContext = async function(target, message, args) {
-        // retrieve the type of the target and method matching the message
+        // retrieve the type of the target component and the method matching the message
         const ancestry = target.getAncestry();
         var type, method;
         var typeName = target.getType() + '/v1';  // YUCK!
@@ -313,19 +315,19 @@ const Processor = function(repository, debug) {
         await repository.postMessage('/bali/vm/events/v1', event);
     };
 
-    const pushContext = async function(target, message, args) {
+    const pushContext = async function(component, message, args) {
         task.pushContext(context.toCatalog());  // add the current context to the context stack
-        context = new Context(await createContext(target, message, args), debug);
+        context = new Context(await createContext(component, message, args), debug);
     };
 
     const popContext = function() {
         context = new Context(task.popContext(), debug);
     };
 
-    const spawnTask = async function(nameOrCitation, message, args) {
-        const target = await repository.retrieveDocument(nameOrCitation);
+    const spawnTask = async function(target, message, args) {
+        const document = await repository.retrieveDocument(target);
         const childTask = createTask(task.getAccount(), task.splitTokens());
-        const childContext = await createContext(target, message, args);
+        const childContext = await createContext(document, message, args);
         childTask.getAttribute('$contexts').addItem(childContext);
         const tag = childTask.getParameter('$tag');
         await repository.postMessage('/bali/vm/tasks/v1', childTask);
@@ -575,26 +577,26 @@ const Processor = function(repository, debug) {
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = bali.list();
-            const target = task.popComponent();
+            const component = task.popComponent();
             context.incrementAddress();  // MUST do before pushing context
-            await pushContext(target, message, argumentz);
+            await pushContext(component, message, argumentz);
         },
 
         // SEND message TO COMPONENT WITH ARGUMENTS
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = task.popComponent();
-            const target = task.popComponent();
+            const component = task.popComponent();
             context.incrementAddress();  // MUST do before pushing context
-            await pushContext(target, message, argumentz);
+            await pushContext(component, message, argumentz);
         },
 
         // SEND message TO DOCUMENT
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = bali.list();
-            const nameOrCitation = task.popComponent().toString();
-            const tag = await spawnTask(nameOrCitation, message, argumentz);
+            const target = task.popComponent();
+            const tag = await spawnTask(target, message, argumentz);
             task.pushComponent(tag);
             context.incrementAddress();
         },
@@ -603,8 +605,8 @@ const Processor = function(repository, debug) {
         async function(operand) {
             const message = context.getMessage(operand);
             const argumentz = task.popComponent();
-            const nameOrCitation = task.popComponent().toString();
-            const tag = await spawnTask(nameOrCitation, message, argumentz);
+            const target = task.popComponent();
+            const tag = await spawnTask(target, message, argumentz);
             task.pushComponent(tag);
             context.incrementAddress();
         }
