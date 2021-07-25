@@ -9,6 +9,10 @@
  ************************************************************************/
 'use strict';
 
+const debug = 0;  // set to [0..3] for debug logging
+const bali = require('bali-component-framework').api(debug);
+const compiler = require('bali-type-compiler').api(debug);
+
 /*
  * This class implements a execution context that can be run in the Bali Nebula™.
  */
@@ -32,8 +36,6 @@
  */
 const Context = function(catalog, debug) {
     if (debug === null || debug === undefined) debug = 0;  // default is off
-    const bali = require('bali-component-framework').api(debug);
-    const compiler = require('bali-type-compiler').api(debug);
 
     // PRIVATE ATTRIBUTES
 
@@ -135,4 +137,11 @@ const Context = function(catalog, debug) {
     return this;
 };
 Context.prototype.constructor = Context;
-exports.Context = Context;
+
+
+// Export the context constructors
+
+exports.fromCatalog = function(catalog, debug) {
+    return new Context(catalog, debug);
+};
+

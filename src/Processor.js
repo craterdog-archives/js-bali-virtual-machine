@@ -9,11 +9,15 @@
  ************************************************************************/
 'use strict';
 
+const debug = 0;  // set to [0..3] for debug logging
+const bali = require('bali-component-framework').api(debug);
+const compiler = require('bali-type-compiler').api(debug);
+
 /*
  * This class implements the processor for The Bali Virtual Machine™.
  */
-const Task = require('./Task').Task;
-const Context = require('./Context').Context;
+const Task = require('./Task');
+const Context = require('./Context');
 const EOL = '\n';  // This private constant sets the POSIX end of line character
 
 
@@ -34,8 +38,6 @@ const EOL = '\n';  // This private constant sets the POSIX end of line character
  */
 const Processor = function(repository, debug) {
     if (debug === null || debug === undefined) debug = 0;  // default is off
-    const bali = require('bali-component-framework').api(debug);
-    const compiler = require('bali-type-compiler').api(debug);
     const decoder = bali.decoder();
     var task, context;  // these are optimized versions of their corresponding catalogs
 
@@ -71,9 +73,9 @@ const Processor = function(repository, debug) {
      * @param {List} args The list of argument values (if any) that were passed with the message.
      */
     this.newTask = async function(account, tokens, target, message, args) {
-        task = new Task(createTask(account, tokens), debug);
+        task = Task.create(account, tokens, debug);
         const document = await repository.retrieveDocument(target);
-        context = new Context(await createContext(document, message, args), debug);
+        context = await createContext(document, message, args);
     };
 
     /**
@@ -83,7 +85,7 @@ const Processor = function(repository, debug) {
      * @param {Catalog} catalog A catalog containing the current state of the existing task.
      */
     this.loadTask = function(catalog) {
-        task = new Task(catalog, debug);
+        task = Task.fromCatalog(catalog, debug);
         popContext();
     };
 
@@ -148,23 +150,6 @@ const Processor = function(repository, debug) {
         const catalog = task.toCatalog();
         catalog.getAttribute('$contexts').addItem(context.toCatalog());
         return catalog;
-    };
-
-    const createTask = function(account, tokens) {
-        return bali.catalog({
-            $account: account,
-            $tokens: tokens,
-            $state: Task.ACTIVE,
-            $clock: 0,
-            $components: bali.stack(),
-            $contexts: bali.stack()
-        }, {
-            $type: '/bali/vm/Task/v1',
-            $tag: bali.tag(),
-            $version: bali.version(),
-            $permissions: '/bali/permissions/public/v1',
-            $previous: bali.pattern.NONE
-        });
     };
 
     const createContext = async function(target, message, args) {
@@ -234,7 +219,7 @@ const Processor = function(repository, debug) {
         const handlers = bali.stack();
 
         // create the new method context
-        return bali.catalog({
+        return Context.fromCatalog(bali.catalog({
             $target: target,
             $message: message,
             $arguments: argumentz,
@@ -245,7 +230,7 @@ const Processor = function(repository, debug) {
             $handlers: handlers,
             $bytecode: bytecode,
             $address: 1
-        });
+        }), debug);
     };
 
     const notDone = function() {
@@ -317,20 +302,20 @@ const Processor = function(repository, debug) {
 
     const pushContext = async function(component, message, args) {
         task.pushContext(context.toCatalog());  // add the current context to the context stack
-        context = new Context(await createContext(component, message, args), debug);
+        context = await createContext(component, message, args);
     };
 
     const popContext = function() {
-        context = new Context(task.popContext(), debug);
+        context = Context.fromCatalog(task.popContext(), debug);
     };
 
     const spawnTask = async function(target, message, args) {
         const document = await repository.retrieveDocument(target);
-        const childTask = createTask(task.getAccount(), task.splitTokens());
+        const childTask = Task.create(task.getAccount(), task.splitTokens(), debug);
         const childContext = await createContext(document, message, args);
-        childTask.getAttribute('$contexts').addItem(childContext);
-        const tag = childTask.getParameter('$tag');
-        await repository.postMessage('/bali/vm/tasks/v1', childTask);
+        childTask.pushContext(childContext.toCatalog());
+        const tag = childTask.getTag();
+        await repository.postMessage('/bali/vm/tasks/v1', childTask.toCatalog());
         return tag;
     };
 

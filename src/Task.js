@@ -9,6 +9,9 @@
  ************************************************************************/
 'use strict';
 
+const debug = 0;  // set to [0..3] for debug logging
+const bali = require('bali-component-framework').api(debug);
+
 /*
  * This class implements a task that can be run in the Bali Nebula™.
  */
@@ -44,7 +47,6 @@ const STATES = {
  */
 const Task = function(catalog, debug) {
     if (debug === null || debug === undefined) debug = 0;  // default is off
-    const bali = require('bali-component-framework').api(debug);
 
     // PRIVATE ATTRIBUTES
 
@@ -106,44 +108,40 @@ const Task = function(catalog, debug) {
         return controller.getState() === Task.ACTIVE;
     };
 
-    this.activateTask = function(tokens) {
-        controller.validateEvent('$activate');
-        this.tokens += tokens;
-        controller.transitionState('$activate');
+    this.isPaused = function() {
+        return controller.getState() === Task.PAUSED;
     };
 
     this.isFrozen = function() {
         return controller.getState() === Task.FROZEN;
     };
 
-    this.freezeTask = function() {
-        controller.transitionState('$freeze');
-    };
-
-    this.isPaused = function() {
-        return controller.getState() === Task.PAUSED;
-    };
-
-    this.pauseTask = function() {
-        controller.transitionState('$pause');
-    };
-
     this.hasCompleted = function() {
         return controller.getState() === Task.COMPLETED;
-    };
-
-    this.completeTask = function(result) {
-        controller.validateEvent('$complete');
-        response = result;
-        controller.transitionState('$complete');
     };
 
     this.wasAbandoned = function() {
         return controller.getState() === Task.ABANDONED;
     };
 
+    this.activateTask = function(tokens) {
+        controller.validateEvent('$activate');  // check before adding tokens
+        this.tokens += tokens;
+        controller.transitionState('$activate');
+    };
+
+    this.pauseTask = function() {
+        controller.transitionState('$pause');
+    };
+
+    this.completeTask = function(result) {
+        controller.validateEvent('$complete');  // check before setting the response
+        response = result;
+        controller.transitionState('$complete');
+    };
+
     this.abandonTask = function(exception) {
-        controller.validateEvent('$abandon');
+        controller.validateEvent('$abandon');  // check before setting the response
         response = exception;
         controller.transitionState('$abandon');
     };
@@ -155,6 +153,7 @@ const Task = function(catalog, debug) {
     this.tickClock = function() {
         clock++;
         if (--tokens < 1) {
+            // the task has run out of tokens
             controller.transitionState('$freeze');
         }
     };
@@ -191,4 +190,28 @@ Task.FROZEN = '$frozen';
 Task.PAUSED = '$paused';
 Task.COMPLETED = '$completed';
 Task.ABANDONED = '$abandoned';
-exports.Task = Task;
+
+
+// Export the task constructors
+
+exports.create = function(account, tokens, debug) {
+    return new Task(bali.catalog({
+        $account: account,
+        $tokens: tokens,
+        $state: Task.ACTIVE,
+        $clock: 0,
+        $components: bali.stack(),
+        $contexts: bali.stack()
+    }, {
+        $type: '/bali/vm/Task/v1',
+        $tag: bali.tag(),
+        $version: bali.version(),
+        $permissions: '/bali/permissions/public/v1',
+        $previous: bali.pattern.NONE
+    }), debug);
+};
+
+exports.fromCatalog = function(catalog, debug) {
+    return new Task(catalog, debug);
+};
+
