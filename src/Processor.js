@@ -86,7 +86,7 @@ const Processor = function(repository, debug) {
      */
     this.loadTask = function(catalog) {
         task = Task.fromCatalog(catalog, debug);
-        popContext();
+        popContext();  // the current context was on the top of the context stack
     };
 
     /**
@@ -120,9 +120,9 @@ const Processor = function(repository, debug) {
      * following occurs:
      * <pre>
      *  * the number of tokens for the account has reached zero,  {$frozen}
-     *  * the task is waiting to retrieve a message from a bag,    {$active}
+     *  * the task is waiting to retrieve a message from a bag,   {$paused}
      *  * the end of the instructions has been reached,           {$completed}
-     *  * or an unhandled exception has been thrown.              {$failed}
+     *  * or an unhandled exception has been thrown.              {$abandoned}
      * </pre>
      */
     this.runClock = async function() {
@@ -147,8 +147,9 @@ const Processor = function(repository, debug) {
     // PRIVATE FUNCTIONS
 
     const toCatalog = function() {
+        // we cannot add the current context to the top of the contexts in the actual task, so...
         const catalog = task.toCatalog();
-        catalog.getAttribute('$contexts').addItem(context.toCatalog());
+        catalog.getAttribute('$contexts').addItem(context.toCatalog());  // add it manually
         return catalog;
     };
 
@@ -230,7 +231,7 @@ const Processor = function(repository, debug) {
             $handlers: handlers,
             $bytecode: bytecode,
             $address: 1
-        }), debug);
+        }), debug);  // the context is never stored in the repository so no parameterization needed
     };
 
     const notDone = function() {
@@ -272,7 +273,7 @@ const Processor = function(repository, debug) {
             stack.forEach(function(line, index) {
                 line = '  ' + line;
                 if (line.length > 80) {
-                    line = line.slice(0, 44) + '..' + line.slice(-35, -1);
+                    line = line.slice(0, 44) + '..' + line.slice(-35, -1);  // shorten line to 80 chars
                 }
                 stack[index] = line;
             });

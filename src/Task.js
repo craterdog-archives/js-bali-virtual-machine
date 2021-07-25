@@ -50,7 +50,11 @@ const Task = function(catalog, debug) {
 
     // PRIVATE ATTRIBUTES
 
-    const tag = catalog.getParameter('$tag') || bali.tag();
+    const type = catalog.getParameter('$type');
+    const tag = catalog.getParameter('$tag');
+    const version = catalog.getParameter('$version');
+    const permissions = catalog.getParameter('$permissions');
+    const previous = catalog.getParameter('$previous');
     const account = catalog.getAttribute('$account');
     var tokens = catalog.getAttribute('$tokens').toNumber();  // optimization
     const controller = bali.controller(REQUESTS, STATES, catalog.getAttribute('$state').toString(), debug);
@@ -74,11 +78,12 @@ const Task = function(catalog, debug) {
             $clock: clock,
             $components: components.duplicate(),  // capture current state
             $contexts: contexts.duplicate()  // capture current state
-        }, {
+        }, {  // requires parameterization since it is saved in the repository
+            $type: type,
             $tag: tag,
-            $version: bali.version(),
-            $permissions: '/bali/permissions/public/v1',
-            $previous: bali.pattern.NONE
+            $version: version,
+            $permissions: permissions,
+            $previous: previous
         });
     };
 
@@ -202,7 +207,7 @@ exports.create = function(account, tokens, debug) {
         $clock: 0,
         $components: bali.stack(),
         $contexts: bali.stack()
-    }, {
+    }, {  // requires parameterization since it is saved in the repository
         $type: '/bali/vm/Task/v1',
         $tag: bali.tag(),
         $version: bali.version(),
