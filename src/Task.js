@@ -35,7 +35,7 @@ const STATES = {
  * resulting task object has been optimized to run more efficiently on the Bali Virtual Machine™.
  *
  * @param {Object} catalog A catalog containing the attributes for the task.
- * @param {Boolean|Number} debug An optional number in the range [0..3] that controls the level of
+ * @param {Boolean|Number} debug An optional number in the range 0..3 that controls the level of
  * debugging that occurs:
  * <pre>
  *   0 (or false): no logging

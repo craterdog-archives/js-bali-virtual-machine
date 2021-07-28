@@ -26,7 +26,7 @@ const EOL = '\n';  // This private constant sets the POSIX end of line character
  *
  * @constructor
  * @param {Object} repository An object that implements the Bali Document Repository™ interface.
- * @param {Boolean|Number} debug An optional number in the range [0..3] that controls the level of
+ * @param {Boolean|Number} debug An optional number in the range 0..3 that controls the level of
  * debugging that occurs:
  * <pre>
  *   0 (or false): no logging
@@ -318,6 +318,11 @@ const Processor = function(repository, debug) {
         const tag = childTask.getTag();
         await repository.postMessage('/bali/vm/tasks/v1', childTask.toCatalog());
         return tag;
+    };
+
+    const resetProcessor = function() {
+        task = undefined;
+        context = undefined;
     };
 
 

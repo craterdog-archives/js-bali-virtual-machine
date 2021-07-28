@@ -16,7 +16,7 @@ const Processor = require('./src/Processor').Processor;
  * This function returns an object that implements the Bali Virtual Machine™ interface.
  *
  * @param {Object} repository An object that implements the Bali Document Repository™ interface.
- * @param {Boolean|Number} debug An optional number in the range [0..3] that controls the level of
+ * @param {Boolean|Number} debug An optional number in the range 0..3 that controls the level of
  * debugging that occurs:
  * <pre>
  *   0 (or false): no logging
