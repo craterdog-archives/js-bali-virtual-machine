@@ -21,7 +21,6 @@ const storage = Repository.test(notary, directory, debug);
 const repository = Repository.repository(notary, storage, debug);
 const compiler = require('bali-type-compiler').api(debug);
 const vm = require('../index').api(repository, debug);
-const EOL = '\n';  // POSIX end of line character
 const TASK_BAG = '/bali/vm/tasks/v1';
 const EVENT_BAG = '/bali/vm/events/v1';
 const MESSAGE_BAG = '/bali/vm/messages/v1';
@@ -105,7 +104,7 @@ describe('Bali Virtual Machine™', function() {
                 compiler.compileType(type);
 
                 // check for differences
-                source = type.toString() + '\n';  // POSIX compliant <EOL>
+                source = type.toDocument();
                 //await pfs.writeFile(typeFile, source, 'utf8');
                 const expected = await pfs.readFile(typeFile, 'utf8');
                 expect(expected).to.exist;
@@ -113,12 +112,12 @@ describe('Bali Virtual Machine™', function() {
 
                 // publish the type in the repository
                 var name = '/bali/types/' + prefix + '/v1';
-                await repository.commitDocument(name, type);
+                await repository.signContract(name, type);
 
                 // publish an instance of the type in the repository
                 const instance = bali.instance(name, {});
                 name = '/bali/instances/' + prefix + '/v1';
-                await repository.commitDocument(name, instance);
+                await repository.signContract(name, instance);
             }
         });
 

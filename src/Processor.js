@@ -67,15 +67,21 @@ const Processor = function(repository, debug) {
      *
      * @param {Tag} account The tag for the account to which this task execution should be billed.
      * @param {Number} tokens The maximum number of tokens that should be used during execution.
-     * @param {String|Name|Catalog} target The name of or citation to the target document.
+     * @param {String|Name|Catalog} identifier The name of or citation to the target document.
      * @param {Symbol} message The symbol for the message corresponding to the method to be
      * executed.
      * @param {List} args The list of argument values (if any) that were passed with the message.
      */
-    this.newTask = async function(account, tokens, target, message, args) {
+    this.newTask = async function(account, tokens, identifier, message, args) {
+        var target;
         task = Task.create(account, tokens, debug);
-        const document = await repository.retrieveDocument(target);
-        context = await createContext(document, message, args);
+        if (typeof identifier === 'string' || identifier.isComponent && identifier.isType('/bali/elements/Name')) {
+            const contract = await repository.retrieveContract(identifier);
+            target = contract.getAttribute('$document');
+        } else {
+            target = await repository.retrieveDocument(identifier);
+        }
+        context = await createContext(target, message, args);
     };
 
     /**
@@ -159,7 +165,8 @@ const Processor = function(repository, debug) {
         var type, method;
         var typeName = target.getType() + '/v1';  // YUCK!
         while (typeName.toString() !== 'none') {
-            type = await repository.retrieveDocument(typeName);
+            const contract = await repository.retrieveContract(typeName);
+            type = contract.getAttribute('$document');
             const methods = type.getAttribute('$methods');
             method = methods.getAttribute(message);
             if (method) break;
@@ -310,10 +317,16 @@ const Processor = function(repository, debug) {
         context = Context.fromCatalog(task.popContext(), debug);
     };
 
-    const spawnTask = async function(target, message, args) {
-        const document = await repository.retrieveDocument(target);
+    const spawnTask = async function(identifier, message, args) {
+        var target;
+        if (typeof identifier === 'string' || identifier.isComponent && identifier.isType('/bali/elements/Name')) {
+            const contract = await repository.retrieveContract(identifier);
+            target = contract.getAttribute('$document');
+        } else {
+            target = await repository.retrieveDocument(identifier);
+        }
         const childTask = Task.create(task.getAccount(), task.splitTokens(), debug);
-        const childContext = await createContext(document, message, args);
+        const childContext = await createContext(target, message, args);
         childTask.pushContext(childContext.toCatalog());
         const tag = childTask.getTag();
         await repository.postMessage('/bali/vm/tasks/v1', childTask.toCatalog());
@@ -490,7 +503,7 @@ const Processor = function(repository, debug) {
         async function(operand) {
             const document = task.popComponent();
             const name = context.getVariable(operand).getValue();
-            await repository.commitDocument(name, document);
+            await repository.signContract(name, document);
             context.incrementAddress();
         },
 
