@@ -227,7 +227,7 @@
             "($mediaType: "application/bsmd")
             $procedure: {
                 checkout $document from firstVersion
-                commit document to secondVersion
+                sign document as secondVersion
                 checkout level 2 of $document from secondVersion
                 save document as $citation
                 discard citation
@@ -264,11 +264,11 @@
                 LOAD VARIABLE $document-3
                 SAVE VARIABLE $document
                 
-                2.CommitStatement:
+                2.SignStatement:
                 NOTE --Save the name of the new contract.
                 PUSH CONSTANT $secondVersion
                 SAVE VARIABLE $name-5
-                NOTE --Commit the named contract to the repository.
+                NOTE --Sign the named contract and save to the repository.
                 LOAD VARIABLE $document
                 SAVE CONTRACT $name-5
                 
@@ -339,7 +339,7 @@
             "($mediaType: "application/basm")
             $addresses: [
                 "1.CheckoutStatement": 1
-                "2.CommitStatement": 21
+                "2.SignStatement": 21
                 "3.CheckoutStatement": 25
                 "4.SaveStatement": 45
                 "5.DiscardStatement": 49
