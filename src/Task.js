@@ -56,9 +56,9 @@ const Task = function(catalog, debug) {
     const permissions = catalog.getParameter('$permissions');
     const previous = catalog.getParameter('$previous');
     const account = catalog.getAttribute('$account');
-    var tokens = catalog.getAttribute('$tokens').toNumber();  // optimization
+    var tokens = catalog.getAttribute('$tokens').toInteger();  // optimization
     const controller = bali.controller(REQUESTS, STATES, catalog.getAttribute('$state').toString(), debug);
-    var clock = catalog.getAttribute('$clock').toNumber();  // optimization
+    var clock = catalog.getAttribute('$clock').toInteger();  // optimization
     const components = catalog.getAttribute('$components') || bali.stack();
     const contexts = catalog.getAttribute('$contexts') || bali.stack();
     var response;

@@ -49,7 +49,7 @@ const Context = function(catalog, debug) {
     const handlers = catalog.getAttribute('$handlers');
     const bytes = catalog.getAttribute('$bytecode').getValue();
     const bytecode = compiler.bytecode(bytes);  // optimization
-    var address = catalog.getAttribute('$address').toNumber();  // optimization
+    var address = catalog.getAttribute('$address').toInteger();  // optimization
 
 
     // PUBLIC METHODS
@@ -111,7 +111,7 @@ const Context = function(catalog, debug) {
     };
 
     this.popHandler = function() {
-        return handlers.removeItem().toNumber();
+        return handlers.removeItem().toInteger();
     };
 
     this.hasInstruction = function() {
@@ -131,7 +131,7 @@ const Context = function(catalog, debug) {
     };
 
     this.jumpToHandler = function() {
-        address = handlers.removeItem().toNumber();  // optimized
+        address = handlers.removeItem().toInteger();  // optimized
     };
 
     return this;
