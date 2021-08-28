@@ -17,7 +17,7 @@ describe('Bali Virtual Machine™', function() {
 
         it('should create the initial task context', function() {
             const vm = require('../index.js');
-            expect(vm).to.exist;  // jshint ignore:line
+            expect(vm).to.exist;
         });
 
     });
