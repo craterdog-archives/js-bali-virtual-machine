@@ -534,12 +534,16 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $parameters WITH 1 ARGUMENT
+            expect(getInstruction(processor)).to.equal('CALL $parameters');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `$version`
             expect(getInstruction(processor)).to.equal('PUSH LITERAL');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          CALL $parameter WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL $parameter');
+//          CALL $attribute WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $attribute');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `0`
@@ -641,12 +645,16 @@ describe('Bali Virtual Machine™', function() {
             expect(getInstruction(processor)).to.equal('LOAD VARIABLE');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
+//          CALL $parameters WITH 1 ARGUMENT
+            expect(getInstruction(processor)).to.equal('CALL $parameters');
+            expect(await processor.stepClock()).to.equal(true);
+            expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `$version`
             expect(getInstruction(processor)).to.equal('PUSH LITERAL');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
-//          CALL $parameter WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL $parameter');
+//          CALL $attribute WITH 2 ARGUMENTS
+            expect(getInstruction(processor)).to.equal('CALL $attribute');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `2`
