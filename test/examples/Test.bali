@@ -128,9 +128,9 @@
                 "3.ReturnStatement": 38
             ]
             $bytecode: '
-                200A3801C0543802D001E80280034000001F80016001280CD02A18153002
-                F001800230015000001F6001280BD02A181D3801E0018002001F60015800
-                00003002C0543802D001F80280023001C8605000
+                200A3801C0413802D001E80280034000001F80016001280CD02418153002
+                F001800230015000001F6001280BD024181D3801E0018002001F60015800
+                00003002C0413802D001F80280023001C84D5000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -161,14 +161,13 @@
             }
             $instructions: "
                 1.ReturnStatement:
-                NOTE --Place an empty parameterized set on the stack.
-                PUSH LITERAL `none`
+                NOTE --Place an empty set on the stack.
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$type`
                 PUSH LITERAL `/bali/collections/Set/v1`
                 CALL $setAttribute WITH 3 ARGUMENTS
-                CALL $set WITH 2 ARGUMENTS
+                CALL $set WITH 1 ARGUMENT
                 NOTE --Add an item to the set.
                 PUSH LITERAL `"alpha"`
                 CALL $addItem WITH 2 ARGUMENTS
@@ -177,7 +176,7 @@
             $addresses: [
                 "1.ReturnStatement": 1
             ]
-            $bytecode: '2805C01528082801D883D082280AD0015000'(
+            $bytecode: 'C01328082801D86CC86B280AD0015000'(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
@@ -327,6 +326,7 @@
                 PUSH CONSTANT $bag
                 SAVE VARIABLE $bag-12
                 NOTE --Post a message to the named message bag.
+                NOTE --Place an empty catalog on the stack.
                 CALL $catalog
                 NOTE --Add an item to the catalog.
                 PUSH LITERAL `$text`
@@ -347,11 +347,11 @@
                 "7.PostStatement": 56
             ]
             $bytecode: '
-                3003800970092806D00BC82B800760072809D0632803D05E800D60072809
-                600DD8854800600780063004800A6006900A3004800B700B2806D00BC82B
-                800860082809D0632804D05E800E60082809600ED8854800600880066006
-                88056005800360038004A804280280013007980130068002C0152807280D
-                D00AD0019802600C5000
+                3003800970092806D00AC825800760072809D0502803D04B800D60072809
+                600DD8704800600780063004800A6006900A3004800B700B2806D00AC825
+                800860082809D0502804D04B800E60082809600ED8704800600880066006
+                88056005800360038004A804280280013007980130068002C0132807280D
+                D009D0019802600C5000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"

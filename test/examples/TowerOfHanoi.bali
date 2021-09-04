@@ -66,11 +66,11 @@
                 NOTE --Place the recipient and the index of its attribute on the stack.
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$pegs`
+                NOTE --Place an empty catalog on the stack.
                 CALL $catalog
                 NOTE --Add an item to the catalog.
                 PUSH LITERAL `"peg A"`
-                NOTE --Place an empty parameterized stack on the stack.
-                PUSH LITERAL `none`
+                NOTE --Place an empty stack on the stack.
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$type`
@@ -82,20 +82,21 @@
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$range`
-                CALL $list
-                NOTE --Add an item to the list.
-                PUSH LITERAL `1..`
-                CALL $addItem WITH 2 ARGUMENTS
+                NOTE --Place a range on the stack.
+                PUSH LITERAL `".."`
+                CALL $range WITH 1 ARGUMENT
+                NOTE --Set the first item in the range.
+                PUSH LITERAL `1`
+                CALL $setFirst WITH 2 ARGUMENTS
                 CALL $setAttribute WITH 3 ARGUMENTS
                 CALL $setAttribute WITH 3 ARGUMENTS
                 CALL $setAttribute WITH 3 ARGUMENTS
-                CALL $stack WITH 2 ARGUMENTS
+                CALL $stack WITH 1 ARGUMENT
                 CALL $association WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Add another item to the catalog.
                 PUSH LITERAL `"peg B"`
-                NOTE --Place an empty parameterized stack on the stack.
-                PUSH LITERAL `none`
+                NOTE --Place an empty stack on the stack.
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$type`
@@ -107,20 +108,21 @@
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$range`
-                CALL $list
-                NOTE --Add an item to the list.
-                PUSH LITERAL `1..`
-                CALL $addItem WITH 2 ARGUMENTS
+                NOTE --Place a range on the stack.
+                PUSH LITERAL `".."`
+                CALL $range WITH 1 ARGUMENT
+                NOTE --Set the first item in the range.
+                PUSH LITERAL `1`
+                CALL $setFirst WITH 2 ARGUMENTS
                 CALL $setAttribute WITH 3 ARGUMENTS
                 CALL $setAttribute WITH 3 ARGUMENTS
                 CALL $setAttribute WITH 3 ARGUMENTS
-                CALL $stack WITH 2 ARGUMENTS
+                CALL $stack WITH 1 ARGUMENT
                 CALL $association WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Add another item to the catalog.
                 PUSH LITERAL `"peg C"`
-                NOTE --Place an empty parameterized stack on the stack.
-                PUSH LITERAL `none`
+                NOTE --Place an empty stack on the stack.
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$type`
@@ -132,14 +134,16 @@
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$range`
-                CALL $list
-                NOTE --Add an item to the list.
-                PUSH LITERAL `1..`
-                CALL $addItem WITH 2 ARGUMENTS
+                NOTE --Place a range on the stack.
+                PUSH LITERAL `".."`
+                CALL $range WITH 1 ARGUMENT
+                NOTE --Set the first item in the range.
+                PUSH LITERAL `1`
+                CALL $setFirst WITH 2 ARGUMENTS
                 CALL $setAttribute WITH 3 ARGUMENTS
                 CALL $setAttribute WITH 3 ARGUMENTS
                 CALL $setAttribute WITH 3 ARGUMENTS
-                CALL $stack WITH 2 ARGUMENTS
+                CALL $stack WITH 1 ARGUMENT
                 CALL $association WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Assign the result as the value of the attribute.
@@ -150,6 +154,7 @@
                 NOTE --Place the recipient and the index of its attribute on the stack.
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$steps`
+                NOTE --Place an empty list on the stack.
                 CALL $list
                 NOTE --Assign the result as the value of the attribute.
                 CALL $setAttribute WITH 3 ARGUMENTS
@@ -230,14 +235,14 @@
                 "6.ReturnStatement": 105
             ]
             $bytecode: '
-                38012807C015280C2805C015280A2802C01528062803C0152808C0542801
-                D001D883D883D883D08BD00AD001280D2805C015280A2802C01528062803
-                C0152808C0542801D001D883D883D883D08BD00AD001280E2805C015280A
-                2802C01528062803C0152808C0542801D001D883D883D883D08BD00AD001
-                D883480038012809C054D883480038022804D06F80016001E00480026002
-                E003185C6002E006800338012807D00B280CD00BC0546003D001E8018004
-                004B00003801C0543802D001280CD001280ED001280DD001E80580043801
-                2809D00BE0025000
+                38012805C013280BC01328082801C01328042802C01328062809C85B2803
+                D06DD86CD86CD86CC876D009D001280CC01328082801C01328042802C013
+                28062809C85B2803D06DD86CD86CD86CC876D009D001280DC01328082801
+                C01328042802C01328062809C85B2803D06DD86CD86CD86CC876D009D001
+                D86C480038012807C041D86C480038022803D05B80016001E00480026002
+                E003185C6002E006800338012805D00A280BD00AC0416003D001E8018004
+                004B00003801C0413802D001280BD001280DD001280CD001E80580043801
+                2807D00AE0025000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -357,8 +362,8 @@
                 "1.IfStatementDone": 40
             ]
             $bytecode: '
-                0000380218283801C05438022804D028D0013803D0013805D0013804D001
-                E80280013801C0543803D0013804D001E80180013801C05438022804D028
+                0000380218283801C04138022803D022D0013803D0013805D0013804D001
+                E80280013801C0413803D0013804D001E80180013801C04138022803D022
                 D0013805D0013804D0013803D001E802800160015000
             '(
                 $encoding: $base16
@@ -440,8 +445,8 @@
                 "3.EvaluateStatement": 18
             ]
             $bytecode: '
-                38012807D00B3802D00BE003800138012807D00B3803D00BC0546001D001
-                E801800238012809D00BC054280BD001E802800260025000
+                38012805D00A3802D00AE003800138012805D00A3803D00AC0416001D001
+                E801800238012807D00AC041280AD001E802800260025000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -463,16 +468,15 @@
         ]($access: $private)
     ]
     $literals: [
-        1..
         /bali/collections/Stack/v1
         /bali/elements/Number/v1
         1
-        none
         $itemType
         $pegs
         $range
         $steps
         $type
+        ".."
         "Move disk {disk} from {fromPeg} to {toPeg}."
         "peg A"
         "peg B"
