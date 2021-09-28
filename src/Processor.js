@@ -164,10 +164,10 @@ const Processor = function(repository, debug) {
         const ancestry = target.getAncestry();
         var type, method;
         var typeName = target.getType() + '/v1';  // YUCK!
-        while (typeName.toString() !== 'none') {
+        while (typeName && typeName.toString() !== 'none') {
             const contract = await repository.retrieveContract(typeName);
             type = contract.getAttribute('$document');
-            const methods = type.getAttribute('$messages');
+            const methods = type.getAttribute('$methods');
             method = methods.getAttribute(message);
             if (method) break;
             typeName = type.getAttribute('$parent');
