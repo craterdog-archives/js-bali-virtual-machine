@@ -33,7 +33,7 @@
     "webpack": "^5.41.0",
     "bali-digital-notary": "^2.39.0",
     "bali-document-repository": "^2.45.0",
-    "bali-type-compiler": "^2.37.0"
+    "bali-type-compiler": "^2.38.0"
   },
   "dependencies": {
     "bali-component-framework": "^2.69.0"
