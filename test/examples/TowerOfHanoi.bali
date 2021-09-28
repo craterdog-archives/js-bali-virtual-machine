@@ -230,7 +230,7 @@
                 PULL COMPONENT
                 
                 3.EvaluateStatement:
-                LOAD VARIABLE $numberOfDisks
+                PUSH ARGUMENT $numberOfDisks
                 PUSH LITERAL `1`
                 CALL $range WITH 2 ARGUMENTS
                 SAVE VARIABLE $disks
@@ -272,7 +272,7 @@
                 PUSH ARGUMENT $target
                 NOTE --Place a list of the message arguments on the stack.
                 CALL $list
-                LOAD VARIABLE $numberOfDisks
+                PUSH ARGUMENT $numberOfDisks
                 CALL $addItem WITH 2 ARGUMENTS
                 PUSH LITERAL `"peg A"`
                 CALL $addItem WITH 2 ARGUMENTS
@@ -308,9 +308,9 @@
                 D070D86FD86FD86FC87BD009D001280CC01328082802C01328042803C013
                 28062809C85D2801D070D86FD86FD86FC87BD009D001280DC01328082802
                 C01328042803C01328062809C85D2801D070D86FD86FD86FC87BD009D001
-                D86F480038012807C043D86F480060042801D05D80016001E00480026002
-                E003185C6002E006800338012805D00A280BD00AC0436003D001E8018005
-                004B00003801C0436004D001280BD001280DD001280CD001E80580053801
+                D86F480038012807C043D86F480038022801D05D80016001E00480026002
+                E003185C6002E006800338012805D00A280BD00AC0436003D001E8018004
+                004B00003801C0433802D001280BD001280DD001280CD001E80580043801
                 2807D00AE0025000
             '(
                 $encoding: $base16
@@ -318,12 +318,12 @@
             )
             $arguments: [
                 $target
+                $numberOfDisks
             ]
             $variables: [
                 $disks
                 $iterator-2
                 $n
-                $numberOfDisks
                 $result-1
             ]($type: /bali/collections/Set/v1)
             $messages: [
@@ -348,22 +348,22 @@
                 JUMP TO NEXT INSTRUCTION
                 
                 1.1.ConditionClause:
-                LOAD VARIABLE $height
+                PUSH ARGUMENT $height
                 JUMP TO 1.IfStatementDone ON FALSE
                 
                 1.1.1.EvaluateStatement:
                 PUSH ARGUMENT $target
                 NOTE --Place a list of the message arguments on the stack.
                 CALL $list
-                LOAD VARIABLE $height
+                PUSH ARGUMENT $height
                 PUSH LITERAL `1`
                 CALL $difference WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
-                LOAD VARIABLE $fromPeg
+                PUSH ARGUMENT $fromPeg
                 CALL $addItem WITH 2 ARGUMENTS
-                LOAD VARIABLE $withPeg
+                PUSH ARGUMENT $withPeg
                 CALL $addItem WITH 2 ARGUMENTS
-                LOAD VARIABLE $toPeg
+                PUSH ARGUMENT $toPeg
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $moveTower TO COMPONENT WITH ARGUMENTS
@@ -373,9 +373,9 @@
                 PUSH ARGUMENT $target
                 NOTE --Place a list of the message arguments on the stack.
                 CALL $list
-                LOAD VARIABLE $fromPeg
+                PUSH ARGUMENT $fromPeg
                 CALL $addItem WITH 2 ARGUMENTS
-                LOAD VARIABLE $toPeg
+                PUSH ARGUMENT $toPeg
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $moveDisk TO COMPONENT WITH ARGUMENTS
@@ -385,15 +385,15 @@
                 PUSH ARGUMENT $target
                 NOTE --Place a list of the message arguments on the stack.
                 CALL $list
-                LOAD VARIABLE $height
+                PUSH ARGUMENT $height
                 PUSH LITERAL `1`
                 CALL $difference WITH 2 ARGUMENTS
                 CALL $addItem WITH 2 ARGUMENTS
-                LOAD VARIABLE $withPeg
+                PUSH ARGUMENT $withPeg
                 CALL $addItem WITH 2 ARGUMENTS
-                LOAD VARIABLE $toPeg
+                PUSH ARGUMENT $toPeg
                 CALL $addItem WITH 2 ARGUMENTS
-                LOAD VARIABLE $fromPeg
+                PUSH ARGUMENT $fromPeg
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $moveTower TO COMPONENT WITH ARGUMENTS
@@ -412,22 +412,22 @@
                 "1.IfStatementDone": 40
             ]
             $bytecode: '
-                0000600218283801C04360022801D023D0016001D0016005D0016004D001
-                E80280033801C0436001D0016004D001E80180033801C04360022801D023
-                D0016005D0016004D0016001D001E802800360035000
+                0000380218283801C04338022801D023D0013803D0013805D0013804D001
+                E80280013801C0433803D0013804D001E80180013801C04338022801D023
+                D0013805D0013804D0013803D001E802800160015000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
             $arguments: [
                 $target
-            ]
-            $variables: [
-                $fromPeg
                 $height
-                $result-1
+                $fromPeg
                 $toPeg
                 $withPeg
+            ]
+            $variables: [
+                $result-1
             ]($type: /bali/collections/Set/v1)
             $messages: [
                 $moveDisk
@@ -445,7 +445,7 @@
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$pegs`
                 CALL $attribute WITH 2 ARGUMENTS
-                LOAD VARIABLE $fromPeg
+                PUSH ARGUMENT $fromPeg
                 CALL $attribute WITH 2 ARGUMENTS
                 SEND $removeItem TO COMPONENT
                 SAVE VARIABLE $disk
@@ -454,7 +454,7 @@
                 PUSH ARGUMENT $target
                 PUSH LITERAL `$pegs`
                 CALL $attribute WITH 2 ARGUMENTS
-                LOAD VARIABLE $toPeg
+                PUSH ARGUMENT $toPeg
                 CALL $attribute WITH 2 ARGUMENTS
                 NOTE --Place a list of the message arguments on the stack.
                 CALL $list
@@ -484,20 +484,20 @@
                 "3.EvaluateStatement": 18
             ]
             $bytecode: '
-                38012805D00A6002D00AE003800138012805D00A6004D00AC0436001D001
-                E801800338012807D00AC043280AD001E802800360035000
+                38012805D00A3802D00AE003800138012805D00A3803D00AC0436001D001
+                E801800238012807D00AC043280AD001E802800260025000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
             $arguments: [
                 $target
+                $fromPeg
+                $toPeg
             ]
             $variables: [
                 $disk
-                $fromPeg
                 $result-1
-                $toPeg
             ]($type: /bali/collections/Set/v1)
             $messages: [
                 $addItem

@@ -25,6 +25,7 @@
                         This parameter specifies the argument to be passed to the test message.
                     "($mediaType: "application/bsmd")
                     $type: /bali/strings/Text/v1
+                    $default: "ugly"
                 ]
             ]
         ]($type: /bali/aspects/Message/v1)
@@ -69,14 +70,14 @@
                 }
                 contract<-test3(argument)
                 return NOT good
-            }($argument: "ugly")
+            }
             $instructions: "
                 1.EvaluateStatement:
                 PUSH HANDLER 1.EvaluateStatementHandler
                 PUSH ARGUMENT $target
                 NOTE --Place a list of the message arguments on the stack.
                 CALL $list
-                LOAD VARIABLE $argument
+                PUSH ARGUMENT $argument
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $test3 TO COMPONENT WITH ARGUMENTS
@@ -132,7 +133,7 @@
                 PUSH CONSTANT $contract
                 NOTE --Place a list of the message arguments on the stack.
                 CALL $list
-                LOAD VARIABLE $argument
+                PUSH ARGUMENT $argument
                 CALL $addItem WITH 2 ARGUMENTS
                 NOTE --Send the message with its arguments to the recipient.
                 SEND $test3 TO DOCUMENT WITH ARGUMENTS
@@ -160,18 +161,18 @@
                 "3.ReturnStatement": 38
             ]
             $bytecode: '
-                200A3801C0436001D001E80280044000001F80026002280BD02518153002
-                F001800330015000001F6002280AD025181D3801E0018003001F60025800
-                00003002C0436001D001F80280033001C84F5000
+                200A3801C0433802D001E80280034000001F80016001280BD02518153002
+                F001800230015000001F6001280AD025181D3801E0018002001F60015800
+                00003002C0433802D001F80280023001C84F5000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
             $arguments: [
                 $target
+                $argument
             ]
             $variables: [
-                $argument
                 $exception
                 $result-1
                 $x
@@ -220,22 +221,21 @@
             }
             $instructions: "
                 1.ThrowStatement:
-                LOAD VARIABLE $text
+                PUSH ARGUMENT $text
                 PULL EXCEPTION
             "($mediaType: "application/basm")
             $addresses: [
                 "1.ThrowStatement": 1
             ]
-            $bytecode: '60015800'(
+            $bytecode: '38025800'(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
             $arguments: [
                 $target
-            ]
-            $variables: [
                 $text
-            ]($type: /bali/collections/Set/v1)
+            ]
+            $variables: [ ]($type: /bali/collections/Set/v1)
             $messages: [ ]($type: /bali/collections/Set/v1)
         ]($type: /bali/aspects/Method/v1)
         $test4: [
