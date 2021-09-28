@@ -14,7 +14,7 @@
             $tag: #BWWG6DP3XBZ4JTP2XQ1BLN8WF5L9ZX0Y
         ]
     ]
-    $methods: [
+    $messages: [
         $test1: [
             $description: "
                 This method helps test each type of instruction at least once.
@@ -25,7 +25,7 @@
                     $description: "
                         This parameter specifies the argument to be passed to the test message.
                     "($mediaType: "application/bsmd")
-                    $type: /bali/elements/Text/v1
+                    $type: /bali/strings/Text/v1
                 ]
             ]
             $procedure: {
@@ -128,9 +128,9 @@
                 "3.ReturnStatement": 38
             ]
             $bytecode: '
-                200A3801C0413802D001E80280034000001F80016001280CD02418153002
-                F001800230015000001F6001280BD024181D3801E0018002001F60015800
-                00003002C0413802D001F80280023001C84D5000
+                200A3801C0433802D001E80280034000001F80016001280CD02518153002
+                F001800230015000001F6001280BD025181D3801E0018002001F60015800
+                00003002C0433802D001F80280023001C84F5000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -176,7 +176,7 @@
             $addresses: [
                 "1.ReturnStatement": 1
             ]
-            $bytecode: 'C01328082801D86CC86B280AD0015000'(
+            $bytecode: 'C01328082804D86FC86E280AD0015000'(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
@@ -195,7 +195,7 @@
                     $description: "
                         This parameter specifies the text to be thrown in an exception.
                     "($mediaType: "application/bsmd")
-                    $type: /bali/elements/Text/v1
+                    $type: /bali/strings/Text/v1
                 ]
             ]
             $procedure: {
@@ -349,10 +349,10 @@
                 "7.PostStatement": 58
             ]
             $bytecode: '
-                3003800970092806D00AC82580076007C8502809D00A2803D04B800D6007
-                2809600DD8704800600780063004800A6006900A3004800B700B2806D00A
-                C82580086008C8502809D00A2804D04B800E60082809600ED87048006008
-                8006600688056005800360038004A804280280013007980130068002C013
+                3003800970092806D00AC82680076007C8522809D00A2801D04D800D6007
+                2809600DD8734800600780063004800A6006900A3004800B700B2806D00A
+                C82680086008C8522809D00A2802D04D800E60082809600ED87348006008
+                8006600688056005800360038004A804280580013007980130068002C013
                 2807280DD009D0019802600C5000
             '(
                 $encoding: $base16
@@ -417,11 +417,11 @@
         ]
     ]
     $literals: [
-        /bali/collections/Set/v1
-        /bali/vm/events/v1
         0
         2
         none
+        /bali/collections/Set/v1
+        /bali/vm/events/v1
         $document
         $text
         $type

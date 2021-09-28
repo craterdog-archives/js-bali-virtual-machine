@@ -76,8 +76,8 @@ const Task = function(catalog, debug) {
             $tokens: tokens,
             $state: controller.getState(),
             $clock: clock,
-            $components: components.duplicate(),  // capture current state
-            $contexts: contexts.duplicate()  // capture current state
+            $components: bali.duplicate(components),  // capture current state
+            $contexts: bali.duplicate(contexts)  // capture current state
         }, {  // requires parameterization since it is saved in the repository
             $type: type,
             $tag: tag,

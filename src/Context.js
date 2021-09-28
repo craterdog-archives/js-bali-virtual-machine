@@ -60,14 +60,14 @@ const Context = function(catalog, debug) {
         const modifier = compiler.modifier(instruction);
         const operand = compiler.operand(instruction);
         return bali.catalog({
-            $target: target.duplicate(),  // capture the current state
+            $target: bali.duplicate(target),  // capture the current state
             $message: message,
             $arguments: argumentz,
-            $variables: variables.duplicate(),  // capture the current state
+            $variables: bali.duplicate(variables),  // capture the current state
             $constants: constants,
             $literals: literals,
             $messages: messages,
-            $handlers: handlers.duplicate(),  // capture the current state
+            $handlers: bali.duplicate(handlers),  // capture the current state
             $bytecode: bali.binary(bytes, {$encoding: '$base16', $mediaType: '"application/bcod"'}),
             $address: address,
             $instruction: compiler.string(instruction)

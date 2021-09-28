@@ -23,29 +23,37 @@
     $parent: /bali/abstractions/Component/v1
     $attributes: [
         $pegs: [
-            $description: "The three pegs (A, B and C) that are used to hold the disks."
+            $description: "
+                The three pegs (A, B and C) that are used to hold the disks.
+            "($mediaType: "application/bsmd")
             $type: /bali/collections/Catalog/v1(
-                $keyType: /bali/elements/Symbol/v1
+                $keyType: /bali/strings/Symbol/v1
                 $valueType: /bali/collections/Stack/v1($itemType: /bali/elements/Number/v1($range: [1..]))
             )
-        ]
+        ]($type: /bali/aspects/Attribute/v1)
         $steps: [
-            $description: "The steps needed to move the disks."
-            $type: /bali/collections/List/v1($itemType: /bali/elements/Text/v1)
-        ]
+            $description: "
+                The steps needed to move the disks.
+            "($mediaType: "application/bsmd")
+            $type: /bali/collections/List/v1($itemType: /bali/strings/Text/v1)
+        ]($type: /bali/aspects/Attribute/v1)
     ]
-    $methods: [
+    $messages: [
         $play: [
-            $description: "This procedure causes the game to (re)initialize itself and play the game."
+            $description: "
+                This procedure causes the game to (re)initialize itself and play the game.
+            "($mediaType: "application/bsmd")
             $parameters: [
                 $numberOfDisks: [
-                    $description: "The number of disks."
+                    $description: "
+                        The number of disks.
+                    "($mediaType: "application/bsmd")
                     $type: /bali/elements/Number/v1($range: [1..])
                 ]
             ]
             $type: /bali/collections/Catalog/v1(
                 $keyType: /bali/elements/Number/v1($range: [1..])
-                $valueType: /bali/elements/Text/v1
+                $valueType: /bali/strings/Text/v1
             )
             $procedure: {
                 target[$pegs] := [
@@ -235,13 +243,13 @@
                 "6.ReturnStatement": 105
             ]
             $bytecode: '
-                38012805C013280BC01328082801C01328042802C01328062809C85B2803
-                D06DD86CD86CD86CC876D009D001280CC01328082801C01328042802C013
-                28062809C85B2803D06DD86CD86CD86CC876D009D001280DC01328082801
-                C01328042802C01328062809C85B2803D06DD86CD86CD86CC876D009D001
-                D86C480038012807C041D86C480038022803D05B80016001E00480026002
-                E003185C6002E006800338012805D00A280BD00AC0416003D001E8018004
-                004B00003801C0413802D001280BD001280DD001280CD001E80580043801
+                38012805C013280BC01328082802C01328042803C01328062809C85D2801
+                D070D86FD86FD86FC87BD009D001280CC01328082802C01328042803C013
+                28062809C85D2801D070D86FD86FD86FC87BD009D001280DC01328082802
+                C01328042803C01328062809C85D2801D070D86FD86FD86FC87BD009D001
+                D86F480038012807C043D86F480038022801D05D80016001E00480026002
+                E003185C6002E006800338012805D00A280BD00AC0436003D001E8018004
+                004B00003801C0433802D001280BD001280DD001280CD001E80580043801
                 2807D00AE0025000
             '(
                 $encoding: $base16
@@ -265,25 +273,36 @@
                 $moveTower
                 $next
             ]($type: /bali/collections/Set/v1)
-        ]
+        ]($type: /bali/aspects/Message/v1)
         $moveTower: [
-            $description: "This procedure causes the game to move a tower of disks of a certain height from one peg to another peg using a third peg as a buffer."
+            $description: "
+                This procedure causes the game to move a tower of disks of a certain height
+                from one peg to another peg using a third peg as a buffer.
+            "($mediaType: "application/bsmd")
             $parameters: [
                 $height: [
-                    $description: "The height of the tower to be moved."
+                    $description: "
+                        The height of the tower to be moved.
+                    "($mediaType: "application/bsmd")
                     $type: /bali/elements/Number/v1($range: [1..])
                 ]
                 $fromPeg: [
-                    $description: "The peg from which the disks originate."
-                    $type: /bali/elements/Text/v1
+                    $description: "
+                        The peg from which the disks originate.
+                    "($mediaType: "application/bsmd")
+                    $type: /bali/strings/Text/v1
                 ]
                 $toPeg: [
-                    $description: "The peg to which the disks should be moved."
-                    $type: /bali/elements/Text/v1
+                    $description: "
+                        The peg to which the disks should be moved.
+                    "($mediaType: "application/bsmd")
+                    $type: /bali/strings/Text/v1
                 ]
                 $withPeg: [
-                    $description: "The peg to use to buffer the disks during the move."
-                    $type: /bali/elements/Text/v1
+                    $description: "
+                        The peg to use to buffer the disks during the move.
+                    "($mediaType: "application/bsmd")
+                    $type: /bali/strings/Text/v1
                 ]
             ]
             $procedure: {
@@ -362,8 +381,8 @@
                 "1.IfStatementDone": 40
             ]
             $bytecode: '
-                0000380218283801C04138022803D022D0013803D0013805D0013804D001
-                E80280013801C0413803D0013804D001E80180013801C04138022803D022
+                0000380218283801C04338022801D023D0013803D0013805D0013804D001
+                E80280013801C0433803D0013804D001E80180013801C04338022801D023
                 D0013805D0013804D0013803D001E802800160015000
             '(
                 $encoding: $base16
@@ -385,15 +404,21 @@
             ]($type: /bali/collections/Set/v1)
         ]($access: $private)
         $moveDisk: [
-            $description: "This procedure causes the game to move the top disk from one peg to another."
+            $description: "
+                This procedure causes the game to move the top disk from one peg to another.
+            "($mediaType: "application/bsmd")
             $parameters: [
                 $fromPeg: [
-                    $description: "The peg from which the disk originates."
-                    $type: /bali/elements/Text/v1
+                    $description: "
+                        The peg from which the disk originates.
+                    "($mediaType: "application/bsmd")
+                    $type: /bali/strings/Text/v1
                 ]
                 $toPeg: [
-                    $description: "The peg to which the disk should be moved."
-                    $type: /bali/elements/Text/v1
+                    $description: "
+                        The peg to which the disk should be moved.
+                    "($mediaType: "application/bsmd")
+                    $type: /bali/strings/Text/v1
                 ]
             ]
             $procedure: {
@@ -445,8 +470,8 @@
                 "3.EvaluateStatement": 18
             ]
             $bytecode: '
-                38012805D00A3802D00AE003800138012805D00A3803D00AC0416001D001
-                E801800238012807D00AC041280AD001E802800260025000
+                38012805D00A3802D00AE003800138012805D00A3803D00AC0436001D001
+                E801800238012807D00AC043280AD001E802800260025000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
@@ -468,9 +493,9 @@
         ]($access: $private)
     ]
     $literals: [
+        1
         /bali/collections/Stack/v1
         /bali/elements/Number/v1
-        1
         $itemType
         $pegs
         $range

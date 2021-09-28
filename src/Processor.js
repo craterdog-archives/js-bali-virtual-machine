@@ -75,7 +75,7 @@ const Processor = function(repository, debug) {
     this.newTask = async function(account, tokens, identifier, message, args) {
         var target;
         task = Task.create(account, tokens, debug);
-        if (typeof identifier === 'string' || identifier.isComponent && identifier.isType('/bali/elements/Name')) {
+        if (typeof identifier === 'string' || identifier.isComponent && identifier.isType('/bali/strings/Name')) {
             const contract = await repository.retrieveContract(identifier);
             target = contract.getAttribute('$document');
         } else {
@@ -167,7 +167,7 @@ const Processor = function(repository, debug) {
         while (typeName.toString() !== 'none') {
             const contract = await repository.retrieveContract(typeName);
             type = contract.getAttribute('$document');
-            const methods = type.getAttribute('$methods');
+            const methods = type.getAttribute('$messages');
             method = methods.getAttribute(message);
             if (method) break;
             typeName = type.getAttribute('$parent');
@@ -283,7 +283,7 @@ const Processor = function(repository, debug) {
                     line = line.slice(0, 44) + '..' + line.slice(-35, -1);  // shorten line to 80 chars
                 }
                 stack[index] = line;
-            });
+            }, this);
             exception = bali.catalog({
                 $module: '/bali/vm/Processor',
                 $procedure: '$handleException',
@@ -319,7 +319,7 @@ const Processor = function(repository, debug) {
 
     const spawnTask = async function(identifier, message, args) {
         var target;
-        if (typeof identifier === 'string' || identifier.isComponent && identifier.isType('/bali/elements/Name')) {
+        if (typeof identifier === 'string' || identifier.isComponent && identifier.isType('/bali/strings/Name')) {
             const contract = await repository.retrieveContract(identifier);
             target = contract.getAttribute('$document');
         } else {
@@ -363,7 +363,7 @@ const Processor = function(repository, debug) {
         // JUMP TO label ON NONE
         async function(operand) {
             const condition = task.popComponent();
-            if (condition.isEqualTo(bali.pattern.NONE)) {
+            if (bali.areEqual(condition, bali.pattern.NONE)) {
                 context.jumpToAddress(operand);
             } else {
                 context.incrementAddress();

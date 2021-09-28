@@ -38,7 +38,7 @@ describe('Bali Virtual Machine™', function() {
             const publicKey = await notary.generateKey();
             const certificate = await notary.notarizeDocument(publicKey);
             const citation = await notary.activateKey(certificate);
-            expect(citation.isEqualTo(await storage.writeContract(certificate))).is.true;
+            expect(bali.areEqual(citation, await storage.writeContract(certificate))).is.true;
         });
 
         it('should create the task bag in the repository', async function() {
@@ -104,7 +104,7 @@ describe('Bali Virtual Machine™', function() {
                 compiler.compileType(type);
 
                 // check for differences
-                source = type.toDocument();
+                source = bali.document(type);
                 //await pfs.writeFile(typeFile, source, 'utf8');
                 const expected = await pfs.readFile(typeFile, 'utf8');
                 expect(expected).to.exist;
