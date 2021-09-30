@@ -4,11 +4,11 @@
     "($mediaType: "application/bsmd")
     $constants: [
         $good: true
-        $contract: /bali/instances/Test/v1
-        $firstVersion: /bali/instances/Test/v1
-        $secondVersion: /bali/instances/Test/v2
-        $thirdVersion: /bali/instances/Test/v2.1
-        $bag: /bali/vm/messages/v1
+        $contract: /nebula/instances/Test/v1
+        $firstVersion: /nebula/instances/Test/v1
+        $secondVersion: /nebula/instances/Test/v2
+        $thirdVersion: /nebula/instances/Test/v2.1
+        $bag: /nebula/vm/messages/v1
         $event: [
             $tag: #BWWG6DP3XBZ4JTP2XQ1BLN8WF5L9ZX0Y
         ]
@@ -18,28 +18,28 @@
             $description: "
                 This method tests the hello world example.
             "($mediaType: "application/bsmd")
-        ]($type: /bali/aspects/Message/v1)
+        ]($type: /nebula/aspects/Message/v1)
         $test1: [
             $description: "
                 This method helps test each type of instruction at least once.
             "($mediaType: "application/bsmd")
-            $type: /bali/elements/Probability/v1
+            $type: /nebula/elements/Probability/v1
             $parameters: [
                 $argument: [
                     $description: "
                         This parameter specifies the argument to be passed to the test message.
                     "($mediaType: "application/bsmd")
-                    $type: /bali/strings/Text/v1
+                    $type: /nebula/strings/Text/v1
                     $default: "ugly"
                 ]
             ]
-        ]($type: /bali/aspects/Message/v1)
+        ]($type: /nebula/aspects/Message/v1)
         $test2: [
             $description: "
                 This method helps test each type of instruction at least once.
             "($mediaType: "application/bsmd")
-            $type: /bali/collections/Set/v1
-        ]($type: /bali/aspects/Message/v1)
+            $type: /nebula/collections/Set/v1
+        ]($type: /nebula/aspects/Message/v1)
         $test3: [
             $description: "
                 This method helps test each type of instruction at least once.
@@ -49,21 +49,21 @@
                     $description: "
                         This parameter specifies the text to be thrown in an exception.
                     "($mediaType: "application/bsmd")
-                    $type: /bali/strings/Text/v1
+                    $type: /nebula/strings/Text/v1
                 ]
             ]
-        ]($type: /bali/aspects/Message/v1)
+        ]($type: /nebula/aspects/Message/v1)
         $test4: [
             $description: "
                 This method helps test each type of instruction at least once.
             "($mediaType: "application/bsmd")
-        ]($type: /bali/aspects/Message/v1)
+        ]($type: /nebula/aspects/Message/v1)
         $test5: [
             $description: "
                 This method helps test each type of instruction at least once.
             "($mediaType: "application/bsmd")
-        ]($type: /bali/aspects/Message/v1)
-    ]($type: /bali/collections/Catalog/v1($valueType: /bali/aspects/Message/v1))
+        ]($type: /nebula/aspects/Message/v1)
+    ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Message/v1))
     $methods: [
         $hello: [
             $procedure: {
@@ -72,7 +72,7 @@
             $instructions: "
                 1.PublishStatement:
                 NOTE --Save the name of the global event bag.
-                PUSH LITERAL `/bali/vm/events/v1`
+                PUSH LITERAL `/nebula/vm/events/v1`
                 SAVE VARIABLE $bag-2
                 NOTE --Publish an event to the global event bag.
                 PUSH LITERAL `"Hello World!"`
@@ -93,9 +93,9 @@
             $variables: [
                 $bag-2
                 $result-1
-            ]($type: /bali/collections/Set/v1)
-            $messages: [ ]($type: /bali/collections/Set/v1)
-        ]($type: /bali/aspects/Method/v1)
+            ]($type: /nebula/collections/Set/v1)
+            $messages: [ ]($type: /nebula/collections/Set/v1)
+        ]($type: /nebula/aspects/Method/v1)
         $test1: [
             $procedure: {
                 $x := target.test3(argument) handle $exception matching "good" with {
@@ -212,17 +212,17 @@
                 $exception
                 $result-1
                 $x
-            ]($type: /bali/collections/Set/v1)
+            ]($type: /nebula/collections/Set/v1)
             $messages: [
                 $test2
                 $test3
-            ]($type: /bali/collections/Set/v1)
-        ]($type: /bali/aspects/Method/v1)
+            ]($type: /nebula/collections/Set/v1)
+        ]($type: /nebula/aspects/Method/v1)
         $test2: [
             $procedure: {
                 return [
                     "alpha"
-                ]($type: /bali/collections/Set/v1)
+                ]($type: /nebula/collections/Set/v1)
             }
             $instructions: "
                 1.ReturnStatement:
@@ -230,7 +230,7 @@
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$type`
-                PUSH LITERAL `/bali/collections/Set/v1`
+                PUSH LITERAL `/nebula/collections/Set/v1`
                 CALL $setAttribute WITH 3 ARGUMENTS
                 CALL $set WITH 1 ARGUMENT
                 NOTE --Add an item to the set.
@@ -248,8 +248,8 @@
             $arguments: [
                 $target
             ]
-            $variables: [ ]($type: /bali/collections/Set/v1)
-            $messages: [ ]($type: /bali/collections/Set/v1)
+            $variables: [ ]($type: /nebula/collections/Set/v1)
+            $messages: [ ]($type: /nebula/collections/Set/v1)
         ]
         $test3: [
             $procedure: {
@@ -271,9 +271,9 @@
                 $target
                 $text
             ]
-            $variables: [ ]($type: /bali/collections/Set/v1)
-            $messages: [ ]($type: /bali/collections/Set/v1)
-        ]($type: /bali/aspects/Method/v1)
+            $variables: [ ]($type: /nebula/collections/Set/v1)
+            $messages: [ ]($type: /nebula/collections/Set/v1)
+        ]($type: /nebula/aspects/Method/v1)
         $test4: [
             $procedure: {
                 checkout $document from firstVersion
@@ -368,7 +368,7 @@
                 
                 6.PublishStatement:
                 NOTE --Save the name of the global event bag.
-                PUSH LITERAL `/bali/vm/events/v1`
+                PUSH LITERAL `/nebula/vm/events/v1`
                 SAVE VARIABLE $bag-11
                 NOTE --Publish an event to the global event bag.
                 PUSH CONSTANT $event
@@ -427,9 +427,9 @@
                 $result-1
                 $version-4
                 $version-8
-            ]($type: /bali/collections/Set/v1)
-            $messages: [ ]($type: /bali/collections/Set/v1)
-        ]($type: /bali/aspects/Method/v1)
+            ]($type: /nebula/collections/Set/v1)
+            $messages: [ ]($type: /nebula/collections/Set/v1)
+        ]($type: /nebula/aspects/Method/v1)
         $test5: [
             $procedure: {
                 retrieve $message from bag
@@ -460,15 +460,15 @@
                 $bag-2
                 $message
                 $result-1
-            ]($type: /bali/collections/Set/v1)
-            $messages: [ ]($type: /bali/collections/Set/v1)
-        ]($type: /bali/aspects/Method/v1)
-    ]($type: /bali/collections/Catalog/v1($valueType: /bali/aspects/Method/v1))
+            ]($type: /nebula/collections/Set/v1)
+            $messages: [ ]($type: /nebula/collections/Set/v1)
+        ]($type: /nebula/aspects/Method/v1)
+    ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Method/v1))
     $literals: [
         0
         2
-        /bali/collections/Set/v1
-        /bali/vm/events/v1
+        /nebula/collections/Set/v1
+        /nebula/vm/events/v1
         $document
         $text
         $type
@@ -478,11 +478,11 @@
         "good"
         "Hello World!"
         "This is a message..."
-    ]($type: /bali/collections/Set/v1)
+    ]($type: /nebula/collections/Set/v1)
 ](
-    $type: /bali/types/Primitive/v1
+    $type: /nebula/types/Primitive/v1
     $tag: #JXPSTDZSDHW4J1N5YF98D45QC8ZAQPXV
     $version: v1
-    $permissions: /bali/permissions/public/v1
+    $permissions: /nebula/permissions/public/v1
     $previous: none
 )

@@ -208,10 +208,10 @@ exports.create = function(account, tokens, debug) {
         $components: bali.stack(),
         $contexts: bali.stack()
     }, {  // requires parameterization since it is saved in the repository
-        $type: '/bali/vm/Task/v1',
+        $type: '/nebula/vm/Task/v1',
         $tag: bali.tag(),
         $version: bali.version(),
-        $permissions: '/bali/permissions/public/v1',
+        $permissions: '/nebula/permissions/public/v1',
         $previous: bali.pattern.NONE
     }), debug);
 };

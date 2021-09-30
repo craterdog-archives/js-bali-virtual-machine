@@ -10,8 +10,8 @@
 'use strict';
 
 const debug = 0;  // set to [0..3] for debug logging
-const bali = require('bali-component-framework').api(debug);
-const compiler = require('bali-type-compiler').api(debug);
+const bali = require('bali-component-framework').api();
+const compiler = require('bali-type-compiler').api();
 
 /*
  * This class implements the processor for The Bali Virtual Machine™.
@@ -114,9 +114,8 @@ const Processor = function(repository, debug) {
                 $procedure: '$stepClock',
                 $exception: '$unexpected',
                 $processor: toCatalog(),
-                $text: 'An unexpected error occurred while attempting to execute a single step of a task.'
-            }, cause);
-            if (debug) console.error(exception.toString());
+                $text: '"An unexpected error occurred while attempting to execute a single step of a task."'
+            }, cause, debug);
             throw exception;
         }
     };
@@ -142,9 +141,8 @@ const Processor = function(repository, debug) {
                 $procedure: '$runClock',
                 $exception: '$unexpected',
                 $processor: toCatalog(),
-                $text: 'An unexpected error occurred while attempting to run a task.'
-            }, cause);
-            if (debug) console.error(exception.toString());
+                $text: '"An unexpected error occurred while attempting to run a task."'
+            }, cause, debug);
             throw exception;
         }
     };
@@ -159,13 +157,29 @@ const Processor = function(repository, debug) {
         return catalog;
     };
 
+    const getTypeName = function(target) {
+        var typeName = target.getParameter('$type');
+        if (!typeName) typeName = target.getType().replace('bali', 'nebula');
+        return typeName;
+    };
+
     const createContext = async function(target, message, args) {
         // retrieve the type of the target component and the method matching the message
         const ancestry = target.getAncestry();
         var type, method;
-        var typeName = target.getType() + '/v1';  // YUCK!
-        while (typeName && typeName.toString() !== 'none') {
+        var typeName = getTypeName(target);
+        while (typeName) {
             const contract = await repository.retrieveContract(typeName);
+            if (!contract) {
+                const exception = bali.exception({
+                    $module: '/bali/vm/Processor',
+                    $procedure: '$createContext',
+                    $exception: '$missingType',
+                    $target: target,
+                    $text: '"The type definition for the target component is not in the repository."'
+                }, undefined, debug);
+                throw exception;
+            }
             type = contract.getAttribute('$document');
             const methods = type.getAttribute('$methods');
             method = methods.getAttribute(message);
@@ -173,15 +187,14 @@ const Processor = function(repository, debug) {
             typeName = type.getAttribute('$parent');
         };
         if (!method) {
-            const exception = new Exception({
+            const exception = bali.exception({
                 $module: '/bali/vm/Processor',
                 $procedure: '$createContext',
                 $exception: '$unsupportedMessage',
                 $message: message,
                 $ancestry: ancestry,
-                $text: 'The message passed to the target component is not supported by any of its types.'
-            });
-            if (debug > 0) console.error(exception.toString());
+                $text: '"The message passed to the target component is not supported by any of its types."'
+            }, undefined, debug);
             throw exception;
         }
 
@@ -261,12 +274,7 @@ const Processor = function(repository, debug) {
         try {
             await instructionHandlers[index](operand); // operand: [0..2047]
         } catch (exception) {
-            try {
-                await handleException(exception);
-            } catch (exception) {
-                if (debug) console.error('Unable to handle exception: ' + exception);
-                throw exception;
-            }
+            await handleException(exception);
         }
 
         // update the state of the task context
@@ -274,38 +282,28 @@ const Processor = function(repository, debug) {
     };
 
     const handleException = async function(exception) {
-        if (exception.constructor.name !== 'Exception') {
-            // it's a bug in the compiler or processor, convert it to a Bali exception
-            const stack = exception.stack.split(EOL).slice(1);  // remove the first line of the stack
-            stack.forEach(function(line, index) {
-                line = '  ' + line;
-                if (line.length > 80) {
-                    line = line.slice(0, 44) + '..' + line.slice(-35, -1);  // shorten line to 80 chars
-                }
-                stack[index] = line;
-            }, this);
-            exception = bali.catalog({
+        if (!exception.isComponent) {
+            // oops, it's a bug, convert it to a Bali exception
+            exception = bali.exception({
                 $module: '/bali/vm/Processor',
                 $procedure: '$handleException',
                 $exception: '$processorBug',
-                $type: exception.constructor.name,
+                $type: exception.name,
                 $processor: toCatalog(),
-                $text: exception.toString(),
-                $trace: bali.text(EOL + stack.join(EOL))
-            });
-            if (debug) console.error('FOUND BUG IN PROCESSOR: ' + exception);
+                $text: '"There is a bug in the compiler or virtual processor."',
+            }, exception, debug);
         }
-        task.pushComponent(exception.attributes);
+        task.pushComponent(exception);
         await instructionHandlers[11]();  // PULL EXCEPTION instruction
     };
 
     const publishNotification = async function() {
-        const event = bali.instance('/bali/aspects/Event/v1', {
+        const event = bali.instance('/nebula/aspects/Event/v1', {
             $tag: task.getTag(),
-            $type: '/bali/vm/' + task.getState().slice(1) + '/v1',  // remove leading '$'
+            $type: '/nebula/vm/' + task.getState().slice(1) + '/v1',  // remove leading '$'
             $task: task.toCatalog()
         });
-        await repository.postMessage('/bali/vm/events/v1', event);
+        await repository.postMessage('/nebula/vm/events/v1', event);
     };
 
     const pushContext = async function(component, message, args) {
@@ -329,7 +327,7 @@ const Processor = function(repository, debug) {
         const childContext = await createContext(target, message, args);
         childTask.pushContext(childContext.toCatalog());
         const tag = childTask.getTag();
-        await repository.postMessage('/bali/vm/tasks/v1', childTask.toCatalog());
+        await repository.postMessage('/nebula/vm/tasks/v1', childTask.toCatalog());
         return tag;
     };
 
@@ -479,7 +477,7 @@ const Processor = function(repository, debug) {
                 context.incrementAddress();
             } else {
                 const currentTask = toCatalog();
-                await repository.postMessage('/bali/vm/tasks/v1', currentTask);
+                await repository.postMessage('/nebula/vm/tasks/v1', currentTask);
                 task.pauseTask();  // will retry again on a different processor
             }
         },

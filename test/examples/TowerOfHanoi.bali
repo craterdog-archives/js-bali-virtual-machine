@@ -4,7 +4,7 @@
         parameterized number of disks. To play the game do the following:
         
          # Initialize a game with 3 disks.
-        `$game := [:]($type: /bali/examples/TowerOfHanoi/v1)`
+        `$game := [:]($type: /nebula/examples/TowerOfHanoi/v1)`
         
          # Play the game.
         `game.play()`
@@ -20,24 +20,24 @@
          7. Move top disk on peg A to peg C
         `
     "($mediaType: "application/bsmd")
-    $parent: /bali/abstractions/Component/v1
+    $parent: /nebula/abstractions/Component/v1
     $attributes: [
         $pegs: [
             $description: "
                 The three pegs (A, B and C) that are used to hold the disks.
             "($mediaType: "application/bsmd")
-            $type: /bali/collections/Catalog/v1(
-                $keyType: /bali/strings/Symbol/v1
-                $valueType: /bali/collections/Stack/v1($itemType: /bali/elements/Number/v1($range: [1..]))
+            $type: /nebula/collections/Catalog/v1(
+                $keyType: /nebula/strings/Symbol/v1
+                $valueType: /nebula/collections/Stack/v1($itemType: /nebula/elements/Number/v1($range: [1..]))
             )
-        ]($type: /bali/aspects/Attribute/v1)
+        ]($type: /nebula/aspects/Attribute/v1)
         $steps: [
             $description: "
                 The steps needed to move the disks.
             "($mediaType: "application/bsmd")
-            $type: /bali/collections/List/v1($itemType: /bali/strings/Text/v1)
-        ]($type: /bali/aspects/Attribute/v1)
-    ]($type: /bali/collections/Catalog/v1($valueType: /bali/aspects/Attribute/v1))
+            $type: /nebula/collections/List/v1($itemType: /nebula/strings/Text/v1)
+        ]($type: /nebula/aspects/Attribute/v1)
+    ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Attribute/v1))
     $messages: [
         $play: [
             $description: "
@@ -48,14 +48,14 @@
                     $description: "
                         The number of disks.
                     "($mediaType: "application/bsmd")
-                    $type: /bali/elements/Number/v1($range: [1..])
-                ]($type: /bali/aspects/Parameter/v1)
-            ]($type: /bali/collections/Catalog/v1($valueType: /bali/aspects/Parameter/v1))
-            $type: /bali/collections/Catalog/v1(
-                $keyType: /bali/elements/Number/v1($range: [1..])
-                $valueType: /bali/strings/Text/v1
+                    $type: /nebula/elements/Number/v1($range: [1..])
+                ]($type: /nebula/aspects/Parameter/v1)
+            ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Parameter/v1))
+            $type: /nebula/collections/Catalog/v1(
+                $keyType: /nebula/elements/Number/v1($range: [1..])
+                $valueType: /nebula/strings/Text/v1
             )
-        ]($type: /bali/aspects/Message/v1)
+        ]($type: /nebula/aspects/Message/v1)
         $moveTower: [
             $description: "
                 This procedure causes the game to move a tower of disks of a certain height
@@ -66,29 +66,29 @@
                     $description: "
                         The height of the tower to be moved.
                     "($mediaType: "application/bsmd")
-                    $type: /bali/elements/Number/v1($range: [1..])
-                ]($type: /bali/aspects/Parameter/v1)
+                    $type: /nebula/elements/Number/v1($range: [1..])
+                ]($type: /nebula/aspects/Parameter/v1)
                 $fromPeg: [
                     $description: "
                         The peg from which the disks originate.
                     "($mediaType: "application/bsmd")
-                    $type: /bali/strings/Text/v1
-                ]($type: /bali/aspects/Parameter/v1)
+                    $type: /nebula/strings/Text/v1
+                ]($type: /nebula/aspects/Parameter/v1)
                 $toPeg: [
                     $description: "
                         The peg to which the disks should be moved.
                     "($mediaType: "application/bsmd")
-                    $type: /bali/strings/Text/v1
-                ]($type: /bali/aspects/Parameter/v1)
+                    $type: /nebula/strings/Text/v1
+                ]($type: /nebula/aspects/Parameter/v1)
                 $withPeg: [
                     $description: "
                         The peg to use to buffer the disks during the move.
                     "($mediaType: "application/bsmd")
-                    $type: /bali/strings/Text/v1
-                ]($type: /bali/aspects/Parameter/v1)
-            ]($type: /bali/collections/Catalog/v1($valueType: /bali/aspects/Parameter/v1))
+                    $type: /nebula/strings/Text/v1
+                ]($type: /nebula/aspects/Parameter/v1)
+            ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Parameter/v1))
         ](
-            $type: /bali/aspects/Message/v1
+            $type: /nebula/aspects/Message/v1
             $access: $private
         )
         $moveDisk: [
@@ -100,27 +100,27 @@
                     $description: "
                         The peg from which the disk originates.
                     "($mediaType: "application/bsmd")
-                    $type: /bali/strings/Text/v1
-                ]($type: /bali/aspects/Parameter/v1)
+                    $type: /nebula/strings/Text/v1
+                ]($type: /nebula/aspects/Parameter/v1)
                 $toPeg: [
                     $description: "
                         The peg to which the disk should be moved.
                     "($mediaType: "application/bsmd")
-                    $type: /bali/strings/Text/v1
-                ]($type: /bali/aspects/Parameter/v1)
-            ]($type: /bali/collections/Catalog/v1($valueType: /bali/aspects/Parameter/v1))
+                    $type: /nebula/strings/Text/v1
+                ]($type: /nebula/aspects/Parameter/v1)
+            ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Parameter/v1))
         ](
-            $type: /bali/aspects/Message/v1
+            $type: /nebula/aspects/Message/v1
             $access: $private
         )
-    ]($type: /bali/collections/Catalog/v1($valueType: /bali/aspects/Message/v1))
+    ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Message/v1))
     $methods: [
         $play: [
             $procedure: {
                 target[$pegs] := [
-                    "peg A": [ ]($type: /bali/collections/Stack/v1($itemType: /bali/elements/Number/v1($range: [1..])))
-                    "peg B": [ ]($type: /bali/collections/Stack/v1($itemType: /bali/elements/Number/v1($range: [1..])))
-                    "peg C": [ ]($type: /bali/collections/Stack/v1($itemType: /bali/elements/Number/v1($range: [1..])))
+                    "peg A": [ ]($type: /nebula/collections/Stack/v1($itemType: /nebula/elements/Number/v1($range: [1..])))
+                    "peg B": [ ]($type: /nebula/collections/Stack/v1($itemType: /nebula/elements/Number/v1($range: [1..])))
+                    "peg C": [ ]($type: /nebula/collections/Stack/v1($itemType: /nebula/elements/Number/v1($range: [1..])))
                 ]
                 target[$steps] := [ ]
                 $disks := range(numberOfDisks, 1)
@@ -143,11 +143,11 @@
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$type`
-                PUSH LITERAL `/bali/collections/Stack/v1`
+                PUSH LITERAL `/nebula/collections/Stack/v1`
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$itemType`
-                PUSH LITERAL `/bali/elements/Number/v1`
+                PUSH LITERAL `/nebula/elements/Number/v1`
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$range`
@@ -169,11 +169,11 @@
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$type`
-                PUSH LITERAL `/bali/collections/Stack/v1`
+                PUSH LITERAL `/nebula/collections/Stack/v1`
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$itemType`
-                PUSH LITERAL `/bali/elements/Number/v1`
+                PUSH LITERAL `/nebula/elements/Number/v1`
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$range`
@@ -195,11 +195,11 @@
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$type`
-                PUSH LITERAL `/bali/collections/Stack/v1`
+                PUSH LITERAL `/nebula/collections/Stack/v1`
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$itemType`
-                PUSH LITERAL `/bali/elements/Number/v1`
+                PUSH LITERAL `/nebula/elements/Number/v1`
                 NOTE --Place a catalog of the parameters on the stack.
                 CALL $catalog
                 PUSH LITERAL `$range`
@@ -325,7 +325,7 @@
                 $iterator-2
                 $n
                 $result-1
-            ]($type: /bali/collections/Set/v1)
+            ]($type: /nebula/collections/Set/v1)
             $messages: [
                 $addItem
                 $asCatalog
@@ -333,8 +333,8 @@
                 $iterator
                 $moveTower
                 $next
-            ]($type: /bali/collections/Set/v1)
-        ]($type: /bali/aspects/Method/v1)
+            ]($type: /nebula/collections/Set/v1)
+        ]($type: /nebula/aspects/Method/v1)
         $moveTower: [
             $procedure: {
                 if height then {
@@ -428,12 +428,12 @@
             ]
             $variables: [
                 $result-1
-            ]($type: /bali/collections/Set/v1)
+            ]($type: /nebula/collections/Set/v1)
             $messages: [
                 $moveDisk
                 $moveTower
-            ]($type: /bali/collections/Set/v1)
-        ]($valueType: /bali/aspects/Method/v1)
+            ]($type: /nebula/collections/Set/v1)
+        ]($valueType: /nebula/aspects/Method/v1)
         $moveDisk: [
             $procedure: {
                 $disk := target[$pegs, fromPeg].removeItem()
@@ -498,18 +498,18 @@
             $variables: [
                 $disk
                 $result-1
-            ]($type: /bali/collections/Set/v1)
+            ]($type: /nebula/collections/Set/v1)
             $messages: [
                 $addItem
                 $append
                 $removeItem
-            ]($type: /bali/collections/Set/v1)
-        ]($type: /bali/aspects/Method/v1)
-    ]($type: /bali/collections/Catalog/v1($valueType: /bali/aspects/Method/v1))
+            ]($type: /nebula/collections/Set/v1)
+        ]($type: /nebula/aspects/Method/v1)
+    ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Method/v1))
     $literals: [
         1
-        /bali/collections/Stack/v1
-        /bali/elements/Number/v1
+        /nebula/collections/Stack/v1
+        /nebula/elements/Number/v1
         $itemType
         $pegs
         $range
@@ -520,11 +520,11 @@
         "peg A"
         "peg B"
         "peg C"
-    ]($type: /bali/collections/Set/v1)
+    ]($type: /nebula/collections/Set/v1)
 ](
-    $type: /bali/types/Class/v1
+    $type: /nebula/types/Class/v1
     $tag: #1M9WB8VXAWP8A0T1K3MHWD4ZFBM3MG7T
     $version: v1
-    $permissions: /bali/permissions/public/v1
+    $permissions: /nebula/permissions/public/v1
     $previous: none
 )

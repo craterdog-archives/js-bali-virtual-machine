@@ -21,9 +21,9 @@ const storage = Repository.test(notary, directory, debug);
 const repository = Repository.repository(notary, storage, debug);
 const compiler = require('bali-type-compiler').api(debug);
 const vm = require('../index').api(repository, debug);
-const TASK_BAG = '/bali/vm/tasks/v1';
-const EVENT_BAG = '/bali/vm/events/v1';
-const MESSAGE_BAG = '/bali/vm/messages/v1';
+const TASK_BAG = '/nebula/vm/tasks/v1';
+const EVENT_BAG = '/nebula/vm/events/v1';
+const MESSAGE_BAG = '/nebula/vm/messages/v1';
 
 const getInstruction = function(processor) {
     const instruction = processor.getContext().getInstruction();
@@ -45,10 +45,10 @@ describe('Bali Virtual Machine™', function() {
             const taskBag = await notary.notarizeDocument(bali.catalog({
                 $description: '"This is the task bag for the VM."'
             }, {
-                $type: '/bali/collections/Bag/v1',
+                $type: '/nebula/collections/Bag/v1',
                 $tag: bali.tag(),
                 $version: bali.version(),
-                $permissions: '/bali/permissions/public/v1',
+                $permissions: '/nebula/permissions/public/v1',
                 $previous: bali.pattern.NONE
             }));
             const bagCitation = await storage.writeContract(taskBag);
@@ -59,10 +59,10 @@ describe('Bali Virtual Machine™', function() {
             const eventBag = await notary.notarizeDocument(bali.catalog({
                 $description: '"This is the event bag for the VM."'
             }, {
-                $type: '/bali/collections/Bag/v1',
+                $type: '/nebula/collections/Bag/v1',
                 $tag: bali.tag(),
                 $version: bali.version(),
-                $permissions: '/bali/permissions/public/v1',
+                $permissions: '/nebula/permissions/public/v1',
                 $previous: bali.pattern.NONE
             }));
             const bagCitation = await storage.writeContract(eventBag);
@@ -73,10 +73,10 @@ describe('Bali Virtual Machine™', function() {
             const messageBag = await notary.notarizeDocument(bali.catalog({
                 $description: '"This is the message bag for the VM."'
             }, {
-                $type: '/bali/collections/Bag/v1',
+                $type: '/nebula/collections/Bag/v1',
                 $tag: bali.tag(),
                 $version: bali.version(),
-                $permissions: '/bali/permissions/public/v1',
+                $permissions: '/nebula/permissions/public/v1',
                 $previous: bali.pattern.NONE
             }));
             const bagCitation = await storage.writeContract(messageBag);
@@ -111,12 +111,12 @@ describe('Bali Virtual Machine™', function() {
                 expect(source).to.equal(expected);
 
                 // publish the type in the repository
-                var name = '/bali/types/' + prefix + '/v1';
+                var name = '/nebula/types/' + prefix + '/v1';
                 await repository.signContract(name, type);
 
                 // publish an instance of the type in the repository
                 const instance = bali.instance(name, {});
-                name = '/bali/instances/' + prefix + '/v1';
+                name = '/nebula/instances/' + prefix + '/v1';
                 await repository.signContract(name, instance);
             }
         });
@@ -127,7 +127,7 @@ describe('Bali Virtual Machine™', function() {
             const args = bali.list(['"good"']);
             const processor = vm.processor();
             expect(processor).to.exist;
-            await processor.newTask(account, tokens, '/bali/instances/Test/v1', message, args);
+            await processor.newTask(account, tokens, '/nebula/instances/Test/v1', message, args);
 //          1.EvaluateStatement:
 //          PUSH HANDLER 1.EvaluateStatementHandler
             expect(getInstruction(processor)).to.equal('PUSH HANDLER');
@@ -218,7 +218,7 @@ describe('Bali Virtual Machine™', function() {
             const args = bali.list(['"bad"']);
             const processor = vm.processor();
             expect(processor).to.exist;
-            await processor.newTask(account, tokens, '/bali/instances/Test/v1', message, args);
+            await processor.newTask(account, tokens, '/nebula/instances/Test/v1', message, args);
 //          1.EvaluateStatement:
 //          PUSH HANDLER 1.EvaluateStatementHandler
             expect(getInstruction(processor)).to.equal('PUSH HANDLER');
@@ -313,7 +313,7 @@ describe('Bali Virtual Machine™', function() {
                 expect(getInstruction(processor)).to.equal('PUSH LITERAL');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
-//              PUSH LITERAL `/bali/collections/Set/v1`
+//              PUSH LITERAL `/nebula/collections/Set/v1`
                 expect(getInstruction(processor)).to.equal('PUSH LITERAL');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
@@ -402,7 +402,7 @@ describe('Bali Virtual Machine™', function() {
             const args = bali.list([]);
             const processor = vm.processor();
             expect(processor).to.exist;
-            await processor.newTask(account, tokens, '/bali/instances/Test/v1', message, args);
+            await processor.newTask(account, tokens, '/nebula/instances/Test/v1', message, args);
 //          1.EvaluateStatement:
 //          PUSH HANDLER 1.EvaluateStatementHandler
             expect(getInstruction(processor)).to.equal('PUSH HANDLER');
@@ -497,7 +497,7 @@ describe('Bali Virtual Machine™', function() {
             const args = bali.list([]);
             const processor = vm.processor();
             expect(processor).to.exist;
-            await processor.newTask(account, tokens, '/bali/instances/Test/v1', message, args);
+            await processor.newTask(account, tokens, '/nebula/instances/Test/v1', message, args);
 //          1.CheckoutStatement:
 //          ---- Save the name of the contract.
 //          PUSH CONSTANT $firstVersion
@@ -737,7 +737,7 @@ describe('Bali Virtual Machine™', function() {
 //
 //          6.PublishStatement:
 //          ---- Save the name of the global event bag.
-//          PUSH LITERAL `/bali/vm/events/v1`
+//          PUSH LITERAL `/nebula/vm/events/v1`
             expect(getInstruction(processor)).to.equal('PUSH LITERAL');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
