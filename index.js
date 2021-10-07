@@ -28,8 +28,6 @@ const Processor = require('./src/Processor').Processor;
  */
 exports.api = function(repository, debug) {
     if (debug === null || debug === undefined) debug = 0;  // default is off
-    const bali = require('bali-component-framework').api(debug);
-
     return {
 
         /**
