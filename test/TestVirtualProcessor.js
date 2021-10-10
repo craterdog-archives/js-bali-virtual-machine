@@ -102,7 +102,7 @@ describe('Bali Virtual Machine™', function() {
                 var source = await pfs.readFile(typeFile, 'utf8');
                 const type = bali.component(source, debug);
                 expect(type).to.exist;
-                compiler.compileType(repository, type);
+                await compiler.compileType(repository, type);
 
                 // check for differences
                 source = bali.document(type);
