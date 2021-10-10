@@ -9,9 +9,8 @@
  ************************************************************************/
 'use strict';
 
-const debug = 0;  // set to [0..3] for debug logging
-const bali = require('bali-component-framework').api(debug);
-const compiler = require('bali-type-compiler').api(debug);
+const bali = require('bali-component-framework').api();
+const compiler = require('bali-type-compiler').api();
 
 /*
  * This class implements a execution context that can be run in the Bali Nebula™.
@@ -35,11 +34,10 @@ const compiler = require('bali-type-compiler').api(debug);
  * @returns {Context} The new context.
  */
 const Context = function(catalog, debug) {
-    if (debug === null || debug === undefined) debug = 0;  // default is off
+    this.debug = debug || 0;  // default is off
 
     // PRIVATE ATTRIBUTES
 
-    const target = catalog.getAttribute('$target');
     const message = catalog.getAttribute('$message');
     const argumentz = catalog.getAttribute('$arguments');
     const variables = catalog.getAttribute('$variables');
@@ -60,7 +58,6 @@ const Context = function(catalog, debug) {
         const modifier = compiler.modifier(instruction);
         const operand = compiler.operand(instruction);
         return bali.catalog({
-            $target: bali.duplicate(target),  // capture the current state
             $message: message,
             $arguments: argumentz,
             $variables: bali.duplicate(variables),  // capture the current state
@@ -76,10 +73,6 @@ const Context = function(catalog, debug) {
 
     this.toString = function() {
         return this.toCatalog().toString();
-    };
-
-    this.getTarget = function() {
-        return target;
     };
 
     this.getArgument = function(index) {

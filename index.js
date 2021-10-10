@@ -15,7 +15,6 @@ const Processor = require('./src/Processor').Processor;
 /**
  * This function returns an object that implements the Bali Virtual Machine™ interface.
  *
- * @param {Object} repository An object that implements the Bali Document Repository™ interface.
  * @param {Boolean|Number} debug An optional number in the range 0..3 that controls the level of
  * debugging that occurs:
  * <pre>
@@ -26,18 +25,11 @@ const Processor = require('./src/Processor').Processor;
  * </pre>
  * @returns {Object} An object that implements the Bali Virtual Machine™ interface.
  */
-exports.api = function(repository, debug) {
-    if (debug === null || debug === undefined) debug = 0;  // default is off
-    return {
-
-        /**
-         * This method creates a virtual processor.
-         * @returns {Processor} A new virtual processor.
-         */
-        processor: function() {
-            const processor = new Processor(repository, debug);
+exports.api = function(debug) {
+    this.debug = debug || 0;  // default is off
+    this.processor = function(repository) {
+            const processor = new Processor(repository, this.debug);
             return processor;
-        }
-
     };
+    return this;
 };

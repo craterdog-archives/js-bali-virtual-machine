@@ -9,8 +9,7 @@
  ************************************************************************/
 'use strict';
 
-const debug = 0;  // set to [0..3] for debug logging
-const bali = require('bali-component-framework').api(debug);
+const bali = require('bali-component-framework').api();
 
 /*
  * This class implements a task that can be run in the Bali Nebula™.
@@ -46,7 +45,7 @@ const STATES = {
  * @returns {Task} The new task.
  */
 const Task = function(catalog, debug) {
-    if (debug === null || debug === undefined) debug = 0;  // default is off
+    this.debug = debug || 0;  // default is off
 
     // PRIVATE ATTRIBUTES
 
@@ -57,7 +56,7 @@ const Task = function(catalog, debug) {
     const previous = catalog.getParameter('$previous');
     const account = catalog.getAttribute('$account');
     var tokens = catalog.getAttribute('$tokens').toInteger();  // optimization
-    const controller = bali.controller(REQUESTS, STATES, catalog.getAttribute('$state').toString(), debug);
+    const controller = bali.controller(REQUESTS, STATES, catalog.getAttribute('$state').toString(), this.debug);
     var clock = catalog.getAttribute('$clock').toInteger();  // optimization
     const components = catalog.getAttribute('$components') || bali.stack();
     const contexts = catalog.getAttribute('$contexts') || bali.stack();

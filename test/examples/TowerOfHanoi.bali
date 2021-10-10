@@ -1,4 +1,5 @@
 [
+    $parent: none
     $description: "
         This class encapsulates a /Tower of Hanoi/ game with three pegs (A, B, and C) and a
         parameterized number of disks. To play the game do the following:
@@ -20,7 +21,6 @@
          7. Move top disk on peg A to peg C
         `
     "($mediaType: "application/bsmd")
-    $parent: /nebula/abstractions/Component/v1
     $attributes: [
         $pegs: [
             $description: "
@@ -38,7 +38,7 @@
             $type: /nebula/collections/List/v1($itemType: /nebula/strings/Text/v1)
         ]($type: /nebula/aspects/Attribute/v1)
     ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Attribute/v1))
-    $messages: [
+    $operations: [
         $play: [
             $description: "
                 This procedure causes the game to (re)initialize itself and play the game.
@@ -55,7 +55,7 @@
                 $keyType: /nebula/elements/Number/v1($range: [1..])
                 $valueType: /nebula/strings/Text/v1
             )
-        ]($type: /nebula/aspects/Message/v1)
+        ]($type: /nebula/aspects/Operation/v1)
         $moveTower: [
             $description: "
                 This procedure causes the game to move a tower of disks of a certain height
@@ -88,7 +88,7 @@
                 ]($type: /nebula/aspects/Parameter/v1)
             ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Parameter/v1))
         ](
-            $type: /nebula/aspects/Message/v1
+            $type: /nebula/aspects/Operation/v1
             $access: $private
         )
         $moveDisk: [
@@ -110,10 +110,10 @@
                 ]($type: /nebula/aspects/Parameter/v1)
             ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Parameter/v1))
         ](
-            $type: /nebula/aspects/Message/v1
+            $type: /nebula/aspects/Operation/v1
             $access: $private
         )
-    ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Message/v1))
+    ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Operation/v1))
     $methods: [
         $play: [
             $procedure: {
@@ -291,34 +291,22 @@
                 SEND $asCatalog TO COMPONENT
                 PULL RESULT
             "($mediaType: "application/basm")
-            $addresses: [
-                "1.EvaluateStatement": 1
-                "2.EvaluateStatement": 63
-                "3.EvaluateStatement": 68
-                "4.WithStatement": 72
-                "4.1.ConditionClause": 75
-                "4.1.1.EvaluateStatement": 81
-                "4.ConditionRepeat": 91
-                "4.WithStatementDone": 92
-                "5.EvaluateStatement": 93
-                "6.ReturnStatement": 105
-            ]
             $bytecode: '
-                38012805C013280BC01328082802C01328042803C01328062809C8602801
-                D072D871D871D871C87DD009D001280CC01328082802C01328042803C013
-                28062809C8602801D072D871D871D871C87DD009D001280DC01328082802
-                C01328042803C01328062809C8602801D072D871D871D871C87DD009D001
-                D871480038012807C046D871480038022801D06080016001E00480026002
-                E003185C6002E006800338012805D00A280BD00AC0466003D001E8018004
-                004B00003801C0463802D001280BD001280DD001280CD001E80580043801
+                38012805C013280BC01328082802C01328042803C01328062809C85F2801
+                D071D870D870D870C87CD009D001280CC01328082802C01328042803C013
+                28062809C85F2801D071D870D870D870C87CD009D001280DC01328082802
+                C01328042803C01328062809C85F2801D071D870D870D870C87CD009D001
+                D870480038012807C045D870480038022801D05F80016001E00480026002
+                E003185C6002E006800338012805D00A280BD00AC0456003D001E8018004
+                004B00003801C0453802D001280BD001280DD001280CD001E80580043801
                 2807D00AE0025000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
             $arguments: [
-                $target
-                $numberOfDisks
+                $target: none
+                $numberOfDisks: none
             ]
             $variables: [
                 $disks
@@ -334,6 +322,18 @@
                 $moveTower
                 $next
             ]($type: /nebula/collections/Set/v1)
+            $addresses: [
+                "1.EvaluateStatement": 1
+                "2.EvaluateStatement": 63
+                "3.EvaluateStatement": 68
+                "4.WithStatement": 72
+                "4.1.ConditionClause": 75
+                "4.1.1.EvaluateStatement": 81
+                "4.ConditionRepeat": 91
+                "4.WithStatementDone": 92
+                "5.EvaluateStatement": 93
+                "6.ReturnStatement": 105
+            ]
         ]($type: /nebula/aspects/Method/v1)
         $moveTower: [
             $procedure: {
@@ -403,28 +403,20 @@
                 LOAD VARIABLE $result-1
                 PULL RESULT
             "($mediaType: "application/basm")
-            $addresses: [
-                "1.IfStatement": 1
-                "1.1.ConditionClause": 2
-                "1.1.1.EvaluateStatement": 4
-                "1.1.2.EvaluateStatement": 18
-                "1.1.3.EvaluateStatement": 26
-                "1.IfStatementDone": 40
-            ]
             $bytecode: '
-                0000380218283801C04638022801D023D0013803D0013805D0013804D001
-                E80280013801C0463803D0013804D001E80180013801C04638022801D023
+                0000380218283801C04538022801D022D0013803D0013805D0013804D001
+                E80280013801C0453803D0013804D001E80180013801C04538022801D022
                 D0013805D0013804D0013803D001E802800160015000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
             $arguments: [
-                $target
-                $height
-                $fromPeg
-                $toPeg
-                $withPeg
+                $target: none
+                $height: none
+                $fromPeg: none
+                $toPeg: none
+                $withPeg: none
             ]
             $variables: [
                 $result-1
@@ -433,6 +425,14 @@
                 $moveDisk
                 $moveTower
             ]($type: /nebula/collections/Set/v1)
+            $addresses: [
+                "1.IfStatement": 1
+                "1.1.ConditionClause": 2
+                "1.1.1.EvaluateStatement": 4
+                "1.1.2.EvaluateStatement": 18
+                "1.1.3.EvaluateStatement": 26
+                "1.IfStatementDone": 40
+            ]
         ]($valueType: /nebula/aspects/Method/v1)
         $moveDisk: [
             $procedure: {
@@ -478,22 +478,17 @@
                 LOAD VARIABLE $result-1
                 PULL RESULT
             "($mediaType: "application/basm")
-            $addresses: [
-                "1.EvaluateStatement": 1
-                "2.EvaluateStatement": 8
-                "3.EvaluateStatement": 18
-            ]
             $bytecode: '
-                38012805D00A3802D00AE003800138012805D00A3803D00AC0466001D001
-                E801800238012807D00AC046280AD001E802800260025000
+                38012805D00A3802D00AE003800138012805D00A3803D00AC0456001D001
+                E801800238012807D00AC045280AD001E802800260025000
             '(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
             $arguments: [
-                $target
-                $fromPeg
-                $toPeg
+                $target: none
+                $fromPeg: none
+                $toPeg: none
             ]
             $variables: [
                 $disk
@@ -504,6 +499,11 @@
                 $append
                 $removeItem
             ]($type: /nebula/collections/Set/v1)
+            $addresses: [
+                "1.EvaluateStatement": 1
+                "2.EvaluateStatement": 8
+                "3.EvaluateStatement": 18
+            ]
         ]($type: /nebula/aspects/Method/v1)
     ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Method/v1))
     $literals: [

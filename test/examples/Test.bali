@@ -1,4 +1,5 @@
 [
+    $parent: none
     $description: "
         This type defines a method that tests each type of instruction at least once.
     "($mediaType: "application/bsmd")
@@ -13,12 +14,12 @@
             $tag: #BWWG6DP3XBZ4JTP2XQ1BLN8WF5L9ZX0Y
         ]
     ]
-    $messages: [
+    $operations: [
         $hello: [
             $description: "
                 This method tests the hello world example.
             "($mediaType: "application/bsmd")
-        ]($type: /nebula/aspects/Message/v1)
+        ]($type: /nebula/aspects/Operation/v1)
         $test1: [
             $description: "
                 This method helps test each type of instruction at least once.
@@ -33,13 +34,13 @@
                     $default: "ugly"
                 ]
             ]
-        ]($type: /nebula/aspects/Message/v1)
+        ]($type: /nebula/aspects/Operation/v1)
         $test2: [
             $description: "
                 This method helps test each type of instruction at least once.
             "($mediaType: "application/bsmd")
             $type: /nebula/collections/Set/v1
-        ]($type: /nebula/aspects/Message/v1)
+        ]($type: /nebula/aspects/Operation/v1)
         $test3: [
             $description: "
                 This method helps test each type of instruction at least once.
@@ -52,18 +53,18 @@
                     $type: /nebula/strings/Text/v1
                 ]
             ]
-        ]($type: /nebula/aspects/Message/v1)
+        ]($type: /nebula/aspects/Operation/v1)
         $test4: [
             $description: "
                 This method helps test each type of instruction at least once.
             "($mediaType: "application/bsmd")
-        ]($type: /nebula/aspects/Message/v1)
+        ]($type: /nebula/aspects/Operation/v1)
         $test5: [
             $description: "
                 This method helps test each type of instruction at least once.
             "($mediaType: "application/bsmd")
-        ]($type: /nebula/aspects/Message/v1)
-    ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Message/v1))
+        ]($type: /nebula/aspects/Operation/v1)
+    ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Operation/v1))
     $methods: [
         $hello: [
             $procedure: {
@@ -80,21 +81,21 @@
                 LOAD VARIABLE $result-1
                 PULL RESULT
             "($mediaType: "application/basm")
-            $addresses: [
-                "1.PublishStatement": 1
-            ]
             $bytecode: '28048001280C980160025000'(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
             $arguments: [
-                $target
+                $target: none
             ]
             $variables: [
                 $bag-2
                 $result-1
             ]($type: /nebula/collections/Set/v1)
             $messages: [ ]($type: /nebula/collections/Set/v1)
+            $addresses: [
+                "1.PublishStatement": 1
+            ]
         ]($type: /nebula/aspects/Method/v1)
         $test1: [
             $procedure: {
@@ -180,6 +181,27 @@
                 CALL $not WITH 1 ARGUMENT
                 PULL RESULT
             "($mediaType: "application/basm")
+            $bytecode: '
+                200A3801C0453802D001E80280034000001F80016001280BD02418153002
+                F001800230015000001F6001280AD024181D3801E0018002001F60015800
+                00003002C0453802D001F80280023001C8515000
+            '(
+                $encoding: $base16
+                $mediaType: "application/bcod"
+            )
+            $arguments: [
+                $target: none
+                $argument: "ugly"
+            ]
+            $variables: [
+                $exception
+                $result-1
+                $x
+            ]($type: /nebula/collections/Set/v1)
+            $messages: [
+                $test2
+                $test3
+            ]($type: /nebula/collections/Set/v1)
             $addresses: [
                 "1.EvaluateStatement": 1
                 "1.EvaluateStatementDone": 8
@@ -196,27 +218,6 @@
                 "2.EvaluateStatement": 32
                 "3.ReturnStatement": 38
             ]
-            $bytecode: '
-                200A3801C0463802D001E80280034000001F80016001280BD02518153002
-                F001800230015000001F6001280AD025181D3801E0018002001F60015800
-                00003002C0463802D001F80280023001C8525000
-            '(
-                $encoding: $base16
-                $mediaType: "application/bcod"
-            )
-            $arguments: [
-                $target
-                $argument
-            ]
-            $variables: [
-                $exception
-                $result-1
-                $x
-            ]($type: /nebula/collections/Set/v1)
-            $messages: [
-                $test2
-                $test3
-            ]($type: /nebula/collections/Set/v1)
         ]($type: /nebula/aspects/Method/v1)
         $test2: [
             $procedure: {
@@ -238,18 +239,18 @@
                 CALL $addItem WITH 2 ARGUMENTS
                 PULL RESULT
             "($mediaType: "application/basm")
-            $addresses: [
-                "1.ReturnStatement": 1
-            ]
-            $bytecode: 'C01328072803D871C8702809D0015000'(
+            $bytecode: 'C01328072803D870C86F2809D0015000'(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
             $arguments: [
-                $target
+                $target: none
             ]
             $variables: [ ]($type: /nebula/collections/Set/v1)
             $messages: [ ]($type: /nebula/collections/Set/v1)
+            $addresses: [
+                "1.ReturnStatement": 1
+            ]
         ]
         $test3: [
             $procedure: {
@@ -260,19 +261,19 @@
                 PUSH ARGUMENT $text
                 PULL EXCEPTION
             "($mediaType: "application/basm")
-            $addresses: [
-                "1.ThrowStatement": 1
-            ]
             $bytecode: '38025800'(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
             $arguments: [
-                $target
-                $text
+                $target: none
+                $text: none
             ]
             $variables: [ ]($type: /nebula/collections/Set/v1)
             $messages: [ ]($type: /nebula/collections/Set/v1)
+            $addresses: [
+                "1.ThrowStatement": 1
+            ]
         ]($type: /nebula/aspects/Method/v1)
         $test4: [
             $procedure: {
@@ -390,19 +391,10 @@
                 LOAD VARIABLE $result-1
                 PULL RESULT
             "($mediaType: "application/basm")
-            $addresses: [
-                "1.CheckoutStatement": 1
-                "2.SignStatement": 22
-                "3.CheckoutStatement": 26
-                "4.SaveStatement": 47
-                "5.DiscardStatement": 51
-                "6.PublishStatement": 54
-                "7.PostStatement": 58
-            ]
             $bytecode: '
-                3003800970092805D00AC82680076007C8552808D00A2801D050800D6007
-                2808600DD8754800600780063004800A6006900A3004800B700B2805D00A
-                C82680086008C8552808D00A2802D050800E60082808600ED87548006008
+                3003800970092805D00AC82580076007C8542808D00A2801D04F800D6007
+                2808600DD8744800600780063004800A6006900A3004800B700B2805D00A
+                C82580086008C8542808D00A2802D04F800E60082808600ED87448006008
                 8006600688056005800360038004A804280480013007980130068002C013
                 2806280DD009D0019802600C5000
             '(
@@ -410,7 +402,7 @@
                 $mediaType: "application/bcod"
             )
             $arguments: [
-                $target
+                $target: none
             ]
             $variables: [
                 $bag-11
@@ -429,6 +421,15 @@
                 $version-8
             ]($type: /nebula/collections/Set/v1)
             $messages: [ ]($type: /nebula/collections/Set/v1)
+            $addresses: [
+                "1.CheckoutStatement": 1
+                "2.SignStatement": 22
+                "3.CheckoutStatement": 26
+                "4.SaveStatement": 47
+                "5.DiscardStatement": 51
+                "6.PublishStatement": 54
+                "7.PostStatement": 58
+            ]
         ]($type: /nebula/aspects/Method/v1)
         $test5: [
             $procedure: {
@@ -446,15 +447,12 @@
                 LOAD VARIABLE $result-1
                 PULL RESULT
             "($mediaType: "application/basm")
-            $addresses: [
-                "1.RetrieveStatement": 1
-            ]
             $bytecode: '300680017801800260035000'(
                 $encoding: $base16
                 $mediaType: "application/bcod"
             )
             $arguments: [
-                $target
+                $target: none
             ]
             $variables: [
                 $bag-2
@@ -462,6 +460,9 @@
                 $result-1
             ]($type: /nebula/collections/Set/v1)
             $messages: [ ]($type: /nebula/collections/Set/v1)
+            $addresses: [
+                "1.RetrieveStatement": 1
+            ]
         ]($type: /nebula/aspects/Method/v1)
     ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Method/v1))
     $literals: [

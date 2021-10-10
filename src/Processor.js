@@ -9,9 +9,9 @@
  ************************************************************************/
 'use strict';
 
-const debug = 0;  // set to [0..3] for debug logging
 const bali = require('bali-component-framework').api();
 const compiler = require('bali-type-compiler').api();
+const intrinsics = require('./Intrinsics').api();
 
 /*
  * This class implements the processor for The Bali Virtual Machine™.
@@ -37,7 +37,7 @@ const EOL = '\n';  // This private constant sets the POSIX end of line character
  * @returns {Processor} A new processor.
  */
 const Processor = function(repository, debug) {
-    if (debug === null || debug === undefined) debug = 0;  // default is off
+    this.debug = debug || 0;  // default is off
     const decoder = bali.decoder();
     var task, context;  // these are optimized versions of their corresponding catalogs
 
@@ -45,7 +45,7 @@ const Processor = function(repository, debug) {
     // PUBLIC METHODS
 
     // These functions introduce a security risk and should only be needed for debugging.
-    if (debug) {
+    if (this.debug) {
         this.getTask = function() { return task; };
         this.getContext = function() { return context; };
     }
@@ -74,7 +74,7 @@ const Processor = function(repository, debug) {
      */
     this.newTask = async function(account, tokens, identifier, message, args) {
         var target;
-        task = Task.create(account, tokens, debug);
+        task = Task.create(account, tokens, this.debug);
         if (typeof identifier === 'string' || identifier.isComponent && identifier.isType('/bali/strings/Name')) {
             const contract = await repository.retrieveContract(identifier);
             target = contract.getAttribute('$document');
@@ -91,7 +91,7 @@ const Processor = function(repository, debug) {
      * @param {Catalog} catalog A catalog containing the current state of the existing task.
      */
     this.loadTask = function(catalog) {
-        task = Task.fromCatalog(catalog, debug);
+        task = Task.fromCatalog(catalog, this.debug);
         popContext();  // the current context was on the top of the context stack
     };
 
@@ -115,7 +115,7 @@ const Processor = function(repository, debug) {
                 $exception: '$unexpected',
                 $processor: toCatalog(),
                 $text: '"An unexpected error occurred while attempting to execute a single step of a task."'
-            }, cause, debug);
+            }, cause, this.debug);
             throw exception;
         }
     };
@@ -142,7 +142,7 @@ const Processor = function(repository, debug) {
                 $exception: '$unexpected',
                 $processor: toCatalog(),
                 $text: '"An unexpected error occurred while attempting to run a task."'
-            }, cause, debug);
+            }, cause, this.debug);
             throw exception;
         }
     };
@@ -159,16 +159,17 @@ const Processor = function(repository, debug) {
 
     const getTypeName = function(target) {
         var typeName = target.getParameter('$type');
-        if (!typeName) typeName = target.getType().replace('bali', 'nebula');
+        if (!typeName) typeName = target.getType().replace('bali', 'nebula') + '/v1';
         return typeName;
     };
 
     const createContext = async function(target, message, args) {
         // retrieve the type of the target component and the method matching the message
-        const ancestry = target.getAncestry();
+        const ancestry = bali.list();
         var type, method;
         var typeName = getTypeName(target);
         while (typeName) {
+            ancestry.addItem(typeName);
             const contract = await repository.retrieveContract(typeName);
             if (!contract) {
                 const exception = bali.exception({
@@ -177,7 +178,7 @@ const Processor = function(repository, debug) {
                     $exception: '$missingType',
                     $target: target,
                     $text: '"The type definition for the target component is not in the repository."'
-                }, undefined, debug);
+                });
                 throw exception;
             }
             type = contract.getAttribute('$document');
@@ -191,10 +192,11 @@ const Processor = function(repository, debug) {
                 $module: '/bali/vm/Processor',
                 $procedure: '$createContext',
                 $exception: '$unsupportedMessage',
+                $target: target,
                 $message: message,
                 $ancestry: ancestry,
                 $text: '"The message passed to the target component is not supported by any of its types."'
-            }, undefined, debug);
+            });
             throw exception;
         }
 
@@ -206,26 +208,28 @@ const Processor = function(repository, debug) {
         const bytes = method.getAttribute('$bytecode').getValue();
         const bytecode = bali.binary(bytes, {$encoding: '$base16', $mediaType: '"application/bcod"'});
 
-        // set the argument values for the passed arguments
-        var nameIterator = method.getAttribute('$arguments').getIterator();
-        nameIterator.getNext();  // skip the $target name
-        const argumentz = bali.catalog({$target: target});
-        var valueIterator = args.getIterator();
-        while (nameIterator.hasNext() && valueIterator.hasNext()) {
-            const name = nameIterator.getNext();
-            const value = valueIterator.getNext();
-            argumentz.setAttribute(name, value);
+        // retrieve the arguments passed to the method
+        const argumentz = bali.duplicate(method.getAttribute('$arguments'));
+        const catalogIterator = argumentz.getIterator();
+        catalogIterator.getNext().setValue(target);  // first argument is $target
+        const listIterator = args.getIterator();
+        while (catalogIterator.hasNext() && listIterator.hasNext()) {
+            catalogIterator.getNext().setValue(listIterator.getNext());
+        }
+        if (listIterator.hasNext()) {
+            const exception = bali.exception({
+                $module: '/bali/vm/Processor',
+                $procedure: '$createContext',
+                $exception: '$extraArguments',
+                $message: message,
+                $arguments: args,
+                $expected: argumentz.getSize(),
+                $text: '"The number of arguments passed to the method exceeds the number expected."'
+            });
+            throw exception;
         }
 
-        // set the rest of the argument values to their default values (or 'none')
-        const procedure = method.getAttribute('$procedure');
-        while (nameIterator.hasNext()) {
-            const name = nameIterator.getNext();
-            const value = procedure.getParameter(name) || bali.pattern.NONE;
-            argumentz.setAttribute(name, value);
-        }
-
-        // set the initial values of the variables to 'none'
+        // set the initial values of the local variables to 'none'
         const variables = bali.catalog();
         const iterator = method.getAttribute('$variables').getIterator();
         while (iterator.hasNext()) {
@@ -241,7 +245,6 @@ const Processor = function(repository, debug) {
 
         // create the new method context
         return Context.fromCatalog(bali.catalog({
-            $target: target,
             $message: message,
             $arguments: argumentz,
             $variables: variables,
@@ -251,7 +254,7 @@ const Processor = function(repository, debug) {
             $handlers: handlers,
             $bytecode: bytecode,
             $address: 1
-        }), debug);  // the context is never stored in the repository so no parameterization needed
+        }));  // the context is never stored in the repository so no parameterization needed
     };
 
     const notDone = function() {
@@ -291,7 +294,7 @@ const Processor = function(repository, debug) {
                 $type: exception.name,
                 $processor: toCatalog(),
                 $text: '"There is a bug in the compiler or virtual processor."',
-            }, exception, debug);
+            }, exception);
         }
         task.pushComponent(exception);
         await instructionHandlers[11]();  // PULL EXCEPTION instruction
@@ -312,7 +315,7 @@ const Processor = function(repository, debug) {
     };
 
     const popContext = function() {
-        context = Context.fromCatalog(task.popContext(), debug);
+        context = Context.fromCatalog(task.popContext());
     };
 
     const spawnTask = async function(identifier, message, args) {
@@ -323,7 +326,7 @@ const Processor = function(repository, debug) {
         } else {
             target = await repository.retrieveDocument(identifier);
         }
-        const childTask = Task.create(task.getAccount(), task.splitTokens(), debug);
+        const childTask = Task.create(task.getAccount(), task.splitTokens());
         const childContext = await createContext(target, message, args);
         childTask.pushContext(childContext.toCatalog());
         const tag = childTask.getTag();
@@ -543,7 +546,7 @@ const Processor = function(repository, debug) {
 
         // CALL function
         async function(operand) {
-            const result = compiler.invoke(operand);
+            const result = intrinsics.invoke(operand);
             task.pushComponent(result);
             context.incrementAddress();
         },
@@ -551,7 +554,7 @@ const Processor = function(repository, debug) {
         // CALL function WITH 1 ARGUMENT
         async function(operand) {
             const argument = task.popComponent();
-            const result = compiler.invoke(operand, argument);
+            const result = intrinsics.invoke(operand, argument);
             task.pushComponent(result);
             context.incrementAddress();
         },
@@ -560,7 +563,7 @@ const Processor = function(repository, debug) {
         async function(operand) {
             const argument2 = task.popComponent();
             const argument1 = task.popComponent();
-            const result = compiler.invoke(operand, argument1, argument2);
+            const result = intrinsics.invoke(operand, argument1, argument2);
             task.pushComponent(result);
             context.incrementAddress();
         },
@@ -570,7 +573,7 @@ const Processor = function(repository, debug) {
             const argument3 = task.popComponent();
             const argument2 = task.popComponent();
             const argument1 = task.popComponent();
-            const result = compiler.invoke(operand, argument1, argument2, argument3);
+            const result = intrinsics.invoke(operand, argument1, argument2, argument3);
             task.pushComponent(result);
             context.incrementAddress();
         },
