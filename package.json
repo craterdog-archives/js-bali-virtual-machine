@@ -36,6 +36,6 @@
   },
   "dependencies": {
     "bali-component-framework": "^2.77.0",
-    "bali-type-compiler": "^2.55.0"
+    "bali-type-compiler": "^2.56.0"
   }
 }
