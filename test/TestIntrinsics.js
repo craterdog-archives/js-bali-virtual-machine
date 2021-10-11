@@ -1126,6 +1126,41 @@ describe('Bali Intrinsic Functions', function() {
             ).to.throw();
         });
 
+        it('should invoke $insertItems intrinsic function', function() {
+            const index = intrinsics.index('$insertItems');
+            intrinsics.invoke(index, list, two, set);
+            expect(
+                function() {
+                    intrinsics.invoke(index);
+                }
+            ).to.throw();
+            expect(
+                function() {
+                    intrinsics.invoke(index, list);
+                }
+            ).to.throw();
+            expect(
+                function() {
+                    intrinsics.invoke(index, list, two);
+                }
+            ).to.throw();
+            expect(
+                function() {
+                    intrinsics.invoke(index, list, two, 5);
+                }
+            ).to.throw();
+            expect(
+                function() {
+                    intrinsics.invoke(index, list, 2, symbol);
+                }
+            ).to.throw();
+            expect(
+                function() {
+                    intrinsics.invoke(index, catalog, two, association);
+                }
+            ).to.throw();
+        });
+
         it('should invoke $integer intrinsic function', function() {
             const index = intrinsics.index('$integer');
             intrinsics.invoke(index, number);
@@ -1939,6 +1974,26 @@ describe('Bali Intrinsic Functions', function() {
         it('should invoke $removeIndex intrinsic function', function() {
             const index = intrinsics.index('$removeIndex');
             intrinsics.invoke(index, bali.list([1, 2, 3, 4, 5]), two);
+            expect(
+                function() {
+                    intrinsics.invoke(index);
+                }
+            ).to.throw();
+            expect(
+                function() {
+                    intrinsics.invoke(index, list);
+                }
+            ).to.throw();
+            expect(
+                function() {
+                    intrinsics.invoke(index, catalog, symbol);
+                }
+            ).to.throw();
+        });
+
+        it('should invoke $removeIndices intrinsic function', function() {
+            const index = intrinsics.index('$removeIndices');
+            intrinsics.invoke(index, bali.list([1, 2, 3, 4, 5]), bali.list([2, 3]));
             expect(
                 function() {
                     intrinsics.invoke(index);

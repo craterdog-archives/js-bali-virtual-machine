@@ -51,7 +51,7 @@ exports.api = function(debug) {
      * @param {Number} index The index of the intrinsic function.
      * @returns {String} The name of the corresponding intrinsic function.
      */
-    const name = function(index) {
+    this.name = function(index) {
         const result = names[index];
         if (!result) {
             const exception = bali.exception({
@@ -73,7 +73,7 @@ exports.api = function(debug) {
      * @param {String} name The name of the intrinsic function.
      * @returns {Number} The index of the corresponding intrinsic function.
      */
-    const index = function(name) {
+    this.index = function(name) {
         const result = names.indexOf(name);
         if (result < 1) {
             const exception = bali.exception({
@@ -99,7 +99,7 @@ exports.api = function(debug) {
      * @param {Component} argument3 The second argument.
      * @returns {Object} The result of the intrinsic function invocation.
      */
-    const invoke = function(index, argument1, argument2, argument3) {
+    this.invoke = function(index, argument1, argument2, argument3) {
         if (index < 1 || index >= names.length) {
             const exception = bali.exception({
                 $module: '/bali/vm/Intrinsics',
@@ -127,7 +127,6 @@ exports.api = function(debug) {
             $actual: bali.component.canonicalType(argument),
             $text: 'An argument passed into an intrinsic function does not have the required type.'
         });
-        if (this.debug > 0) console.error(exception.toString());
         throw exception;
     };
 
@@ -149,7 +148,6 @@ exports.api = function(debug) {
                 $second: secondType,
                 $text: 'The arguments passed into the intrinsic function are not the same type.'
             });
-            if (this.debug > 0) console.error(exception.toString());
             throw exception;
         }
     };
@@ -162,7 +160,6 @@ exports.api = function(debug) {
                 $exception: '$argumentValue',
                 $text: 'An empty sequence cannot be accessed with an index.'
             });
-            if (this.debug > 0) console.error(exception.toString());
             throw exception;
         }
         if (Math.round(index) !== index) {
@@ -173,7 +170,6 @@ exports.api = function(debug) {
                 $index: index,
                 $text: 'The index passed into the intrinsic function is not an integer.'
             });
-            if (this.debug > 0) console.error(exception.toString());
             throw exception;
         }
         index = Math.abs(index);  // handle reverse indexing
@@ -186,7 +182,6 @@ exports.api = function(debug) {
                 $actual: index,
                 $text: 'An invalid index was passed into an intrinsic function.'
             });
-            if (this.debug > 0) console.error(exception.toString());
             throw exception;
         }
     };
@@ -233,7 +228,7 @@ exports.api = function(debug) {
         },
 
         $ancestry: function(component) {
-            validateTypeArgument('$ancestry', '/bali/interfaces/Reflective', component);
+            validateTypeArgument('$ancestry', '/bali/abstractions/Component', component);
             return bali.list(component.getAncestry());
         },
 
@@ -549,13 +544,21 @@ exports.api = function(debug) {
             return bali.number(number.getImaginary());
         },
 
-        $insertItem: function(list, index, item) {
+        $insertItem: function(list, slot, item) {
             validateTypeArgument('$insertItem', '/bali/collections/List', list);
-            validateTypeArgument('$insertItem', '/bali/interfaces/Discrete', index);
+            validateTypeArgument('$insertItem', '/bali/interfaces/Discrete', slot);
             validateTypeArgument('$insertItem', '/bali/abstractions/Component', item);
-            index = index.toInteger();
-            validateIndex('$insertItem', list.getSize(), index);
-            list.insertItem(index, item);
+            slot = slot.toInteger();
+            list.insertItem(slot, item);
+            return list;
+        },
+
+        $insertItems: function(list, slot, items) {
+            validateTypeArgument('$insertItems', '/bali/collections/List', list);
+            validateTypeArgument('$insertItems', '/bali/interfaces/Discrete', slot);
+            validateTypeArgument('$insertItems', '/bali/interfaces/Sequential', items);
+            slot = slot.toInteger();
+            list.insertItems(slot, items);
             return list;
         },
 
@@ -565,7 +568,7 @@ exports.api = function(debug) {
         },
 
         $interfaces: function(component) {
-            validateTypeArgument('$interfaces', '/bali/interfaces/Reflective', component);
+            validateTypeArgument('$interfaces', '/bali/abstractions/Component', component);
             return bali.list(component.getInterfaces());
         },
 
@@ -715,7 +718,7 @@ exports.api = function(debug) {
         },
 
         $parameters: function(component) {
-            validateTypeArgument('$parameters', '/bali/interfaces/Reflective', component);
+            validateTypeArgument('$parameters', '/bali/abstractions/Component', component);
             return component.getParameters();
         },
 
@@ -822,6 +825,12 @@ exports.api = function(debug) {
             return list.removeItem(index);
         },
 
+        $removeIndices: function(list, indices) {
+            validateTypeArgument('$removeIndices', '/bali/collections/List', list);
+            validateTypeArgument('$removeIndices', '/bali/interfaces/Sequential', indices);
+            return list.removeItems(indices);
+        },
+
         $removeItem: function(set, item) {
             validateTypeArgument('$removeItem', '/bali/collections/Set', set);
             validateTypeArgument('$removeItem', '/bali/abstractions/Component', item);
@@ -905,7 +914,7 @@ exports.api = function(debug) {
         },
 
         $setParameter: function(component, key, value) {
-            validateTypeArgument('$setParameter', '/bali/interfaces/Reflective', component);
+            validateTypeArgument('$setParameter', '/bali/abstractions/Component', component);
             validateTypeArgument('$setParameter', '/bali/abstractions/Element', key);
             validateTypeArgument('$setParameter', '/bali/abstractions/Component', value);
             component.setParameter(key, value);
@@ -1059,10 +1068,5 @@ exports.api = function(debug) {
     });
 
     // return the actual API
-    return {
-        name: name,
-        index: index,
-        invoke: invoke
-    };
-
+    return this;
 };
