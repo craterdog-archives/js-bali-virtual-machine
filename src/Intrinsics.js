@@ -341,11 +341,6 @@ exports.api = function(debug) {
             return bali.binary(bytes, parameters);
         },
 
-        $boolean: function(component) {
-            validateTypeArgument('$boolean', '/bali/abstractions/Component', component);
-            return bali.boolean(component.toBoolean());
-        },
-
         $bytes: function(tag) {
             validateTypeArgument('$bytes', '/bali/elements/Tag', tag);
             return bali.binary(tag.getBytes());
@@ -592,6 +587,16 @@ exports.api = function(debug) {
             validateTypeArgument('$isMore', '/bali/abstractions/Component', first);
             validateTypeArgument('$isMore', '/bali/abstractions/Component', second);
             return bali.boolean(bali.ranking(first, second) > 0);
+        },
+
+        $isNegative: function(polarized) {
+            validateTypeArgument('$isNegative', '/bali/abstractions/Component', polarized);
+            return bali.boolean(polarized.isNegative());
+        },
+
+        $isSignificant: function(component) {
+            validateTypeArgument('$isSignificant', '/bali/abstractions/Component', component);
+            return bali.boolean(component.isSignificant());
         },
 
         $item: function(sequential, index) {

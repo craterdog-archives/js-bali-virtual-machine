@@ -374,7 +374,7 @@ const Processor = function(repository, debug) {
         // JUMP TO label ON FALSE
         async function(operand) {
             const condition = task.popComponent();
-            if (!condition.toBoolean()) {
+            if (!condition.isSignificant()) {
                 context.jumpToAddress(operand);
             } else {
                 context.incrementAddress();

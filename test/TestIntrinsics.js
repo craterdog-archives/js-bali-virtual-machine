@@ -487,30 +487,6 @@ describe('Bali Intrinsic Functions', function() {
             ).to.throw();
         });
 
-        it('should invoke $boolean intrinsic function', function() {
-            const index = intrinsics.index('$boolean');
-            intrinsics.invoke(index, angle);
-            intrinsics.invoke(index, number);
-            intrinsics.invoke(index, association);
-            intrinsics.invoke(index, list);
-            intrinsics.invoke(index, range);
-            expect(
-                function() {
-                    intrinsics.invoke(index);
-                }
-            ).to.throw();
-            expect(
-                function() {
-                    intrinsics.invoke(index, false);
-                }
-            ).to.throw();
-            expect(
-                function() {
-                    intrinsics.invoke(index, [1, 2, 3]);
-                }
-            ).to.throw();
-        });
-
         it('should invoke $bytes intrinsic function', function() {
             const index = intrinsics.index('$bytes');
             intrinsics.invoke(index, tag);
@@ -1253,6 +1229,30 @@ describe('Bali Intrinsic Functions', function() {
             expect(
                 function() {
                     intrinsics.invoke(index, probability);
+                }
+            ).to.throw();
+        });
+
+        it('should invoke $isSignificant intrinsic function', function() {
+            const index = intrinsics.index('$isSignificant');
+            intrinsics.invoke(index, angle);
+            intrinsics.invoke(index, number);
+            intrinsics.invoke(index, association);
+            intrinsics.invoke(index, list);
+            intrinsics.invoke(index, range);
+            expect(
+                function() {
+                    intrinsics.invoke(index);
+                }
+            ).to.throw();
+            expect(
+                function() {
+                    intrinsics.invoke(index, false);
+                }
+            ).to.throw();
+            expect(
+                function() {
+                    intrinsics.invoke(index, [1, 2, 3]);
                 }
             ).to.throw();
         });

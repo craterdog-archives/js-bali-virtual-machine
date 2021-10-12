@@ -28,7 +28,11 @@ const MESSAGE_BAG = '/nebula/vm/messages/v1';
 
 const getInstruction = function(processor) {
     const instruction = processor.getContext().getInstruction();
-    return compiler.string(instruction).split(' ').slice(0, 2).join(' ');
+    const parts = compiler.string(instruction).split(' ').slice(0, 2);
+    // CALL must be handled differently
+    const index = Number(parts[1]);
+    if (parts[0] === 'CALL' && index) parts[1] = intrinsics.name(index);
+    return parts.join(' ');
 };
 
 describe('Bali Virtual Machine™', function() {
@@ -139,7 +143,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $list
-            expect(getInstruction(processor)).to.equal('CALL 70');
+            expect(getInstruction(processor)).to.equal('CALL $list');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH ARGUMENT $argument
@@ -147,7 +151,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $addItem WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 1');
+            expect(getInstruction(processor)).to.equal('CALL $addItem');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SEND $test3 TO COMPONENT WITH ARGUMENTS
@@ -180,7 +184,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $doesMatch WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 36');
+            expect(getInstruction(processor)).to.equal('CALL $doesMatch');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          JUMP TO 1.2.HandleBlock ON FALSE
@@ -230,7 +234,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $list
-            expect(getInstruction(processor)).to.equal('CALL 70');
+            expect(getInstruction(processor)).to.equal('CALL $list');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH ARGUMENT $argument
@@ -238,7 +242,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $addItem WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 1');
+            expect(getInstruction(processor)).to.equal('CALL $addItem');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SEND $test3 TO COMPONENT WITH ARGUMENTS
@@ -271,7 +275,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $doesMatch WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 36');
+            expect(getInstruction(processor)).to.equal('CALL $doesMatch');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          JUMP TO 1.2.HandleBlock ON FALSE
@@ -288,7 +292,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $doesMatch WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 36');
+            expect(getInstruction(processor)).to.equal('CALL $doesMatch');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          JUMP TO 1.EvaluateStatementFailed ON FALSE
@@ -307,7 +311,7 @@ describe('Bali Virtual Machine™', function() {
             expect(processor.getTask().hasContexts()).to.equal(true);
 //              1.ReturnStatement:
 //              CALL $catalog
-                expect(getInstruction(processor)).to.equal('CALL 19');
+                expect(getInstruction(processor)).to.equal('CALL $catalog');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
 //              PUSH LITERAL `$type`
@@ -319,11 +323,11 @@ describe('Bali Virtual Machine™', function() {
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
 //              CALL $setAttribute WITH 3 ARGUMENTS
-                expect(getInstruction(processor)).to.equal('CALL 114');
+                expect(getInstruction(processor)).to.equal('CALL $setAttribute');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
 //              CALL $set WITH 1 ARGUMENT
-                expect(getInstruction(processor)).to.equal('CALL 113');
+                expect(getInstruction(processor)).to.equal('CALL $set');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
 //              PUSH LITERAL `"alpha"`
@@ -331,7 +335,7 @@ describe('Bali Virtual Machine™', function() {
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
 //              CALL $addItem WITH 2 ARGUMENTS
-                expect(getInstruction(processor)).to.equal('CALL 1');
+                expect(getInstruction(processor)).to.equal('CALL $addItem');
                 expect(await processor.stepClock()).to.equal(true);
                 expect(processor.getTask().hasComponents()).to.equal(true);
 //              PULL RESULT
@@ -360,7 +364,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $list
-            expect(getInstruction(processor)).to.equal('CALL 70');
+            expect(getInstruction(processor)).to.equal('CALL $list');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH ARGUMENT $argument
@@ -368,7 +372,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $addItem WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 1');
+            expect(getInstruction(processor)).to.equal('CALL $addItem');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SEND $test3 TO DOCUMENT WITH ARGUMENTS
@@ -386,7 +390,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $not WITH 1 ARGUMENT
-            expect(getInstruction(processor)).to.equal('CALL 82');
+            expect(getInstruction(processor)).to.equal('CALL $not');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PULL RESULT
@@ -414,7 +418,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $list
-            expect(getInstruction(processor)).to.equal('CALL 70');
+            expect(getInstruction(processor)).to.equal('CALL $list');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH ARGUMENT $argument
@@ -422,7 +426,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $addItem WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 1');
+            expect(getInstruction(processor)).to.equal('CALL $addItem');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SEND $test3 TO COMPONENT WITH ARGUMENTS
@@ -455,7 +459,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $doesMatch WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 36');
+            expect(getInstruction(processor)).to.equal('CALL $doesMatch');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          JUMP TO 1.2.HandleBlock ON FALSE
@@ -472,7 +476,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $doesMatch WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 36');
+            expect(getInstruction(processor)).to.equal('CALL $doesMatch');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          JUMP TO 1.EvaluateStatementFailed ON FALSE
@@ -519,11 +523,11 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $attribute WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 10');
+            expect(getInstruction(processor)).to.equal('CALL $attribute');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $duplicate WITH 1 ARGUMENT
-            expect(getInstruction(processor)).to.equal('CALL 37');
+            expect(getInstruction(processor)).to.equal('CALL $duplicate');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SAVE VARIABLE $document-3
@@ -536,7 +540,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $parameters WITH 1 ARGUMENT
-            expect(getInstruction(processor)).to.equal('CALL 85');
+            expect(getInstruction(processor)).to.equal('CALL $parameters');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `$version`
@@ -544,7 +548,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $attribute WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 10');
+            expect(getInstruction(processor)).to.equal('CALL $attribute');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `0`
@@ -552,7 +556,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $nextVersion WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 80');
+            expect(getInstruction(processor)).to.equal('CALL $nextVersion');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SAVE VARIABLE $version-4
@@ -573,7 +577,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $setParameter WITH 3 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 118');
+            expect(getInstruction(processor)).to.equal('CALL $setParameter');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PULL COMPONENT
@@ -630,11 +634,11 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $attribute WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 10');
+            expect(getInstruction(processor)).to.equal('CALL $attribute');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $duplicate WITH 1 ARGUMENT
-            expect(getInstruction(processor)).to.equal('CALL 37');
+            expect(getInstruction(processor)).to.equal('CALL $duplicate');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SAVE VARIABLE $document-7
@@ -647,7 +651,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $parameters WITH 1 ARGUMENT
-            expect(getInstruction(processor)).to.equal('CALL 85');
+            expect(getInstruction(processor)).to.equal('CALL $parameters');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `$version`
@@ -655,7 +659,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $attribute WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 10');
+            expect(getInstruction(processor)).to.equal('CALL $attribute');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PUSH LITERAL `2`
@@ -663,7 +667,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $nextVersion WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 80');
+            expect(getInstruction(processor)).to.equal('CALL $nextVersion');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SAVE VARIABLE $version-8
@@ -684,7 +688,7 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $setParameter WITH 3 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 118');
+            expect(getInstruction(processor)).to.equal('CALL $setParameter');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          PULL COMPONENT
@@ -768,7 +772,7 @@ describe('Bali Virtual Machine™', function() {
             expect(processor.getTask().hasComponents()).to.equal(false);
 //          ---- Post a message to the named message bag.
 //          CALL $catalog
-            expect(getInstruction(processor)).to.equal('CALL 19');
+            expect(getInstruction(processor)).to.equal('CALL $catalog');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          ---- Add an item to the catalog.
@@ -781,11 +785,11 @@ describe('Bali Virtual Machine™', function() {
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $association WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 9');
+            expect(getInstruction(processor)).to.equal('CALL $association');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          CALL $addItem WITH 2 ARGUMENTS
-            expect(getInstruction(processor)).to.equal('CALL 1');
+            expect(getInstruction(processor)).to.equal('CALL $addItem');
             expect(await processor.stepClock()).to.equal(true);
             expect(processor.getTask().hasComponents()).to.equal(true);
 //          SAVE MESSAGE $bag-12
