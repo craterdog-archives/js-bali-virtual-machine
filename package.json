@@ -1,6 +1,6 @@
 {
   "name": "bali-virtual-machine",
-  "version": "2.20.0",
+  "version": "2.21.0",
   "description": "This project defines the interface to, and an implementation of the Bali Nebula™ virtual machine.",
   "repository": {
     "type": "git",
