@@ -656,6 +656,12 @@ exports.api = function(debug) {
             return bali.number(number.getMagnitude());
         },
 
+        $matchesText: function(pattern, text) {
+            validateTypeArgument('$matchesText', '/bali/elements/Pattern', pattern);
+            validateTypeArgument('$matchesText', '/bali/elements/Text', text);
+            return bali.boolean(pattern.matchesString(text.toString()));
+        },
+
         $millisecond: function(moment) {
             validateTypeArgument('$millisecond', '/bali/elements/Moment', moment);
             return bali.number(moment.getMillisecond(moment));
