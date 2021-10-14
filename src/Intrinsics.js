@@ -692,8 +692,8 @@ exports.api = function(debug) {
             return bali.number(duration.getMonths(duration));
         },
 
-        $next: function(iterator) {
-            validateTypeArgument('$next', '/bali/abstractions/Iterator', iterator);
+        $nextItem: function(iterator) {
+            validateTypeArgument('$nextItem', '/bali/abstractions/Iterator', iterator);
             return iterator.componentize(iterator.getNext());
         },
 
@@ -702,7 +702,6 @@ exports.api = function(debug) {
             validateOptionalTypeArgument('$nextVersion', '/bali/interfaces/Discrete', level);
             if (level) {
                 level = level.toInteger();
-                if (level) validateIndex('$nextVersion', version.getSize() + 1, level);  // allow for the next subversion
             }
             return bali.version.nextVersion(version, level);
         },
@@ -743,8 +742,8 @@ exports.api = function(debug) {
             return number.getPhase();
         },
 
-        $previous: function(iterator) {
-            validateTypeArgument('$previous', '/bali/abstractions/Iterator', iterator);
+        $previousItem: function(iterator) {
+            validateTypeArgument('$previousItem', '/bali/abstractions/Iterator', iterator);
             return iterator.componentize(iterator.getPrevious());
         },
 
@@ -1028,12 +1027,6 @@ exports.api = function(debug) {
             validateTypeArgument('$toStart', '/bali/abstractions/Iterator', iterator);
             iterator.toStart();
             return iterator;
-        },
-
-        $validVersion: function(current, next) {
-            validateTypeArgument('$validVersion', '/bali/strings/Version', current);
-            validateTypeArgument('$validVersion', '/bali/strings/Version', next);
-            return bali.version.validNextVersion(current, next);
         },
 
         $value: function(association) {

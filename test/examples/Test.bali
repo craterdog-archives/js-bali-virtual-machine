@@ -278,8 +278,8 @@
         $test4: [
             $procedure: {
                 checkout $document from firstVersion
-                sign document as secondVersion
-                checkout level 2 of $document from secondVersion
+                notarize document as secondVersion
+                checkout $document at 2 from secondVersion
                 save document as $citation
                 discard citation
                 publish event
@@ -316,11 +316,11 @@
                 LOAD VARIABLE $document-3
                 SAVE VARIABLE $document
                 
-                2.SignStatement:
+                2.NotarizeStatement:
                 NOTE --Save the name of the new contract.
                 PUSH CONSTANT $secondVersion
                 SAVE VARIABLE $name-5
-                NOTE --Sign the named contract and save to the repository.
+                NOTE --Notarize the named contract and save to the repository.
                 LOAD VARIABLE $document
                 SAVE CONTRACT $name-5
                 
@@ -423,7 +423,7 @@
             $messages: [ ]($type: /nebula/collections/Set/v1)
             $addresses: [
                 "1.CheckoutStatement": 1
-                "2.SignStatement": 22
+                "2.NotarizeStatement": 22
                 "3.CheckoutStatement": 26
                 "4.SaveStatement": 47
                 "5.DiscardStatement": 51
