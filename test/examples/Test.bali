@@ -279,7 +279,7 @@
             $procedure: {
                 checkout $document from firstVersion
                 notarize document as secondVersion
-                checkout $document at 2 from secondVersion
+                checkout $document at level 2 from secondVersion
                 save document as $citation
                 discard citation
                 publish event
