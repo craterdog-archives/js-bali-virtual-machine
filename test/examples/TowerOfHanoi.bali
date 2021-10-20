@@ -313,7 +313,7 @@
                 $iterator-2
                 $n
                 $result-1
-            ]($type: /nebula/collections/Set/v1)
+            ]($type: /nebula/collections/Set/v1($itemType: /nebula/strings/Symbol/v1))
             $messages: [
                 $addItem
                 $asCatalog
@@ -321,7 +321,7 @@
                 $iterator
                 $moveTower
                 $next
-            ]($type: /nebula/collections/Set/v1)
+            ]($type: /nebula/collections/Set/v1($itemType: /nebula/strings/Symbol/v1))
             $addresses: [
                 "1.EvaluateStatement": 1
                 "2.EvaluateStatement": 63
@@ -333,7 +333,7 @@
                 "4.WithStatementDone": 92
                 "5.EvaluateStatement": 93
                 "6.ReturnStatement": 105
-            ]
+            ]($type: /nebula/collections/Catalog/v1($keyType: /nebula/strings/Text/v1, $valueType: /nebula/interfaces/Discrete/v1))
         ]($type: /nebula/aspects/Method/v1)
         $moveTower: [
             $procedure: {
@@ -420,11 +420,11 @@
             ]
             $variables: [
                 $result-1
-            ]($type: /nebula/collections/Set/v1)
+            ]($type: /nebula/collections/Set/v1($itemType: /nebula/strings/Symbol/v1))
             $messages: [
                 $moveDisk
                 $moveTower
-            ]($type: /nebula/collections/Set/v1)
+            ]($type: /nebula/collections/Set/v1($itemType: /nebula/strings/Symbol/v1))
             $addresses: [
                 "1.IfStatement": 1
                 "1.1.ConditionClause": 2
@@ -432,7 +432,7 @@
                 "1.1.2.EvaluateStatement": 18
                 "1.1.3.EvaluateStatement": 26
                 "1.IfStatementDone": 40
-            ]
+            ]($type: /nebula/collections/Catalog/v1($keyType: /nebula/strings/Text/v1, $valueType: /nebula/interfaces/Discrete/v1))
         ]($valueType: /nebula/aspects/Method/v1)
         $moveDisk: [
             $procedure: {
@@ -493,17 +493,17 @@
             $variables: [
                 $disk
                 $result-1
-            ]($type: /nebula/collections/Set/v1)
+            ]($type: /nebula/collections/Set/v1($itemType: /nebula/strings/Symbol/v1))
             $messages: [
                 $addItem
                 $append
                 $removeItem
-            ]($type: /nebula/collections/Set/v1)
+            ]($type: /nebula/collections/Set/v1($itemType: /nebula/strings/Symbol/v1))
             $addresses: [
                 "1.EvaluateStatement": 1
                 "2.EvaluateStatement": 8
                 "3.EvaluateStatement": 18
-            ]
+            ]($type: /nebula/collections/Catalog/v1($keyType: /nebula/strings/Text/v1, $valueType: /nebula/interfaces/Discrete/v1))
         ]($type: /nebula/aspects/Method/v1)
     ]($type: /nebula/collections/Catalog/v1($valueType: /nebula/aspects/Method/v1))
     $literals: [
